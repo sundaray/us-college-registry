@@ -64,8 +64,12 @@ Known warnings (not errors): titles over 60 characters (19,504 of 19,658) and de
 - Puerto Rico job pay (fixed 2026-10-06): BLS OEWS files Puerto Rico, Guam, and the Virgin Islands under area type 3 (territories), which the data script and the checker skipped, so the careers sections on Puerto Rico pages showed national pay. Both now read type 3 like states, and Puerto Rico pages show Puerto Rico pay.
 - Tooling note: in this shell `grep` is a wrapper function, not the system grep, and it can return wrong counts. Check file contents with Python or `/usr/bin/grep`.
 - Home page and the navbar's list pages (approved by the user 2026-10-06 from an artifact sample of the home page): `/` ("Compare US College Programs by Graduate Pay, Debt, and Careers", with Browse by state, by field, and by career), `/programs` (all 178 national program pages by credential, sortable), `/schools` (every school with a program page, by state), and `/careers` (all 230 careers, sortable by pay, jobs, and growth). The home heading names US colleges because the site name may change with the domain; the name in the top bar, footer, and home tab comes from `SITE_NAME` in `src/lib/site-copy.ts`. The navbar links to the three list pages, and national and career pages link to them in their breadcrumbs. Records in `data/generated/site/`, checker `scripts/verify/check_site_pages.py`, `pnpm bucket 1 --type site`.
-- Next: before launch, the user picks the domain and site name (sitemap host, canonical links, robots.txt, `SITE_NAME`).
-- Then deploy with Alchemy following https://alchemy.run/getting-started/ (the user will log in to Cloudflare).
+- Final whole-site check (2026-10-06): a full build of all 24,268 pages (19,658 program, 1,684 ranking, 2,465 school, 49 state, 178 national program, 230 occupation, plus the home page and 3 list pages) passed `pnpm verify-site`, 9 of 9 checks (`data/buckets/site-check.json`). Every one of the 246 buckets passed. The built site is 48,575 files (2.0 GB), none over 5 MB; `/schools` is the largest page at 1.3 MB and could be split by state later.
+- GitHub: the 252 local commits were squashed into one commit and pushed to `main` at the user's request (2026-10-06). The bucket-by-bucket history is kept only in the local branch `bucket-history`.
+- Next session (the user is buying a domain first):
+  1. The user picks the domain and site name. Set `SITE_NAME` in `src/lib/site-copy.ts` if the name changes, build with `SITE_URL` set to the domain (sitemap host), and add canonical links and `robots.txt` following the TanStack Start SEO guide.
+  2. Deploy with Alchemy following https://alchemy.run/getting-started/ (the user will log in to Cloudflare). Confirm the Workers static asset file limit for 48,575 files on the Workers Paid plan, and that Cloudflare serves `/schools/x.html` at `/schools/x` while `/schools/x/` also exists as a folder.
+  3. Run `pnpm verify-site` against the build that is deployed.
 
 ## Goal
 

@@ -1,15 +1,15 @@
 {
- "checkedAt": "2026-10-05T20:15:56.745Z",
- "passed": false,
- "pages": 24034,
+ "checkedAt": "2026-10-05T20:59:15.222Z",
+ "passed": true,
+ "pages": 24268,
  "checks": [
   {
-   "name": "every page is built (24034)",
+   "name": "every page is built (24268)",
    "passed": true,
    "details": []
   },
   {
-   "name": "numbers, wording, and page HTML on every page (24034)",
+   "name": "numbers, wording, and page HTML on every page (24268)",
    "passed": true,
    "details": []
   },
@@ -19,15 +19,15 @@
    "details": []
   },
   {
-   "name": "every internal link has a built page (24035 distinct links)",
+   "name": "every internal link has a built page (24268 distinct links)",
    "passed": true,
    "details": []
   },
   {
-   "name": "static page data files (24034)",
+   "name": "static page data files (24268)",
    "passed": true,
    "details": [
-    "expected 24034"
+    "expected 24268"
    ]
   },
   {
@@ -41,16 +41,14 @@
    "details": []
   },
   {
-   "name": "every page fits at phone width (24034)",
+   "name": "every page fits at phone width (24268)",
    "passed": true,
    "details": []
   },
   {
    "name": "link clicks navigate in place (5 samples per page type)",
-   "passed": false,
-   "details": [
-    "/schools/holy-family-university/criminal-justice-bachelors -> /programs/criminal-justice-bachelors: static page data not loaded"
-   ]
+   "passed": true,
+   "details": []
   }
  ]
 }
