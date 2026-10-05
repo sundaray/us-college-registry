@@ -10,11 +10,49 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CareersIndexRouteImport } from './routes/careers/index'
+import { Route as CareersCareerSlugRouteImport } from './routes/careers/$careerSlug'
+import { Route as ProgramsIndexRouteImport } from './routes/programs/index'
+import { Route as ProgramsProgramSlugRouteImport } from './routes/programs/$programSlug'
+import { Route as SchoolsIndexRouteImport } from './routes/schools/index'
+import { Route as SchoolsSchoolSlugIndexRouteImport } from './routes/schools/$schoolSlug/index'
 import { Route as SchoolsSchoolSlugProgramSlugRouteImport } from './routes/schools/$schoolSlug/$programSlug'
+import { Route as StatesStateSlugIndexRouteImport } from './routes/states/$stateSlug/index'
+import { Route as StatesStateSlugProgramSlugRouteImport } from './routes/states/$stateSlug/$programSlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersIndexRoute = CareersIndexRouteImport.update({
+  id: '/careers/',
+  path: '/careers/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareersCareerSlugRoute = CareersCareerSlugRouteImport.update({
+  id: '/careers/$careerSlug',
+  path: '/careers/$careerSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramsIndexRoute = ProgramsIndexRouteImport.update({
+  id: '/programs/',
+  path: '/programs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgramsProgramSlugRoute = ProgramsProgramSlugRouteImport.update({
+  id: '/programs/$programSlug',
+  path: '/programs/$programSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolsIndexRoute = SchoolsIndexRouteImport.update({
+  id: '/schools/',
+  path: '/schools/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchoolsSchoolSlugIndexRoute = SchoolsSchoolSlugIndexRouteImport.update({
+  id: '/schools/$schoolSlug/',
+  path: '/schools/$schoolSlug/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SchoolsSchoolSlugProgramSlugRoute =
@@ -23,31 +61,105 @@ const SchoolsSchoolSlugProgramSlugRoute =
     path: '/schools/$schoolSlug/$programSlug',
     getParentRoute: () => rootRouteImport,
   } as any)
+const StatesStateSlugIndexRoute = StatesStateSlugIndexRouteImport.update({
+  id: '/states/$stateSlug/',
+  path: '/states/$stateSlug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatesStateSlugProgramSlugRoute =
+  StatesStateSlugProgramSlugRouteImport.update({
+    id: '/states/$stateSlug/$programSlug',
+    path: '/states/$stateSlug/$programSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/careers/$careerSlug': typeof CareersCareerSlugRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/careers/': typeof CareersIndexRoute
+  '/programs/': typeof ProgramsIndexRoute
+  '/schools/': typeof SchoolsIndexRoute
   '/schools/$schoolSlug/$programSlug': typeof SchoolsSchoolSlugProgramSlugRoute
+  '/states/$stateSlug/$programSlug': typeof StatesStateSlugProgramSlugRoute
+  '/schools/$schoolSlug/': typeof SchoolsSchoolSlugIndexRoute
+  '/states/$stateSlug/': typeof StatesStateSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/careers/$careerSlug': typeof CareersCareerSlugRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/careers': typeof CareersIndexRoute
+  '/programs': typeof ProgramsIndexRoute
+  '/schools': typeof SchoolsIndexRoute
   '/schools/$schoolSlug/$programSlug': typeof SchoolsSchoolSlugProgramSlugRoute
+  '/states/$stateSlug/$programSlug': typeof StatesStateSlugProgramSlugRoute
+  '/schools/$schoolSlug': typeof SchoolsSchoolSlugIndexRoute
+  '/states/$stateSlug': typeof StatesStateSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/careers/$careerSlug': typeof CareersCareerSlugRoute
+  '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/careers/': typeof CareersIndexRoute
+  '/programs/': typeof ProgramsIndexRoute
+  '/schools/': typeof SchoolsIndexRoute
   '/schools/$schoolSlug/$programSlug': typeof SchoolsSchoolSlugProgramSlugRoute
+  '/states/$stateSlug/$programSlug': typeof StatesStateSlugProgramSlugRoute
+  '/schools/$schoolSlug/': typeof SchoolsSchoolSlugIndexRoute
+  '/states/$stateSlug/': typeof StatesStateSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/schools/$schoolSlug/$programSlug'
+  fullPaths:
+    | '/'
+    | '/careers/$careerSlug'
+    | '/programs/$programSlug'
+    | '/careers/'
+    | '/programs/'
+    | '/schools/'
+    | '/schools/$schoolSlug/$programSlug'
+    | '/states/$stateSlug/$programSlug'
+    | '/schools/$schoolSlug/'
+    | '/states/$stateSlug/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/schools/$schoolSlug/$programSlug'
-  id: '__root__' | '/' | '/schools/$schoolSlug/$programSlug'
+  to:
+    | '/'
+    | '/careers/$careerSlug'
+    | '/programs/$programSlug'
+    | '/careers'
+    | '/programs'
+    | '/schools'
+    | '/schools/$schoolSlug/$programSlug'
+    | '/states/$stateSlug/$programSlug'
+    | '/schools/$schoolSlug'
+    | '/states/$stateSlug'
+  id:
+    | '__root__'
+    | '/'
+    | '/careers/$careerSlug'
+    | '/programs/$programSlug'
+    | '/careers/'
+    | '/programs/'
+    | '/schools/'
+    | '/schools/$schoolSlug/$programSlug'
+    | '/states/$stateSlug/$programSlug'
+    | '/schools/$schoolSlug/'
+    | '/states/$stateSlug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CareersCareerSlugRoute: typeof CareersCareerSlugRoute
+  ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
+  CareersIndexRoute: typeof CareersIndexRoute
+  ProgramsIndexRoute: typeof ProgramsIndexRoute
+  SchoolsIndexRoute: typeof SchoolsIndexRoute
   SchoolsSchoolSlugProgramSlugRoute: typeof SchoolsSchoolSlugProgramSlugRoute
+  StatesStateSlugProgramSlugRoute: typeof StatesStateSlugProgramSlugRoute
+  SchoolsSchoolSlugIndexRoute: typeof SchoolsSchoolSlugIndexRoute
+  StatesStateSlugIndexRoute: typeof StatesStateSlugIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -59,6 +171,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/careers/': {
+      id: '/careers/'
+      path: '/careers'
+      fullPath: '/careers/'
+      preLoaderRoute: typeof CareersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/careers/$careerSlug': {
+      id: '/careers/$careerSlug'
+      path: '/careers/$careerSlug'
+      fullPath: '/careers/$careerSlug'
+      preLoaderRoute: typeof CareersCareerSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programs/': {
+      id: '/programs/'
+      path: '/programs'
+      fullPath: '/programs/'
+      preLoaderRoute: typeof ProgramsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programs/$programSlug': {
+      id: '/programs/$programSlug'
+      path: '/programs/$programSlug'
+      fullPath: '/programs/$programSlug'
+      preLoaderRoute: typeof ProgramsProgramSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schools/': {
+      id: '/schools/'
+      path: '/schools'
+      fullPath: '/schools/'
+      preLoaderRoute: typeof SchoolsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schools/$schoolSlug/': {
+      id: '/schools/$schoolSlug/'
+      path: '/schools/$schoolSlug'
+      fullPath: '/schools/$schoolSlug/'
+      preLoaderRoute: typeof SchoolsSchoolSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/schools/$schoolSlug/$programSlug': {
       id: '/schools/$schoolSlug/$programSlug'
       path: '/schools/$schoolSlug/$programSlug'
@@ -66,12 +220,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchoolsSchoolSlugProgramSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/states/$stateSlug/': {
+      id: '/states/$stateSlug/'
+      path: '/states/$stateSlug'
+      fullPath: '/states/$stateSlug/'
+      preLoaderRoute: typeof StatesStateSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/states/$stateSlug/$programSlug': {
+      id: '/states/$stateSlug/$programSlug'
+      path: '/states/$stateSlug/$programSlug'
+      fullPath: '/states/$stateSlug/$programSlug'
+      preLoaderRoute: typeof StatesStateSlugProgramSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CareersCareerSlugRoute: CareersCareerSlugRoute,
+  ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
+  CareersIndexRoute: CareersIndexRoute,
+  ProgramsIndexRoute: ProgramsIndexRoute,
+  SchoolsIndexRoute: SchoolsIndexRoute,
   SchoolsSchoolSlugProgramSlugRoute: SchoolsSchoolSlugProgramSlugRoute,
+  StatesStateSlugProgramSlugRoute: StatesStateSlugProgramSlugRoute,
+  SchoolsSchoolSlugIndexRoute: SchoolsSchoolSlugIndexRoute,
+  StatesStateSlugIndexRoute: StatesStateSlugIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,0 +1,433 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T20:37:19.355Z",
+  "passed": true,
+  "pages": [
+   "/careers/general-and-operations-managers",
+   "/careers/registered-nurses",
+   "/careers/customer-service-representatives",
+   "/careers/general-office-clerks",
+   "/careers/heavy-and-tractor-trailer-truck-drivers",
+   "/careers/secretaries-and-administrative-assistants",
+   "/careers/software-developers",
+   "/careers/accountants-and-auditors",
+   "/careers/nursing-assistants",
+   "/careers/first-line-supervisors-of-office-and-administrative-support-workers",
+   "/careers/restaurant-cooks",
+   "/careers/elementary-school-teachers",
+   "/careers/bookkeeping-accounting-and-auditing-clerks",
+   "/careers/security-guards",
+   "/careers/wholesale-and-manufacturing-sales-representatives",
+   "/careers/first-line-supervisors-of-food-preparation-and-serving-workers",
+   "/careers/first-line-supervisors-of-retail-sales-workers",
+   "/careers/project-management-specialists",
+   "/careers/high-school-teachers",
+   "/careers/light-truck-drivers",
+   "/careers/medical-secretaries-and-administrative-assistants",
+   "/careers/landscaping-and-groundskeeping-workers",
+   "/careers/human-resources-specialists",
+   "/careers/market-research-analysts-and-marketing-specialists",
+   "/careers/management-analysts",
+   "/careers/financial-managers",
+   "/careers/medical-assistants",
+   "/careers/first-line-supervisors-of-construction-trades-and-extraction-workers",
+   "/careers/industrial-truck-and-tractor-operators",
+   "/careers/electricians",
+   "/careers/bartenders",
+   "/careers/computer-user-support-specialists",
+   "/careers/automotive-service-technicians-and-mechanics",
+   "/careers/computer-and-information-systems-managers",
+   "/careers/police-and-sheriffs-patrol-officers",
+   "/careers/licensed-practical-and-licensed-vocational-nurses",
+   "/careers/sales-managers",
+   "/careers/middle-school-teachers",
+   "/careers/first-line-supervisors-of-mechanics-installers-and-repairers",
+   "/careers/medical-and-health-services-managers",
+   "/careers/computer-systems-analysts",
+   "/careers/childcare-workers",
+   "/careers/buyers-and-purchasing-agents",
+   "/careers/securities-commodities-and-financial-services-sales-agents",
+   "/careers/preschool-teachers",
+   "/careers/operating-engineers-and-other-construction-equipment-operators",
+   "/careers/pharmacy-technicians",
+   "/careers/training-and-development-specialists",
+   "/careers/institution-and-cafeteria-cooks",
+   "/careers/industrial-machinery-mechanics",
+   "/careers/social-and-human-service-assistants",
+   "/careers/compliance-officers",
+   "/careers/welders-cutters-solderers-and-brazers",
+   "/careers/hvac-mechanics-and-installers",
+   "/careers/marketing-managers",
+   "/careers/paralegals-and-legal-assistants",
+   "/careers/child-family-and-school-social-workers",
+   "/careers/dental-assistants",
+   "/careers/construction-managers",
+   "/careers/civil-engineers",
+   "/careers/industrial-engineers",
+   "/careers/financial-and-investment-analysts",
+   "/careers/educational-guidance-and-career-counselors-and-advisors",
+   "/careers/firefighters",
+   "/careers/clinical-laboratory-technologists-and-technicians",
+   "/careers/self-enrichment-teachers",
+   "/careers/nurse-practitioners",
+   "/careers/exercise-trainers-and-group-fitness-instructors",
+   "/careers/network-and-computer-systems-administrators",
+   "/careers/hairdressers-hairstylists-and-cosmetologists",
+   "/careers/mechanical-engineers",
+   "/careers/bus-and-truck-mechanics-and-diesel-engine-specialists",
+   "/careers/machinists",
+   "/careers/public-relations-specialists",
+   "/careers/physical-therapists",
+   "/careers/data-scientists",
+   "/careers/coaches-and-scouts",
+   "/careers/industrial-production-managers",
+   "/careers/food-service-managers",
+   "/careers/radiologic-technologists-and-technicians",
+   "/careers/cost-estimators",
+   "/careers/dental-hygienists",
+   "/careers/transportation-storage-and-distribution-managers",
+   "/careers/human-resources-managers",
+   "/careers/architectural-and-engineering-managers",
+   "/careers/social-and-community-service-managers",
+   "/careers/chief-executives",
+   "/careers/electrical-engineers",
+   "/careers/graphic-designers",
+   "/careers/information-security-analysts",
+   "/careers/healthcare-social-workers",
+   "/careers/software-quality-assurance-analysts-and-testers",
+   "/careers/speech-language-pathologists",
+   "/careers/emergency-medical-technicians",
+   "/careers/computer-network-architects",
+   "/careers/mobile-heavy-equipment-mechanics",
+   "/careers/medical-scientists",
+   "/careers/cutting-and-press-machine-operators",
+   "/careers/computer-numerically-controlled-tool-operators",
+   "/careers/high-school-special-education-teachers"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 113 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (104)",
+    "passed": true,
+    "details": [
+     "expected 104"
+    ]
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (188)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 96,
+   "descriptionsOver160": 17
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-occupations-001/careers--general-and-operations-managers-desktop.png",
+   "data/generated/screenshots/bucket-occupations-001/careers--general-and-operations-managers-phone.png",
+   "data/generated/screenshots/bucket-occupations-001/careers--software-quality-assurance-analysts-and-testers-desktop.png",
+   "data/generated/screenshots/bucket-occupations-001/careers--software-quality-assurance-analysts-and-testers-phone.png"
+  ]
+ },
+ {
+  "bucket": 2,
+  "checkedAt": "2026-10-05T20:29:22.495Z",
+  "passed": true,
+  "pages": [
+   "/careers/occupational-therapists",
+   "/careers/physician-assistants",
+   "/careers/coating-painting-and-spraying-machine-setters-operators-and-tenders",
+   "/careers/psychiatric-technicians",
+   "/careers/legal-secretaries-and-administrative-assistants",
+   "/careers/facilities-managers",
+   "/careers/manicurists-and-pedicurists",
+   "/careers/printing-press-operators",
+   "/careers/phlebotomists",
+   "/careers/producers-and-directors",
+   "/careers/meeting-convention-and-event-planners",
+   "/careers/occupational-health-and-safety-specialists",
+   "/careers/respiratory-therapists",
+   "/careers/chemical-equipment-operators-and-tenders",
+   "/careers/mental-health-and-substance-abuse-social-workers",
+   "/careers/electrical-power-line-installers-and-repairers",
+   "/careers/first-line-supervisors-of-landscaping-lawn-service-and-groundskeeping-workers",
+   "/careers/data-entry-keyers",
+   "/careers/surgical-technologists",
+   "/careers/first-line-supervisors-of-personal-service-workers",
+   "/careers/web-and-digital-interface-designers",
+   "/careers/fundraisers",
+   "/careers/natural-sciences-managers",
+   "/careers/architects",
+   "/careers/architectural-and-civil-drafters",
+   "/careers/first-line-supervisors-of-firefighting-and-prevention-workers",
+   "/careers/massage-therapists",
+   "/careers/electronics-engineers",
+   "/careers/middle-school-special-education-teachers",
+   "/careers/electrical-and-electronic-engineering-technologists-and-technicians",
+   "/careers/rehabilitation-counselors",
+   "/careers/computer-programmers",
+   "/careers/editors",
+   "/careers/environmental-scientists-and-specialists",
+   "/careers/dietitians-and-nutritionists",
+   "/careers/medical-equipment-preparers",
+   "/careers/computer-hardware-engineers",
+   "/careers/clinical-and-counseling-psychologists",
+   "/careers/industrial-engineering-technologists-and-technicians",
+   "/careers/public-relations-managers",
+   "/careers/skincare-specialists",
+   "/careers/interior-designers",
+   "/careers/biological-technicians",
+   "/careers/civil-engineering-technologists-and-technicians",
+   "/careers/aerospace-engineers",
+   "/careers/database-architects",
+   "/careers/medical-equipment-repairers",
+   "/careers/health-education-specialists",
+   "/careers/financial-risk-specialists",
+   "/careers/community-health-workers",
+   "/careers/machinery-maintenance-workers",
+   "/careers/surveying-and-mapping-technicians",
+   "/careers/chemical-technicians",
+   "/careers/property-appraisers-and-assessors",
+   "/careers/tour-and-travel-guides",
+   "/careers/art-directors",
+   "/careers/interpreters-and-translators",
+   "/careers/nurse-anesthetists",
+   "/careers/photographers",
+   "/careers/title-examiners-abstractors-and-searchers",
+   "/careers/control-and-valve-installers-and-repairers",
+   "/careers/writers-and-authors",
+   "/careers/technical-writers",
+   "/careers/urban-and-regional-planners",
+   "/careers/mechanical-drafters",
+   "/careers/news-analysts-reporters-and-journalists",
+   "/careers/environmental-engineers",
+   "/careers/entertainment-and-recreation-managers",
+   "/careers/mechanical-engineering-technologists-and-technicians",
+   "/careers/environmental-science-and-protection-technicians",
+   "/careers/dental-laboratory-technicians",
+   "/careers/biochemists-and-biophysicists",
+   "/careers/dietetic-technicians",
+   "/careers/semiconductor-processing-technicians",
+   "/careers/social-science-research-assistants",
+   "/careers/athletic-trainers",
+   "/careers/forest-and-conservation-technicians",
+   "/careers/preschool-special-education-teachers",
+   "/careers/statisticians",
+   "/careers/first-line-supervisors-of-farming-fishing-and-forestry-workers",
+   "/careers/actuaries",
+   "/careers/film-and-video-editors",
+   "/careers/prepress-technicians-and-workers",
+   "/careers/bioengineers-and-biomedical-engineers",
+   "/careers/geoscientists",
+   "/careers/motorboat-mechanics-and-service-technicians",
+   "/careers/religious-activities-directors",
+   "/careers/camera-operators",
+   "/careers/health-and-safety-engineers",
+   "/careers/chemical-engineers",
+   "/careers/powerhouse-and-substation-electrical-repairers",
+   "/careers/physicists",
+   "/careers/special-effects-artists-and-animators",
+   "/careers/forensic-science-technicians",
+   "/careers/avionics-technicians",
+   "/careers/zoologists-and-wildlife-biologists",
+   "/careers/petroleum-engineers",
+   "/careers/electrical-and-electronics-drafters",
+   "/careers/economists",
+   "/careers/chemical-plant-and-system-operators"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 101 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (158)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 89,
+   "descriptionsOver160": 12
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-occupations-002/occupational-therapists-desktop.png",
+   "data/generated/screenshots/bucket-occupations-002/occupational-therapists-phone.png",
+   "data/generated/screenshots/bucket-occupations-002/petroleum-engineers-desktop.png",
+   "data/generated/screenshots/bucket-occupations-002/petroleum-engineers-phone.png"
+  ]
+ },
+ {
+  "bucket": 3,
+  "checkedAt": "2026-10-05T20:29:34.456Z",
+  "passed": true,
+  "pages": [
+   "/careers/calibration-technologists-and-technicians",
+   "/careers/soil-and-plant-scientists",
+   "/careers/electro-mechanical-and-mechatronics-technologists-and-technicians",
+   "/careers/agricultural-technicians",
+   "/careers/recreational-therapists",
+   "/careers/cartographers-and-photogrammetrists",
+   "/careers/fire-inspectors-and-investigators",
+   "/careers/audiologists",
+   "/careers/sound-engineering-technicians",
+   "/careers/food-scientists-and-technologists",
+   "/careers/agents-and-business-managers-of-artists-performers-and-athletes",
+   "/careers/music-directors-and-composers",
+   "/careers/museum-technicians-and-conservators",
+   "/careers/aerospace-engineering-and-operations-technologists-and-technicians",
+   "/careers/anthropologists-and-archeologists",
+   "/careers/exercise-physiologists",
+   "/careers/survey-researchers",
+   "/careers/farm-and-home-management-educators",
+   "/careers/geological-technicians",
+   "/careers/farmers-ranchers-and-other-agricultural-managers",
+   "/careers/hydrologists",
+   "/careers/political-scientists",
+   "/careers/proofreaders-and-copy-markers",
+   "/careers/animal-scientists",
+   "/careers/choreographers",
+   "/careers/forest-fire-inspectors-and-prevention-specialists",
+   "/careers/sociologists",
+   "/careers/mathematicians",
+   "/careers/geographers",
+   "/careers/industrial-organizational-psychologists"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (30 pages)",
+    "passed": true,
+    "details": [
+     "Checked 30 pages: 30 passed, 0 failed, 31 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (30)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (81)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (30)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 26,
+   "descriptionsOver160": 5
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-occupations-003/calibration-technologists-and-technicians-desktop.png",
+   "data/generated/screenshots/bucket-occupations-003/calibration-technologists-and-technicians-phone.png",
+   "data/generated/screenshots/bucket-occupations-003/industrial-organizational-psychologists-desktop.png",
+   "data/generated/screenshots/bucket-occupations-003/industrial-organizational-psychologists-phone.png"
+  ]
+ }
+]

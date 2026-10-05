@@ -1,0 +1,2802 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T20:27:46.213Z",
+  "passed": true,
+  "pages": [
+   "/states/california/cosmetology-certificate",
+   "/states/texas/cosmetology-certificate",
+   "/states/new-york/business-administration-bachelors",
+   "/states/new-york/biology-bachelors",
+   "/states/new-york/psychology-bachelors",
+   "/states/pennsylvania/business-administration-bachelors",
+   "/states/florida/cosmetology-certificate",
+   "/states/texas/business-administration-bachelors",
+   "/states/california/business-administration-bachelors",
+   "/states/california/allied-health-and-medical-assisting-certificate",
+   "/states/california/psychology-bachelors",
+   "/states/california/nursing-associate",
+   "/states/north-carolina/nursing-associate",
+   "/states/texas/psychology-bachelors",
+   "/states/florida/business-administration-bachelors",
+   "/states/new-york/nursing-bachelors",
+   "/states/pennsylvania/biology-bachelors",
+   "/states/north-carolina/liberal-arts-and-general-studies-associate",
+   "/states/texas/nursing-associate",
+   "/states/new-york/communications-bachelors",
+   "/states/pennsylvania/psychology-bachelors",
+   "/states/texas/nursing-bachelors",
+   "/states/california/biology-bachelors",
+   "/states/florida/nursing-associate",
+   "/states/new-york/political-science-bachelors",
+   "/states/texas/liberal-arts-and-general-studies-associate",
+   "/states/new-york/liberal-arts-and-general-studies-associate",
+   "/states/new-york/accounting-bachelors",
+   "/states/new-york/nursing-associate",
+   "/states/california/political-science-bachelors",
+   "/states/florida/nursing-bachelors",
+   "/states/florida/practical-nursing-certificate",
+   "/states/texas/biology-bachelors",
+   "/states/california/sociology-bachelors",
+   "/states/pennsylvania/nursing-bachelors",
+   "/states/texas/kinesiology-and-exercise-science-bachelors",
+   "/states/california/practical-nursing-certificate",
+   "/states/illinois/liberal-arts-and-general-studies-associate",
+   "/states/new-york/english-bachelors",
+   "/states/ohio/practical-nursing-certificate",
+   "/states/pennsylvania/accounting-bachelors",
+   "/states/florida/allied-health-and-medical-assisting-certificate",
+   "/states/illinois/cosmetology-certificate",
+   "/states/ohio/business-administration-bachelors",
+   "/states/pennsylvania/teacher-education-bachelors",
+   "/states/california/communications-bachelors",
+   "/states/california/computer-science-bachelors",
+   "/states/texas/accounting-bachelors",
+   "/states/texas/criminal-justice-bachelors",
+   "/states/texas/finance-bachelors",
+   "/states/texas/marketing-bachelors",
+   "/states/texas/other-interdisciplinary-studies-bachelors",
+   "/states/illinois/business-administration-bachelors",
+   "/states/illinois/teacher-education-bachelors",
+   "/states/new-york/sociology-bachelors",
+   "/states/ohio/nursing-bachelors",
+   "/states/north-carolina/business-administration-bachelors",
+   "/states/pennsylvania/communications-bachelors",
+   "/states/texas/practical-nursing-certificate",
+   "/states/georgia/business-administration-bachelors",
+   "/states/new-york/economics-bachelors",
+   "/states/texas/diagnostic-and-treatment-professions-associate",
+   "/states/california/economics-bachelors",
+   "/states/california/english-bachelors",
+   "/states/california/nursing-bachelors",
+   "/states/illinois/psychology-bachelors",
+   "/states/new-york/fine-and-studio-arts-bachelors",
+   "/states/new-york/history-bachelors",
+   "/states/pennsylvania/practical-nursing-certificate",
+   "/states/california/liberal-arts-and-general-studies-bachelors",
+   "/states/georgia/nursing-bachelors",
+   "/states/illinois/nursing-associate",
+   "/states/new-york/criminal-justice-associate",
+   "/states/new-york/practical-nursing-certificate",
+   "/states/ohio/nursing-associate",
+   "/states/texas/communications-bachelors",
+   "/states/california/health-and-medical-administration-certificate",
+   "/states/florida/diagnostic-and-treatment-professions-associate",
+   "/states/florida/liberal-arts-and-general-studies-associate",
+   "/states/florida/teacher-education-bachelors",
+   "/states/illinois/nursing-bachelors",
+   "/states/massachusetts/biology-bachelors",
+   "/states/massachusetts/business-administration-bachelors",
+   "/states/massachusetts/psychology-bachelors",
+   "/states/new-york/business-administration-associate",
+   "/states/new-york/criminal-justice-bachelors",
+   "/states/texas/computer-and-information-science-bachelors",
+   "/states/california/kinesiology-and-exercise-science-bachelors",
+   "/states/new-york/theatre-bachelors",
+   "/states/ohio/teacher-education-bachelors",
+   "/states/tennessee/cosmetology-certificate",
+   "/states/california/history-bachelors",
+   "/states/new-york/computer-and-information-science-bachelors",
+   "/states/north-carolina/kinesiology-and-exercise-science-bachelors",
+   "/states/ohio/accounting-bachelors",
+   "/states/ohio/marketing-bachelors",
+   "/states/pennsylvania/criminal-justice-bachelors",
+   "/states/texas/english-bachelors",
+   "/states/california/dental-hygiene-and-assisting-certificate",
+   "/states/california/diagnostic-and-treatment-professions-associate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 139 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (4022)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/new-york/business-administration-bachelors)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 39
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-001/california--cosmetology-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-001/california--cosmetology-certificate-phone.png",
+   "data/generated/screenshots/bucket-state-programs-001/tennessee--cosmetology-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-001/tennessee--cosmetology-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 2,
+  "checkedAt": "2026-10-05T17:02:19.823Z",
+  "passed": true,
+  "pages": [
+   "/states/california/fine-and-studio-arts-bachelors",
+   "/states/massachusetts/political-science-bachelors",
+   "/states/michigan/business-administration-bachelors",
+   "/states/new-york/cosmetology-certificate",
+   "/states/ohio/psychology-bachelors",
+   "/states/pennsylvania/political-science-bachelors",
+   "/states/florida/massage-therapy-certificate",
+   "/states/georgia/psychology-bachelors",
+   "/states/illinois/accounting-bachelors",
+   "/states/indiana/business-administration-bachelors",
+   "/states/massachusetts/english-bachelors",
+   "/states/minnesota/business-administration-bachelors",
+   "/states/new-york/marketing-bachelors",
+   "/states/north-carolina/biology-bachelors",
+   "/states/ohio/biology-bachelors",
+   "/states/ohio/cosmetology-certificate",
+   "/states/pennsylvania/computer-and-information-science-bachelors",
+   "/states/tennessee/business-administration-bachelors",
+   "/states/virginia/business-administration-bachelors",
+   "/states/california/design-and-applied-arts-bachelors",
+   "/states/georgia/cosmetology-certificate",
+   "/states/illinois/biology-bachelors",
+   "/states/indiana/nursing-bachelors",
+   "/states/michigan/liberal-arts-and-general-studies-associate",
+   "/states/michigan/nursing-associate",
+   "/states/new-york/finance-bachelors",
+   "/states/pennsylvania/cosmetology-certificate",
+   "/states/pennsylvania/marketing-bachelors",
+   "/states/south-carolina/business-administration-bachelors",
+   "/states/tennessee/nursing-bachelors",
+   "/states/texas/political-science-bachelors",
+   "/states/california/mechanical-engineering-bachelors",
+   "/states/georgia/biology-bachelors",
+   "/states/illinois/communications-bachelors",
+   "/states/illinois/practical-nursing-certificate",
+   "/states/indiana/teacher-education-bachelors",
+   "/states/kentucky/nursing-associate",
+   "/states/missouri/nursing-bachelors",
+   "/states/north-carolina/nursing-bachelors",
+   "/states/ohio/kinesiology-and-exercise-science-bachelors",
+   "/states/puerto-rico/nursing-bachelors",
+   "/states/virginia/psychology-bachelors",
+   "/states/california/film-and-photography-bachelors",
+   "/states/california/liberal-arts-and-general-studies-associate",
+   "/states/minnesota/biology-bachelors",
+   "/states/missouri/business-administration-bachelors",
+   "/states/new-york/allied-health-and-medical-assisting-associate",
+   "/states/new-york/teacher-education-bachelors",
+   "/states/north-carolina/teacher-education-bachelors",
+   "/states/tennessee/practical-nursing-certificate",
+   "/states/texas/liberal-arts-and-general-studies-bachelors",
+   "/states/virginia/biology-bachelors",
+   "/states/virginia/nursing-associate",
+   "/states/california/diagnostic-and-treatment-professions-certificate",
+   "/states/california/environmental-science-and-conservation-bachelors",
+   "/states/california/music-bachelors",
+   "/states/florida/biology-bachelors",
+   "/states/florida/psychology-bachelors",
+   "/states/georgia/nursing-associate",
+   "/states/indiana/psychology-bachelors",
+   "/states/michigan/accounting-bachelors",
+   "/states/minnesota/teacher-education-bachelors",
+   "/states/north-carolina/criminal-justice-bachelors",
+   "/states/north-carolina/psychology-bachelors",
+   "/states/pennsylvania/finance-bachelors",
+   "/states/texas/social-work-bachelors",
+   "/states/washington/liberal-arts-and-general-studies-associate",
+   "/states/wisconsin/business-administration-bachelors",
+   "/states/california/accounting-bachelors",
+   "/states/california/chemistry-bachelors",
+   "/states/california/mathematics-bachelors",
+   "/states/california/romance-languages-bachelors",
+   "/states/california/theatre-bachelors",
+   "/states/florida/diagnostic-and-treatment-professions-certificate",
+   "/states/georgia/criminal-justice-bachelors",
+   "/states/georgia/teacher-education-bachelors",
+   "/states/illinois/biological-and-physical-sciences-associate",
+   "/states/illinois/computer-science-bachelors",
+   "/states/louisiana/cosmetology-certificate",
+   "/states/michigan/nursing-bachelors",
+   "/states/minnesota/accounting-bachelors",
+   "/states/minnesota/liberal-arts-and-general-studies-associate",
+   "/states/minnesota/nursing-associate",
+   "/states/minnesota/nursing-bachelors",
+   "/states/minnesota/psychology-bachelors",
+   "/states/missouri/psychology-bachelors",
+   "/states/pennsylvania/english-bachelors",
+   "/states/texas/allied-health-and-medical-assisting-certificate",
+   "/states/texas/history-bachelors",
+   "/states/texas/mechanical-engineering-bachelors",
+   "/states/washington/nursing-associate",
+   "/states/alabama/liberal-arts-and-general-studies-associate",
+   "/states/alabama/nursing-associate",
+   "/states/california/anthropology-bachelors",
+   "/states/california/business-administration-associate",
+   "/states/illinois/criminal-justice-bachelors",
+   "/states/illinois/marketing-bachelors",
+   "/states/iowa/teacher-education-bachelors",
+   "/states/michigan/biology-bachelors",
+   "/states/michigan/cosmetology-certificate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 125 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (2404)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/michigan/nursing-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 25
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-002/california--fine-and-studio-arts-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-002/california--fine-and-studio-arts-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-002/georgia--cosmetology-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-002/georgia--cosmetology-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 3,
+  "checkedAt": "2026-10-05T17:02:58.715Z",
+  "passed": true,
+  "pages": [
+   "/states/new-jersey/business-administration-bachelors",
+   "/states/new-york/diagnostic-and-treatment-professions-associate",
+   "/states/new-york/liberal-arts-and-general-studies-bachelors",
+   "/states/new-york/mathematics-bachelors",
+   "/states/new-york/subject-area-teacher-education-bachelors",
+   "/states/north-carolina/cosmetology-certificate",
+   "/states/north-carolina/diagnostic-and-treatment-professions-associate",
+   "/states/ohio/diagnostic-and-treatment-professions-associate",
+   "/states/pennsylvania/economics-bachelors",
+   "/states/texas/business-bachelors",
+   "/states/wisconsin/psychology-bachelors",
+   "/states/california/criminal-justice-associate",
+   "/states/california/electrical-engineering-bachelors",
+   "/states/california/ethnic-cultural-and-gender-studies-bachelors",
+   "/states/illinois/finance-bachelors",
+   "/states/illinois/subject-area-teacher-education-bachelors",
+   "/states/massachusetts/economics-bachelors",
+   "/states/massachusetts/nursing-bachelors",
+   "/states/michigan/psychology-bachelors",
+   "/states/missouri/biology-bachelors",
+   "/states/new-york/mechanical-engineering-bachelors",
+   "/states/ohio/finance-bachelors",
+   "/states/ohio/political-science-bachelors",
+   "/states/pennsylvania/kinesiology-and-exercise-science-bachelors",
+   "/states/tennessee/psychology-bachelors",
+   "/states/texas/mathematics-bachelors",
+   "/states/texas/music-bachelors",
+   "/states/utah/cosmetology-certificate",
+   "/states/california/civil-engineering-bachelors",
+   "/states/california/criminal-justice-bachelors",
+   "/states/california/liberal-arts-and-general-studies-certificate",
+   "/states/florida/computer-and-information-science-bachelors",
+   "/states/florida/criminal-justice-certificate",
+   "/states/georgia/practical-nursing-certificate",
+   "/states/illinois/political-science-bachelors",
+   "/states/indiana/criminal-justice-bachelors",
+   "/states/iowa/business-administration-bachelors",
+   "/states/massachusetts/communications-bachelors",
+   "/states/massachusetts/computer-science-bachelors",
+   "/states/massachusetts/history-bachelors",
+   "/states/massachusetts/sociology-bachelors",
+   "/states/missouri/nursing-associate",
+   "/states/missouri/practical-nursing-certificate",
+   "/states/missouri/teacher-education-bachelors",
+   "/states/new-york/computer-science-bachelors",
+   "/states/north-carolina/communications-bachelors",
+   "/states/pennsylvania/sociology-bachelors",
+   "/states/south-carolina/biology-bachelors",
+   "/states/texas/allied-health-and-medical-assisting-associate",
+   "/states/texas/health-and-medical-administration-certificate",
+   "/states/texas/welding-and-machining-certificate",
+   "/states/virginia/liberal-arts-and-general-studies-associate",
+   "/states/virginia/nursing-bachelors",
+   "/states/wisconsin/biology-bachelors",
+   "/states/california/biochemistry-and-molecular-biology-bachelors",
+   "/states/california/computer-engineering-bachelors",
+   "/states/florida/health-and-medical-administration-certificate",
+   "/states/georgia/allied-health-and-medical-assisting-certificate",
+   "/states/illinois/diagnostic-and-treatment-professions-associate",
+   "/states/illinois/kinesiology-and-exercise-science-bachelors",
+   "/states/indiana/cosmetology-certificate",
+   "/states/kentucky/liberal-arts-and-general-studies-associate",
+   "/states/kentucky/nursing-bachelors",
+   "/states/minnesota/communications-bachelors",
+   "/states/new-jersey/biology-bachelors",
+   "/states/new-jersey/liberal-arts-and-general-studies-associate",
+   "/states/new-jersey/nursing-bachelors",
+   "/states/new-jersey/psychology-bachelors",
+   "/states/new-york/romance-languages-bachelors",
+   "/states/north-carolina/accounting-bachelors",
+   "/states/north-carolina/business-administration-associate",
+   "/states/ohio/communications-bachelors",
+   "/states/ohio/liberal-arts-and-general-studies-associate",
+   "/states/oklahoma/business-administration-bachelors",
+   "/states/pennsylvania/diagnostic-and-treatment-professions-associate",
+   "/states/pennsylvania/history-bachelors",
+   "/states/texas/business-administration-associate",
+   "/states/texas/electrical-engineering-bachelors",
+   "/states/texas/fine-and-studio-arts-bachelors",
+   "/states/texas/sociology-bachelors",
+   "/states/wisconsin/accounting-bachelors",
+   "/states/wisconsin/nursing-bachelors",
+   "/states/wisconsin/teacher-education-bachelors",
+   "/states/alabama/business-administration-bachelors",
+   "/states/arizona/nursing-associate",
+   "/states/arkansas/nursing-associate",
+   "/states/california/computer-and-information-science-bachelors",
+   "/states/california/teacher-education-bachelors",
+   "/states/florida/allied-health-and-medical-assisting-associate",
+   "/states/illinois/english-bachelors",
+   "/states/indiana/accounting-bachelors",
+   "/states/indiana/kinesiology-and-exercise-science-bachelors",
+   "/states/indiana/liberal-arts-and-general-studies-bachelors",
+   "/states/kansas/liberal-arts-and-general-studies-associate",
+   "/states/michigan/communications-bachelors",
+   "/states/michigan/kinesiology-and-exercise-science-bachelors",
+   "/states/michigan/marketing-bachelors",
+   "/states/minnesota/practical-nursing-certificate",
+   "/states/new-york/design-and-applied-arts-bachelors",
+   "/states/new-york/electrical-engineering-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 139 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1839)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/california/criminal-justice-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 39
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-003/new-jersey--business-administration-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-003/new-jersey--business-administration-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-003/california--criminal-justice-associate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-003/california--criminal-justice-associate-phone.png"
+  ]
+ },
+ {
+  "bucket": 4,
+  "checkedAt": "2026-10-05T17:03:16.489Z",
+  "passed": true,
+  "pages": [
+   "/states/new-york/film-and-photography-bachelors",
+   "/states/new-york/kinesiology-and-exercise-science-bachelors",
+   "/states/ohio/english-bachelors",
+   "/states/pennsylvania/computer-science-bachelors",
+   "/states/pennsylvania/liberal-arts-and-general-studies-associate",
+   "/states/south-carolina/psychology-bachelors",
+   "/states/south-carolina/teacher-education-bachelors",
+   "/states/texas/criminal-justice-associate",
+   "/states/texas/diagnostic-and-treatment-professions-certificate",
+   "/states/virginia/liberal-arts-and-general-studies-certificate",
+   "/states/washington/business-administration-bachelors",
+   "/states/wisconsin/allied-health-and-medical-assisting-certificate",
+   "/states/arkansas/cosmetology-certificate",
+   "/states/florida/accounting-bachelors",
+   "/states/indiana/biology-bachelors",
+   "/states/indiana/communications-bachelors",
+   "/states/iowa/accounting-bachelors",
+   "/states/iowa/biology-bachelors",
+   "/states/kentucky/practical-nursing-certificate",
+   "/states/maryland/psychology-bachelors",
+   "/states/massachusetts/nursing-associate",
+   "/states/michigan/diagnostic-and-treatment-professions-associate",
+   "/states/michigan/teacher-education-bachelors",
+   "/states/minnesota/marketing-bachelors",
+   "/states/mississippi/cosmetology-certificate",
+   "/states/missouri/accounting-bachelors",
+   "/states/new-jersey/nursing-associate",
+   "/states/new-york/environmental-science-and-conservation-bachelors",
+   "/states/new-york/journalism-bachelors",
+   "/states/ohio/allied-health-and-medical-assisting-associate",
+   "/states/ohio/criminal-justice-bachelors",
+   "/states/ohio/fine-and-studio-arts-bachelors",
+   "/states/oklahoma/nursing-bachelors",
+   "/states/pennsylvania/allied-health-and-medical-assisting-associate",
+   "/states/pennsylvania/fine-and-studio-arts-bachelors",
+   "/states/pennsylvania/nursing-associate",
+   "/states/puerto-rico/accounting-bachelors",
+   "/states/tennessee/kinesiology-and-exercise-science-bachelors",
+   "/states/wisconsin/nursing-associate",
+   "/states/arkansas/liberal-arts-and-general-studies-associate",
+   "/states/california/allied-health-and-medical-assisting-associate",
+   "/states/california/public-health-bachelors",
+   "/states/california/social-work-bachelors",
+   "/states/connecticut/psychology-bachelors",
+   "/states/florida/communications-bachelors",
+   "/states/florida/marketing-bachelors",
+   "/states/georgia/diagnostic-and-treatment-professions-associate",
+   "/states/georgia/marketing-bachelors",
+   "/states/illinois/sociology-bachelors",
+   "/states/indiana/finance-bachelors",
+   "/states/indiana/marketing-bachelors",
+   "/states/iowa/nursing-associate",
+   "/states/iowa/nursing-bachelors",
+   "/states/kansas/business-administration-bachelors",
+   "/states/louisiana/business-administration-bachelors",
+   "/states/massachusetts/criminal-justice-bachelors",
+   "/states/massachusetts/environmental-science-and-conservation-bachelors",
+   "/states/massachusetts/fine-and-studio-arts-bachelors",
+   "/states/michigan/criminal-justice-bachelors",
+   "/states/michigan/finance-bachelors",
+   "/states/michigan/mechanical-engineering-bachelors",
+   "/states/michigan/subject-area-teacher-education-bachelors",
+   "/states/missouri/cosmetology-certificate",
+   "/states/missouri/criminal-justice-bachelors",
+   "/states/north-carolina/allied-health-and-medical-assisting-associate",
+   "/states/pennsylvania/design-and-applied-arts-bachelors",
+   "/states/pennsylvania/diagnostic-and-treatment-professions-bachelors",
+   "/states/pennsylvania/environmental-science-and-conservation-bachelors",
+   "/states/pennsylvania/special-education-bachelors",
+   "/states/puerto-rico/cosmetology-certificate",
+   "/states/tennessee/diagnostic-and-treatment-professions-certificate",
+   "/states/texas/health-sciences-bachelors",
+   "/states/texas/vehicle-maintenance-and-repair-certificate",
+   "/states/virginia/english-bachelors",
+   "/states/virginia/history-bachelors",
+   "/states/virginia/political-science-bachelors",
+   "/states/west-virginia/practical-nursing-certificate",
+   "/states/wisconsin/cosmetology-certificate",
+   "/states/california/biomedical-engineering-bachelors",
+   "/states/california/philosophy-bachelors",
+   "/states/colorado/cosmetology-certificate",
+   "/states/florida/kinesiology-and-exercise-science-bachelors",
+   "/states/florida/political-science-bachelors",
+   "/states/georgia/accounting-bachelors",
+   "/states/georgia/kinesiology-and-exercise-science-bachelors",
+   "/states/illinois/economics-bachelors",
+   "/states/illinois/fine-and-studio-arts-bachelors",
+   "/states/iowa/liberal-arts-and-general-studies-associate",
+   "/states/iowa/psychology-bachelors",
+   "/states/kansas/nursing-bachelors",
+   "/states/kansas/teacher-education-bachelors",
+   "/states/kentucky/health-and-medical-administration-certificate",
+   "/states/kentucky/teacher-education-bachelors",
+   "/states/louisiana/practical-nursing-certificate",
+   "/states/louisiana/psychology-bachelors",
+   "/states/maryland/liberal-arts-and-general-studies-associate",
+   "/states/massachusetts/mathematics-bachelors",
+   "/states/minnesota/finance-bachelors",
+   "/states/minnesota/political-science-bachelors",
+   "/states/minnesota/subject-area-teacher-education-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 146 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1527)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/iowa/nursing-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 46
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-004/new-york--film-and-photography-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-004/new-york--film-and-photography-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-004/puerto-rico--cosmetology-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-004/puerto-rico--cosmetology-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 5,
+  "checkedAt": "2026-10-05T17:03:35.073Z",
+  "passed": true,
+  "pages": [
+   "/states/new-jersey/accounting-bachelors",
+   "/states/new-jersey/communications-bachelors",
+   "/states/new-jersey/criminal-justice-bachelors",
+   "/states/new-york/allied-health-and-medical-assisting-certificate",
+   "/states/new-york/music-bachelors",
+   "/states/new-york/social-work-bachelors",
+   "/states/north-carolina/business-administration-certificate",
+   "/states/north-carolina/computer-science-bachelors",
+   "/states/north-carolina/english-bachelors",
+   "/states/north-carolina/health-and-medical-administration-associate",
+   "/states/north-carolina/political-science-bachelors",
+   "/states/north-carolina/social-work-bachelors",
+   "/states/ohio/allied-health-and-medical-assisting-certificate",
+   "/states/ohio/business-administration-associate",
+   "/states/ohio/design-and-applied-arts-bachelors",
+   "/states/ohio/diagnostic-and-treatment-professions-certificate",
+   "/states/ohio/special-education-bachelors",
+   "/states/oklahoma/cosmetology-certificate",
+   "/states/oklahoma/practical-nursing-certificate",
+   "/states/south-carolina/nursing-bachelors",
+   "/states/tennessee/liberal-arts-and-general-studies-associate",
+   "/states/tennessee/nursing-associate",
+   "/states/tennessee/teacher-education-bachelors",
+   "/states/texas/criminal-justice-certificate",
+   "/states/texas/management-information-systems-bachelors",
+   "/states/texas/theatre-bachelors",
+   "/states/virginia/criminal-justice-bachelors",
+   "/states/virginia/practical-nursing-certificate",
+   "/states/washington/nursing-bachelors",
+   "/states/wisconsin/business-administration-associate",
+   "/states/wisconsin/communications-bachelors",
+   "/states/alabama/biology-bachelors",
+   "/states/alabama/psychology-bachelors",
+   "/states/california/human-development-and-family-studies-bachelors",
+   "/states/california/journalism-bachelors",
+   "/states/colorado/psychology-bachelors",
+   "/states/florida/criminal-justice-bachelors",
+   "/states/florida/dental-hygiene-and-assisting-certificate",
+   "/states/florida/finance-bachelors",
+   "/states/florida/health-sciences-bachelors",
+   "/states/florida/theatre-bachelors",
+   "/states/georgia/diagnostic-and-treatment-professions-certificate",
+   "/states/georgia/truck-driving-and-equipment-operation-certificate",
+   "/states/illinois/allied-health-and-medical-assisting-associate",
+   "/states/illinois/theatre-bachelors",
+   "/states/indiana/subject-area-teacher-education-bachelors",
+   "/states/iowa/kinesiology-and-exercise-science-bachelors",
+   "/states/kansas/cosmetology-certificate",
+   "/states/kansas/nursing-associate",
+   "/states/kentucky/business-administration-bachelors",
+   "/states/kentucky/business-bachelors",
+   "/states/kentucky/psychology-bachelors",
+   "/states/louisiana/allied-health-and-medical-assisting-certificate",
+   "/states/louisiana/biology-bachelors",
+   "/states/maryland/biology-bachelors",
+   "/states/massachusetts/accounting-bachelors",
+   "/states/massachusetts/design-and-applied-arts-bachelors",
+   "/states/massachusetts/liberal-arts-and-general-studies-associate",
+   "/states/michigan/business-administration-associate",
+   "/states/michigan/computer-and-information-science-bachelors",
+   "/states/michigan/political-science-bachelors",
+   "/states/michigan/social-work-bachelors",
+   "/states/minnesota/kinesiology-and-exercise-science-bachelors",
+   "/states/missouri/liberal-arts-and-general-studies-associate",
+   "/states/new-jersey/computer-and-information-science-bachelors",
+   "/states/new-jersey/cosmetology-certificate",
+   "/states/new-york/anthropology-bachelors",
+   "/states/new-york/health-and-medical-administration-associate",
+   "/states/new-york/information-science-bachelors",
+   "/states/new-york/radio-tv-and-digital-media-bachelors",
+   "/states/north-carolina/criminal-justice-certificate",
+   "/states/north-carolina/practical-nursing-certificate",
+   "/states/north-carolina/sociology-bachelors",
+   "/states/ohio/human-resources-bachelors",
+   "/states/ohio/mechanical-engineering-bachelors",
+   "/states/ohio/social-work-bachelors",
+   "/states/ohio/subject-area-teacher-education-bachelors",
+   "/states/oregon/biology-bachelors",
+   "/states/oregon/psychology-bachelors",
+   "/states/pennsylvania/mathematics-bachelors",
+   "/states/pennsylvania/mechanical-engineering-bachelors",
+   "/states/pennsylvania/social-work-bachelors",
+   "/states/south-carolina/liberal-arts-and-general-studies-associate",
+   "/states/south-carolina/nursing-associate",
+   "/states/texas/economics-bachelors",
+   "/states/texas/public-health-bachelors",
+   "/states/texas/radio-tv-and-digital-media-bachelors",
+   "/states/virginia/accounting-bachelors",
+   "/states/virginia/communications-bachelors",
+   "/states/virginia/computer-and-information-science-bachelors",
+   "/states/virginia/cosmetology-certificate",
+   "/states/virginia/kinesiology-and-exercise-science-bachelors",
+   "/states/washington/psychology-bachelors",
+   "/states/washington/teacher-education-bachelors",
+   "/states/wisconsin/practical-nursing-certificate",
+   "/states/wisconsin/welding-and-machining-certificate",
+   "/states/alabama/teacher-education-bachelors",
+   "/states/arizona/liberal-arts-and-general-studies-associate",
+   "/states/arkansas/nursing-bachelors",
+   "/states/california/communication-sciences-and-disorders-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 139 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1319)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/south-carolina/nursing-bachelors)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 39
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-005/new-jersey--accounting-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-005/new-jersey--accounting-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-005/oklahoma--practical-nursing-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-005/oklahoma--practical-nursing-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 6,
+  "checkedAt": "2026-10-05T17:03:53.421Z",
+  "passed": true,
+  "pages": [
+   "/states/california/geography-bachelors",
+   "/states/california/health-sciences-bachelors",
+   "/states/california/marketing-bachelors",
+   "/states/california/massage-therapy-certificate",
+   "/states/california/microbiology-bachelors",
+   "/states/colorado/business-administration-bachelors",
+   "/states/colorado/liberal-arts-and-general-studies-associate",
+   "/states/florida/business-administration-associate",
+   "/states/florida/english-bachelors",
+   "/states/georgia/computer-and-information-science-bachelors",
+   "/states/georgia/english-bachelors",
+   "/states/georgia/liberal-arts-and-general-studies-associate",
+   "/states/georgia/political-science-bachelors",
+   "/states/illinois/history-bachelors",
+   "/states/illinois/management-science-bachelors",
+   "/states/illinois/music-bachelors",
+   "/states/illinois/social-work-bachelors",
+   "/states/indiana/computer-science-bachelors",
+   "/states/iowa/cosmetology-certificate",
+   "/states/kentucky/cosmetology-certificate",
+   "/states/kentucky/diagnostic-and-treatment-professions-associate",
+   "/states/louisiana/nursing-associate",
+   "/states/louisiana/nursing-bachelors",
+   "/states/massachusetts/marketing-bachelors",
+   "/states/massachusetts/practical-nursing-certificate",
+   "/states/massachusetts/teacher-education-bachelors",
+   "/states/michigan/criminal-justice-associate",
+   "/states/minnesota/computer-science-bachelors",
+   "/states/minnesota/social-work-bachelors",
+   "/states/minnesota/vehicle-maintenance-and-repair-certificate",
+   "/states/minnesota/welding-and-machining-certificate",
+   "/states/mississippi/nursing-associate",
+   "/states/missouri/diagnostic-and-treatment-professions-associate",
+   "/states/missouri/kinesiology-and-exercise-science-bachelors",
+   "/states/new-jersey/allied-health-and-medical-assisting-certificate",
+   "/states/new-jersey/business-administration-associate",
+   "/states/new-jersey/english-bachelors",
+   "/states/new-jersey/sociology-bachelors",
+   "/states/new-york/diagnostic-and-treatment-professions-bachelors",
+   "/states/new-york/health-and-medical-administration-bachelors",
+   "/states/new-york/hospitality-management-bachelors",
+   "/states/new-york/public-health-bachelors",
+   "/states/ohio/economics-bachelors",
+   "/states/ohio/theatre-bachelors",
+   "/states/oklahoma/nursing-associate",
+   "/states/oklahoma/teacher-education-bachelors",
+   "/states/pennsylvania/health-and-medical-administration-bachelors",
+   "/states/pennsylvania/nursing-certificate",
+   "/states/pennsylvania/subject-area-teacher-education-bachelors",
+   "/states/south-carolina/kinesiology-and-exercise-science-bachelors",
+   "/states/tennessee/biology-bachelors",
+   "/states/tennessee/business-administration-associate",
+   "/states/tennessee/communications-bachelors",
+   "/states/texas/human-resources-bachelors",
+   "/states/texas/teacher-education-associate",
+   "/states/texas/teacher-education-bachelors",
+   "/states/utah/nursing-bachelors",
+   "/states/washington/allied-health-and-medical-assisting-associate",
+   "/states/west-virginia/business-administration-bachelors",
+   "/states/wisconsin/kinesiology-and-exercise-science-bachelors",
+   "/states/wisconsin/marketing-bachelors",
+   "/states/wisconsin/subject-area-teacher-education-bachelors",
+   "/states/alabama/accounting-bachelors",
+   "/states/alabama/computer-and-information-science-bachelors",
+   "/states/alabama/nursing-bachelors",
+   "/states/arizona/cosmetology-certificate",
+   "/states/arkansas/business-administration-bachelors",
+   "/states/arkansas/practical-nursing-certificate",
+   "/states/arkansas/psychology-bachelors",
+   "/states/california/biological-and-physical-sciences-associate",
+   "/states/california/finance-bachelors",
+   "/states/california/international-relations-bachelors",
+   "/states/california/linguistics-and-language-studies-bachelors",
+   "/states/california/radio-tv-and-digital-media-bachelors",
+   "/states/colorado/nursing-associate",
+   "/states/connecticut/business-administration-bachelors",
+   "/states/florida/computer-engineering-bachelors",
+   "/states/florida/dental-hygiene-and-assisting-associate",
+   "/states/florida/environmental-science-and-conservation-bachelors",
+   "/states/florida/fine-and-studio-arts-bachelors",
+   "/states/florida/mechanical-engineering-bachelors",
+   "/states/georgia/business-bachelors",
+   "/states/georgia/communications-bachelors",
+   "/states/georgia/fine-and-studio-arts-bachelors",
+   "/states/georgia/sociology-bachelors",
+   "/states/illinois/allied-health-and-medical-assisting-certificate",
+   "/states/illinois/computer-and-information-science-bachelors",
+   "/states/indiana/business-bachelors",
+   "/states/indiana/english-bachelors",
+   "/states/indiana/social-work-bachelors",
+   "/states/iowa/marketing-bachelors",
+   "/states/kentucky/biology-bachelors",
+   "/states/maryland/business-administration-bachelors",
+   "/states/maryland/nursing-associate",
+   "/states/maryland/nursing-bachelors",
+   "/states/massachusetts/cosmetology-certificate",
+   "/states/massachusetts/kinesiology-and-exercise-science-bachelors",
+   "/states/massachusetts/liberal-arts-and-general-studies-bachelors",
+   "/states/michigan/electrical-engineering-bachelors",
+   "/states/michigan/human-resources-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 142 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1189)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/louisiana/nursing-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 42
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-006/california--geography-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-006/california--geography-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-006/florida--dental-hygiene-and-assisting-associate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-006/florida--dental-hygiene-and-assisting-associate-phone.png"
+  ]
+ },
+ {
+  "bucket": 7,
+  "checkedAt": "2026-10-05T17:04:12.322Z",
+  "passed": true,
+  "pages": [
+   "/states/michigan/liberal-arts-and-general-studies-bachelors",
+   "/states/michigan/practical-nursing-certificate",
+   "/states/minnesota/criminal-justice-bachelors",
+   "/states/minnesota/diagnostic-and-treatment-professions-associate",
+   "/states/mississippi/liberal-arts-and-general-studies-associate",
+   "/states/mississippi/practical-nursing-certificate",
+   "/states/missouri/computer-and-information-science-bachelors",
+   "/states/missouri/liberal-arts-and-general-studies-bachelors",
+   "/states/nebraska/business-administration-bachelors",
+   "/states/new-jersey/criminal-justice-associate",
+   "/states/new-jersey/diagnostic-and-treatment-professions-associate",
+   "/states/new-jersey/liberal-arts-and-general-studies-bachelors",
+   "/states/new-jersey/political-science-bachelors",
+   "/states/new-jersey/practical-nursing-certificate",
+   "/states/new-york/chemical-engineering-bachelors",
+   "/states/new-york/public-relations-and-advertising-bachelors",
+   "/states/new-york/writing-and-rhetoric-bachelors",
+   "/states/north-carolina/fine-and-studio-arts-bachelors",
+   "/states/north-carolina/health-and-medical-administration-certificate",
+   "/states/north-carolina/liberal-arts-and-general-studies-bachelors",
+   "/states/ohio/computer-and-information-science-bachelors",
+   "/states/ohio/computer-science-bachelors",
+   "/states/ohio/dental-hygiene-and-assisting-associate",
+   "/states/ohio/diagnostic-and-treatment-professions-bachelors",
+   "/states/ohio/history-bachelors",
+   "/states/ohio/public-relations-and-advertising-bachelors",
+   "/states/ohio/welding-and-machining-certificate",
+   "/states/oregon/liberal-arts-and-general-studies-associate",
+   "/states/oregon/nursing-associate",
+   "/states/pennsylvania/criminal-justice-associate",
+   "/states/pennsylvania/romance-languages-bachelors",
+   "/states/pennsylvania/theatre-bachelors",
+   "/states/south-carolina/political-science-bachelors",
+   "/states/tennessee/allied-health-and-medical-assisting-associate",
+   "/states/tennessee/diagnostic-and-treatment-professions-associate",
+   "/states/texas/business-associate",
+   "/states/texas/chemistry-bachelors",
+   "/states/texas/civil-engineering-bachelors",
+   "/states/texas/physical-science-technology-associate",
+   "/states/texas/romance-languages-bachelors",
+   "/states/texas/vehicle-maintenance-and-repair-associate",
+   "/states/virginia/economics-bachelors",
+   "/states/washington/biology-bachelors",
+   "/states/washington/political-science-bachelors",
+   "/states/wisconsin/criminal-justice-associate",
+   "/states/alabama/criminal-justice-bachelors",
+   "/states/arkansas/teacher-education-bachelors",
+   "/states/california/criminal-justice-certificate",
+   "/states/california/hvac-certificate",
+   "/states/california/office-administration-certificate",
+   "/states/california/physics-bachelors",
+   "/states/california/vehicle-maintenance-and-repair-certificate",
+   "/states/colorado/biology-bachelors",
+   "/states/colorado/criminal-justice-certificate",
+   "/states/colorado/nursing-bachelors",
+   "/states/colorado/practical-nursing-certificate",
+   "/states/connecticut/biology-bachelors",
+   "/states/connecticut/communications-bachelors",
+   "/states/connecticut/nursing-bachelors",
+   "/states/florida/economics-bachelors",
+   "/states/florida/history-bachelors",
+   "/states/florida/liberal-arts-and-general-studies-bachelors",
+   "/states/florida/medical-laboratory-science-certificate",
+   "/states/florida/public-relations-and-advertising-bachelors",
+   "/states/florida/subject-area-teacher-education-bachelors",
+   "/states/georgia/history-bachelors",
+   "/states/idaho/cosmetology-certificate",
+   "/states/illinois/liberal-arts-and-general-studies-bachelors",
+   "/states/iowa/finance-bachelors",
+   "/states/kentucky/accounting-bachelors",
+   "/states/kentucky/business-administration-associate",
+   "/states/kentucky/communications-bachelors",
+   "/states/kentucky/criminal-justice-bachelors",
+   "/states/kentucky/health-and-medical-administration-associate",
+   "/states/louisiana/accounting-bachelors",
+   "/states/louisiana/communications-bachelors",
+   "/states/louisiana/marketing-bachelors",
+   "/states/louisiana/teacher-education-bachelors",
+   "/states/massachusetts/criminal-justice-associate",
+   "/states/massachusetts/electrical-engineering-bachelors",
+   "/states/massachusetts/finance-bachelors",
+   "/states/massachusetts/mechanical-engineering-bachelors",
+   "/states/michigan/english-bachelors",
+   "/states/michigan/fine-and-studio-arts-bachelors",
+   "/states/michigan/public-relations-and-advertising-bachelors",
+   "/states/michigan/writing-and-rhetoric-bachelors",
+   "/states/minnesota/business-administration-associate",
+   "/states/minnesota/criminal-justice-associate",
+   "/states/minnesota/design-and-applied-arts-bachelors",
+   "/states/minnesota/electrician-training-certificate",
+   "/states/mississippi/business-administration-bachelors",
+   "/states/missouri/allied-health-and-medical-assisting-associate",
+   "/states/missouri/communications-bachelors",
+   "/states/missouri/subject-area-teacher-education-bachelors",
+   "/states/new-jersey/history-bachelors",
+   "/states/new-jersey/mathematics-bachelors",
+   "/states/new-york/accounting-associate",
+   "/states/new-york/biomedical-engineering-bachelors",
+   "/states/new-york/computer-engineering-bachelors",
+   "/states/new-york/dental-hygiene-and-assisting-associate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 147 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1074)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/minnesota/criminal-justice-bachelors)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 47
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-007/michigan--liberal-arts-and-general-studies-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-007/michigan--liberal-arts-and-general-studies-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-007/minnesota--design-and-applied-arts-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-007/minnesota--design-and-applied-arts-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 8,
+  "checkedAt": "2026-10-05T17:04:30.532Z",
+  "passed": true,
+  "pages": [
+   "/states/new-york/human-services-associate",
+   "/states/new-york/information-technology-bachelors",
+   "/states/new-york/vehicle-maintenance-and-repair-associate",
+   "/states/north-carolina/history-bachelors",
+   "/states/north-carolina/teacher-education-associate",
+   "/states/ohio/criminal-justice-certificate",
+   "/states/ohio/electrical-engineering-bachelors",
+   "/states/ohio/liberal-arts-and-general-studies-bachelors",
+   "/states/oklahoma/liberal-arts-and-general-studies-bachelors",
+   "/states/pennsylvania/liberal-arts-and-general-studies-bachelors",
+   "/states/pennsylvania/music-bachelors",
+   "/states/puerto-rico/biology-bachelors",
+   "/states/puerto-rico/business-administration-bachelors",
+   "/states/south-carolina/communications-bachelors",
+   "/states/south-carolina/criminal-justice-bachelors",
+   "/states/tennessee/criminal-justice-bachelors",
+   "/states/tennessee/political-science-bachelors",
+   "/states/tennessee/social-work-bachelors",
+   "/states/texas/anthropology-bachelors",
+   "/states/texas/design-and-applied-arts-bachelors",
+   "/states/texas/subject-area-teacher-education-bachelors",
+   "/states/virginia/business-administration-associate",
+   "/states/virginia/diagnostic-and-treatment-professions-associate",
+   "/states/virginia/liberal-arts-and-general-studies-bachelors",
+   "/states/virginia/sociology-bachelors",
+   "/states/washington/communications-bachelors",
+   "/states/washington/cosmetology-certificate",
+   "/states/washington/economics-bachelors",
+   "/states/west-virginia/liberal-arts-and-general-studies-bachelors",
+   "/states/wisconsin/allied-health-and-medical-assisting-associate",
+   "/states/wisconsin/diagnostic-and-treatment-professions-associate",
+   "/states/wisconsin/diagnostic-and-treatment-professions-certificate",
+   "/states/wisconsin/fine-and-studio-arts-bachelors",
+   "/states/alabama/communications-bachelors",
+   "/states/arizona/business-administration-bachelors",
+   "/states/arkansas/liberal-arts-and-general-studies-bachelors",
+   "/states/california/cell-biology-and-anatomy-bachelors",
+   "/states/california/chemical-engineering-bachelors",
+   "/states/california/ecology-and-evolution-bachelors",
+   "/states/california/geology-and-earth-science-bachelors",
+   "/states/california/psychology-associate",
+   "/states/california/public-relations-and-advertising-bachelors",
+   "/states/california/social-sciences-associate",
+   "/states/california/social-sciences-bachelors",
+   "/states/california/writing-and-rhetoric-bachelors",
+   "/states/colorado/accounting-bachelors",
+   "/states/colorado/communications-bachelors",
+   "/states/colorado/english-bachelors",
+   "/states/colorado/sociology-bachelors",
+   "/states/connecticut/accounting-bachelors",
+   "/states/connecticut/criminal-justice-bachelors",
+   "/states/connecticut/political-science-bachelors",
+   "/states/florida/electrical-engineering-bachelors",
+   "/states/florida/fire-science-certificate",
+   "/states/florida/health-and-medical-administration-bachelors",
+   "/states/florida/music-bachelors",
+   "/states/florida/sociology-bachelors",
+   "/states/georgia/subject-area-teacher-education-bachelors",
+   "/states/illinois/design-and-applied-arts-bachelors",
+   "/states/illinois/health-and-medical-administration-bachelors",
+   "/states/illinois/romance-languages-bachelors",
+   "/states/illinois/special-education-bachelors",
+   "/states/indiana/political-science-bachelors",
+   "/states/indiana/sociology-bachelors",
+   "/states/iowa/diagnostic-and-treatment-professions-associate",
+   "/states/kansas/accounting-bachelors",
+   "/states/kansas/psychology-bachelors",
+   "/states/kentucky/business-administration-certificate",
+   "/states/kentucky/welding-and-machining-certificate",
+   "/states/louisiana/criminal-justice-bachelors",
+   "/states/louisiana/diagnostic-and-treatment-professions-associate",
+   "/states/louisiana/health-and-medical-administration-certificate",
+   "/states/louisiana/liberal-arts-and-general-studies-associate",
+   "/states/maine/business-administration-bachelors",
+   "/states/maryland/accounting-bachelors",
+   "/states/maryland/communications-bachelors",
+   "/states/maryland/computer-and-information-science-bachelors",
+   "/states/maryland/cosmetology-certificate",
+   "/states/maryland/political-science-bachelors",
+   "/states/massachusetts/business-administration-associate",
+   "/states/massachusetts/computer-and-information-science-bachelors",
+   "/states/massachusetts/experimental-psychology-bachelors",
+   "/states/massachusetts/neuroscience-bachelors",
+   "/states/michigan/allied-health-and-medical-assisting-associate",
+   "/states/michigan/allied-health-and-medical-assisting-certificate",
+   "/states/michigan/economics-bachelors",
+   "/states/michigan/history-bachelors",
+   "/states/michigan/sociology-bachelors",
+   "/states/minnesota/economics-bachelors",
+   "/states/minnesota/english-bachelors",
+   "/states/minnesota/environmental-science-and-conservation-bachelors",
+   "/states/minnesota/health-and-medical-administration-bachelors",
+   "/states/mississippi/psychology-bachelors",
+   "/states/mississippi/teacher-education-bachelors",
+   "/states/missouri/marketing-bachelors",
+   "/states/nebraska/nursing-bachelors",
+   "/states/new-jersey/fine-and-studio-arts-bachelors",
+   "/states/new-york/arts-management-bachelors",
+   "/states/new-york/biochemistry-and-molecular-biology-bachelors",
+   "/states/new-york/business-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 141 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (974)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/wisconsin/diagnostic-and-treatment-professions-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 41
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-008/new-york--human-services-associate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-008/new-york--human-services-associate-phone.png",
+   "data/generated/screenshots/bucket-state-programs-008/florida--fire-science-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-008/florida--fire-science-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 9,
+  "checkedAt": "2026-10-05T17:04:46.880Z",
+  "passed": true,
+  "pages": [
+   "/states/new-york/chemistry-bachelors",
+   "/states/new-york/civil-engineering-bachelors",
+   "/states/new-york/design-and-applied-arts-associate",
+   "/states/new-york/experimental-psychology-bachelors",
+   "/states/north-carolina/anthropology-bachelors",
+   "/states/north-carolina/chemistry-bachelors",
+   "/states/north-carolina/marketing-bachelors",
+   "/states/north-carolina/public-health-bachelors",
+   "/states/north-carolina/subject-area-teacher-education-bachelors",
+   "/states/north-carolina/theatre-bachelors",
+   "/states/ohio/chemical-engineering-bachelors",
+   "/states/ohio/civil-engineering-bachelors",
+   "/states/ohio/music-bachelors",
+   "/states/ohio/nursing-certificate",
+   "/states/ohio/radio-tv-and-digital-media-bachelors",
+   "/states/oklahoma/kinesiology-and-exercise-science-bachelors",
+   "/states/oklahoma/psychology-bachelors",
+   "/states/oregon/communications-bachelors",
+   "/states/oregon/cosmetology-certificate",
+   "/states/pennsylvania/management-science-bachelors",
+   "/states/pennsylvania/public-health-bachelors",
+   "/states/pennsylvania/welding-and-machining-certificate",
+   "/states/tennessee/english-bachelors",
+   "/states/tennessee/liberal-arts-and-general-studies-bachelors",
+   "/states/tennessee/marketing-bachelors",
+   "/states/tennessee/music-bachelors",
+   "/states/texas/animal-science-bachelors",
+   "/states/texas/human-development-and-family-studies-bachelors",
+   "/states/texas/public-relations-and-advertising-bachelors",
+   "/states/west-virginia/nursing-associate",
+   "/states/wisconsin/criminal-justice-bachelors",
+   "/states/wisconsin/english-bachelors",
+   "/states/wisconsin/finance-bachelors",
+   "/states/wisconsin/history-bachelors",
+   "/states/wisconsin/political-science-bachelors",
+   "/states/wisconsin/social-work-bachelors",
+   "/states/wisconsin/special-education-bachelors",
+   "/states/wisconsin/vehicle-maintenance-and-repair-certificate",
+   "/states/alabama/finance-bachelors",
+   "/states/alabama/fine-and-studio-arts-bachelors",
+   "/states/alabama/marketing-bachelors",
+   "/states/arkansas/biology-bachelors",
+   "/states/california/aerospace-engineering-bachelors",
+   "/states/california/diagnostic-and-treatment-professions-bachelors",
+   "/states/california/international-studies-bachelors",
+   "/states/california/neuroscience-bachelors",
+   "/states/california/nutrition-science-bachelors",
+   "/states/california/parks-and-recreation-bachelors",
+   "/states/connecticut/finance-bachelors",
+   "/states/florida/civil-engineering-bachelors",
+   "/states/florida/hospitality-management-bachelors",
+   "/states/florida/interdisciplinary-studies-bachelors",
+   "/states/florida/social-work-bachelors",
+   "/states/florida/special-education-bachelors",
+   "/states/georgia/business-administration-associate",
+   "/states/georgia/finance-bachelors",
+   "/states/georgia/health-and-medical-administration-bachelors",
+   "/states/illinois/dental-hygiene-and-assisting-associate",
+   "/states/illinois/public-relations-and-advertising-bachelors",
+   "/states/indiana/computer-and-information-science-bachelors",
+   "/states/indiana/electrical-engineering-bachelors",
+   "/states/indiana/mechanical-engineering-bachelors",
+   "/states/iowa/criminal-justice-bachelors",
+   "/states/iowa/vehicle-maintenance-and-repair-associate",
+   "/states/kansas/kinesiology-and-exercise-science-bachelors",
+   "/states/kansas/practical-nursing-certificate",
+   "/states/kentucky/computer-and-information-science-certificate",
+   "/states/kentucky/social-work-bachelors",
+   "/states/louisiana/computer-science-bachelors",
+   "/states/louisiana/liberal-arts-and-general-studies-bachelors",
+   "/states/maryland/english-bachelors",
+   "/states/maryland/sociology-bachelors",
+   "/states/massachusetts/romance-languages-bachelors",
+   "/states/michigan/computer-science-bachelors",
+   "/states/michigan/design-and-applied-arts-bachelors",
+   "/states/michigan/environmental-science-and-conservation-bachelors",
+   "/states/michigan/health-and-medical-administration-bachelors",
+   "/states/michigan/medical-laboratory-science-bachelors",
+   "/states/minnesota/human-resources-bachelors",
+   "/states/minnesota/vehicle-maintenance-and-repair-associate",
+   "/states/mississippi/biology-bachelors",
+   "/states/mississippi/diagnostic-and-treatment-professions-associate",
+   "/states/missouri/business-bachelors",
+   "/states/missouri/finance-bachelors",
+   "/states/missouri/fine-and-studio-arts-bachelors",
+   "/states/missouri/health-and-medical-administration-bachelors",
+   "/states/missouri/social-work-bachelors",
+   "/states/nebraska/teacher-education-bachelors",
+   "/states/new-jersey/marketing-bachelors",
+   "/states/new-jersey/music-bachelors",
+   "/states/new-jersey/teacher-education-bachelors",
+   "/states/new-mexico/liberal-arts-and-general-studies-associate",
+   "/states/new-york/dance-bachelors",
+   "/states/new-york/ethnic-cultural-and-gender-studies-bachelors",
+   "/states/new-york/international-relations-bachelors",
+   "/states/new-york/other-social-sciences-bachelors",
+   "/states/new-york/philosophy-bachelors",
+   "/states/north-carolina/computer-and-information-science-bachelors",
+   "/states/north-carolina/design-and-applied-arts-bachelors",
+   "/states/north-carolina/economics-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 127 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (884)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 27
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-009/new-york--chemistry-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-009/new-york--chemistry-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-009/florida--special-education-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-009/florida--special-education-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 10,
+  "checkedAt": "2026-10-05T17:05:05.066Z",
+  "passed": true,
+  "pages": [
+   "/states/north-carolina/finance-bachelors",
+   "/states/north-carolina/health-and-medical-administration-bachelors",
+   "/states/north-carolina/mathematics-bachelors",
+   "/states/north-dakota/business-administration-bachelors",
+   "/states/ohio/criminal-justice-associate",
+   "/states/ohio/health-and-medical-administration-bachelors",
+   "/states/ohio/health-and-medical-administration-certificate",
+   "/states/ohio/sociology-bachelors",
+   "/states/oklahoma/liberal-arts-and-general-studies-associate",
+   "/states/oklahoma/subject-area-teacher-education-bachelors",
+   "/states/oregon/business-administration-bachelors",
+   "/states/pennsylvania/allied-health-and-medical-assisting-certificate",
+   "/states/pennsylvania/business-associate",
+   "/states/pennsylvania/chemical-engineering-bachelors",
+   "/states/pennsylvania/chemistry-bachelors",
+   "/states/pennsylvania/civil-engineering-bachelors",
+   "/states/pennsylvania/criminology-bachelors",
+   "/states/pennsylvania/hospitality-management-bachelors",
+   "/states/pennsylvania/human-resources-bachelors",
+   "/states/pennsylvania/public-relations-and-advertising-bachelors",
+   "/states/puerto-rico/allied-health-and-medical-assisting-associate",
+   "/states/puerto-rico/criminal-justice-bachelors",
+   "/states/south-carolina/allied-health-and-medical-assisting-certificate",
+   "/states/south-carolina/computer-and-information-science-bachelors",
+   "/states/south-carolina/cosmetology-certificate",
+   "/states/south-carolina/diagnostic-and-treatment-professions-associate",
+   "/states/south-carolina/english-bachelors",
+   "/states/south-carolina/history-bachelors",
+   "/states/south-carolina/other-interdisciplinary-studies-associate",
+   "/states/south-carolina/sociology-bachelors",
+   "/states/south-carolina/subject-area-teacher-education-bachelors",
+   "/states/south-carolina/welding-and-machining-certificate",
+   "/states/tennessee/accounting-bachelors",
+   "/states/tennessee/computer-science-bachelors",
+   "/states/tennessee/history-bachelors",
+   "/states/texas/biochemistry-and-molecular-biology-bachelors",
+   "/states/texas/communication-sciences-and-disorders-bachelors",
+   "/states/texas/computer-engineering-bachelors",
+   "/states/texas/computer-science-bachelors",
+   "/states/texas/environmental-science-and-conservation-bachelors",
+   "/states/texas/health-and-medical-administration-bachelors",
+   "/states/texas/hvac-certificate",
+   "/states/texas/international-business-bachelors",
+   "/states/texas/journalism-bachelors",
+   "/states/texas/medical-laboratory-science-bachelors",
+   "/states/utah/business-administration-bachelors",
+   "/states/virginia/chemistry-bachelors",
+   "/states/virginia/international-relations-bachelors",
+   "/states/virginia/other-interdisciplinary-studies-bachelors",
+   "/states/virginia/vehicle-maintenance-and-repair-certificate",
+   "/states/washington/computer-science-bachelors",
+   "/states/washington/english-bachelors",
+   "/states/west-virginia/liberal-arts-and-general-studies-associate",
+   "/states/west-virginia/nursing-bachelors",
+   "/states/wisconsin/accounting-associate",
+   "/states/wisconsin/computer-and-information-science-bachelors",
+   "/states/wisconsin/computer-networking-associate",
+   "/states/wisconsin/design-and-applied-arts-bachelors",
+   "/states/wisconsin/economics-bachelors",
+   "/states/wisconsin/health-and-medical-administration-certificate",
+   "/states/wisconsin/mathematics-bachelors",
+   "/states/wisconsin/romance-languages-bachelors",
+   "/states/wisconsin/sociology-bachelors",
+   "/states/alabama/english-bachelors",
+   "/states/alabama/history-bachelors",
+   "/states/alabama/kinesiology-and-exercise-science-bachelors",
+   "/states/alabama/social-work-bachelors",
+   "/states/arizona/health-and-medical-administration-certificate",
+   "/states/arizona/nursing-bachelors",
+   "/states/arkansas/accounting-bachelors",
+   "/states/arkansas/criminal-justice-bachelors",
+   "/states/arkansas/diagnostic-and-treatment-professions-associate",
+   "/states/arkansas/subject-area-teacher-education-bachelors",
+   "/states/california/applied-mathematics-bachelors",
+   "/states/california/area-studies-bachelors",
+   "/states/california/business-economics-bachelors",
+   "/states/california/cognitive-science-bachelors",
+   "/states/california/electrician-training-certificate",
+   "/states/california/experimental-psychology-bachelors",
+   "/states/california/graphic-communications-bachelors",
+   "/states/california/international-business-bachelors",
+   "/states/california/other-interdisciplinary-studies-bachelors",
+   "/states/colorado/allied-health-and-medical-assisting-certificate",
+   "/states/colorado/diagnostic-and-treatment-professions-certificate",
+   "/states/colorado/fine-and-studio-arts-bachelors",
+   "/states/colorado/history-bachelors",
+   "/states/colorado/kinesiology-and-exercise-science-bachelors",
+   "/states/colorado/political-science-bachelors",
+   "/states/connecticut/liberal-arts-and-general-studies-bachelors",
+   "/states/florida/design-and-applied-arts-bachelors",
+   "/states/florida/information-technology-bachelors",
+   "/states/florida/management-information-systems-bachelors",
+   "/states/florida/mathematics-bachelors",
+   "/states/florida/public-health-bachelors",
+   "/states/florida/radio-tv-and-digital-media-bachelors",
+   "/states/georgia/journalism-bachelors",
+   "/states/idaho/liberal-arts-and-general-studies-associate",
+   "/states/illinois/environmental-science-and-conservation-bachelors",
+   "/states/illinois/human-resources-bachelors",
+   "/states/illinois/journalism-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 141 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (815)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/ohio/health-and-medical-administration-bachelors)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 41
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-010/north-carolina--finance-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-010/north-carolina--finance-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-010/south-carolina--other-interdisciplinary-studies-associate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-010/south-carolina--other-interdisciplinary-studies-associate-phone.png"
+  ]
+ },
+ {
+  "bucket": 11,
+  "checkedAt": "2026-10-05T17:05:22.339Z",
+  "passed": true,
+  "pages": [
+   "/states/illinois/mechanical-engineering-bachelors",
+   "/states/illinois/radio-tv-and-digital-media-bachelors",
+   "/states/indiana/diagnostic-and-treatment-professions-bachelors",
+   "/states/indiana/economics-bachelors",
+   "/states/indiana/fine-and-studio-arts-bachelors",
+   "/states/iowa/subject-area-teacher-education-bachelors",
+   "/states/kansas/biology-bachelors",
+   "/states/kansas/criminal-justice-bachelors",
+   "/states/kansas/diagnostic-and-treatment-professions-associate",
+   "/states/kansas/marketing-bachelors",
+   "/states/kentucky/allied-health-and-medical-assisting-certificate",
+   "/states/kentucky/computer-and-information-science-associate",
+   "/states/kentucky/computer-and-information-science-bachelors",
+   "/states/kentucky/electrician-training-certificate",
+   "/states/kentucky/english-bachelors",
+   "/states/kentucky/fine-and-studio-arts-bachelors",
+   "/states/kentucky/heavy-equipment-maintenance-associate",
+   "/states/kentucky/heavy-equipment-maintenance-certificate",
+   "/states/kentucky/kinesiology-and-exercise-science-bachelors",
+   "/states/kentucky/liberal-arts-and-general-studies-bachelors",
+   "/states/maryland/criminal-justice-bachelors",
+   "/states/maryland/diagnostic-and-treatment-professions-associate",
+   "/states/maryland/teacher-education-bachelors",
+   "/states/massachusetts/business-bachelors",
+   "/states/massachusetts/civil-engineering-bachelors",
+   "/states/massachusetts/diagnostic-and-treatment-professions-associate",
+   "/states/massachusetts/other-interdisciplinary-studies-bachelors",
+   "/states/michigan/business-bachelors",
+   "/states/michigan/culinary-arts-associate",
+   "/states/michigan/dental-hygiene-and-assisting-associate",
+   "/states/michigan/health-and-medical-administration-certificate",
+   "/states/michigan/romance-languages-bachelors",
+   "/states/michigan/special-education-bachelors",
+   "/states/minnesota/allied-health-and-medical-assisting-associate",
+   "/states/minnesota/cosmetology-certificate",
+   "/states/minnesota/dental-hygiene-and-assisting-associate",
+   "/states/minnesota/electromechanical-technology-associate",
+   "/states/minnesota/fine-and-studio-arts-bachelors",
+   "/states/mississippi/nursing-bachelors",
+   "/states/missouri/computer-science-bachelors",
+   "/states/missouri/design-and-applied-arts-bachelors",
+   "/states/missouri/sociology-bachelors",
+   "/states/nebraska/psychology-bachelors",
+   "/states/new-hampshire/business-administration-bachelors",
+   "/states/new-hampshire/nursing-bachelors",
+   "/states/new-hampshire/psychology-bachelors",
+   "/states/new-jersey/design-and-applied-arts-bachelors",
+   "/states/new-jersey/economics-bachelors",
+   "/states/new-jersey/finance-bachelors",
+   "/states/new-mexico/nursing-associate",
+   "/states/new-york/area-studies-bachelors",
+   "/states/new-york/diagnostic-and-treatment-professions-certificate",
+   "/states/new-york/health-and-medical-administration-certificate",
+   "/states/new-york/mechanical-engineering-technology-bachelors",
+   "/states/new-york/medical-laboratory-science-bachelors",
+   "/states/new-york/neuroscience-bachelors",
+   "/states/new-york/social-sciences-bachelors",
+   "/states/north-carolina/environmental-science-and-conservation-bachelors",
+   "/states/ohio/chemistry-bachelors",
+   "/states/ohio/computer-engineering-bachelors",
+   "/states/ohio/hvac-certificate",
+   "/states/ohio/management-information-systems-bachelors",
+   "/states/oklahoma/biology-bachelors",
+   "/states/oklahoma/diagnostic-and-treatment-professions-certificate",
+   "/states/oregon/kinesiology-and-exercise-science-bachelors",
+   "/states/pennsylvania/business-administration-associate",
+   "/states/pennsylvania/dental-hygiene-and-assisting-associate",
+   "/states/pennsylvania/electrical-engineering-bachelors",
+   "/states/pennsylvania/electrician-training-certificate",
+   "/states/pennsylvania/engineering-bachelors",
+   "/states/pennsylvania/health-and-medical-administration-associate",
+   "/states/pennsylvania/information-science-bachelors",
+   "/states/pennsylvania/journalism-bachelors",
+   "/states/pennsylvania/vehicle-maintenance-and-repair-associate",
+   "/states/pennsylvania/vehicle-maintenance-and-repair-certificate",
+   "/states/puerto-rico/teacher-education-bachelors",
+   "/states/rhode-island/business-administration-bachelors",
+   "/states/south-carolina/accounting-bachelors",
+   "/states/south-carolina/liberal-arts-and-general-studies-bachelors",
+   "/states/south-carolina/marketing-bachelors",
+   "/states/south-dakota/business-administration-bachelors",
+   "/states/south-dakota/teacher-education-bachelors",
+   "/states/tennessee/fine-and-studio-arts-bachelors",
+   "/states/tennessee/mechanical-engineering-bachelors",
+   "/states/tennessee/sociology-bachelors",
+   "/states/texas/biology-associate",
+   "/states/texas/chemical-engineering-bachelors",
+   "/states/texas/dental-hygiene-and-assisting-certificate",
+   "/states/texas/industrial-engineering-bachelors",
+   "/states/texas/specialized-sales-and-merchandising-bachelors",
+   "/states/utah/accounting-bachelors",
+   "/states/utah/allied-health-and-medical-assisting-certificate",
+   "/states/utah/communications-bachelors",
+   "/states/utah/english-bachelors",
+   "/states/utah/marketing-bachelors",
+   "/states/virginia/allied-health-and-medical-assisting-associate",
+   "/states/virginia/diagnostic-and-treatment-professions-certificate",
+   "/states/virginia/fine-and-studio-arts-bachelors",
+   "/states/virginia/mathematics-bachelors",
+   "/states/virginia/social-work-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 140 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (754)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/kentucky/computer-and-information-science-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 40
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-011/illinois--mechanical-engineering-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-011/illinois--mechanical-engineering-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-011/kansas--criminal-justice-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-011/kansas--criminal-justice-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 12,
+  "checkedAt": "2026-10-05T17:05:39.449Z",
+  "passed": true,
+  "pages": [
+   "/states/virginia/subject-area-teacher-education-bachelors",
+   "/states/washington/accounting-bachelors",
+   "/states/washington/sociology-bachelors",
+   "/states/west-virginia/psychology-bachelors",
+   "/states/west-virginia/teacher-education-bachelors",
+   "/states/wisconsin/business-bachelors",
+   "/states/wisconsin/criminal-justice-certificate",
+   "/states/wisconsin/health-and-medical-administration-associate",
+   "/states/wisconsin/health-and-medical-administration-bachelors",
+   "/states/alabama/cosmetology-certificate",
+   "/states/alabama/electrical-engineering-bachelors",
+   "/states/alabama/mechanical-engineering-bachelors",
+   "/states/arizona/accounting-bachelors",
+   "/states/arizona/dental-hygiene-and-assisting-associate",
+   "/states/arizona/diagnostic-and-treatment-professions-associate",
+   "/states/arizona/diagnostic-and-treatment-professions-certificate",
+   "/states/arizona/health-and-medical-administration-associate",
+   "/states/arizona/teacher-education-bachelors",
+   "/states/arkansas/communications-bachelors",
+   "/states/arkansas/computer-and-information-science-bachelors",
+   "/states/arkansas/kinesiology-and-exercise-science-bachelors",
+   "/states/arkansas/social-work-bachelors",
+   "/states/california/criminology-bachelors",
+   "/states/california/dance-bachelors",
+   "/states/california/dental-hygiene-and-assisting-associate",
+   "/states/california/hospitality-management-bachelors",
+   "/states/california/practical-nursing-associate",
+   "/states/california/public-administration-bachelors",
+   "/states/california/statistics-bachelors",
+   "/states/california/welding-and-machining-certificate",
+   "/states/colorado/business-bachelors",
+   "/states/colorado/computer-science-bachelors",
+   "/states/colorado/criminal-justice-bachelors",
+   "/states/colorado/dental-hygiene-and-assisting-certificate",
+   "/states/colorado/economics-bachelors",
+   "/states/colorado/environmental-science-and-conservation-bachelors",
+   "/states/connecticut/computer-and-information-science-bachelors",
+   "/states/connecticut/economics-bachelors",
+   "/states/connecticut/english-bachelors",
+   "/states/connecticut/marketing-bachelors",
+   "/states/connecticut/sociology-bachelors",
+   "/states/district-of-columbia/business-administration-bachelors",
+   "/states/florida/chemistry-bachelors",
+   "/states/florida/criminology-bachelors",
+   "/states/florida/ecology-and-evolution-bachelors",
+   "/states/florida/film-and-photography-bachelors",
+   "/states/florida/international-relations-bachelors",
+   "/states/florida/public-administration-bachelors",
+   "/states/georgia/allied-health-and-medical-assisting-associate",
+   "/states/georgia/chemistry-bachelors",
+   "/states/georgia/health-sciences-bachelors",
+   "/states/georgia/public-health-bachelors",
+   "/states/georgia/radio-tv-and-digital-media-bachelors",
+   "/states/georgia/theatre-bachelors",
+   "/states/idaho/business-administration-bachelors",
+   "/states/illinois/anthropology-bachelors",
+   "/states/illinois/electrical-engineering-bachelors",
+   "/states/illinois/mathematics-bachelors",
+   "/states/indiana/allied-health-and-medical-assisting-associate",
+   "/states/indiana/design-and-applied-arts-bachelors",
+   "/states/indiana/mathematics-bachelors",
+   "/states/indiana/romance-languages-bachelors",
+   "/states/iowa/welding-and-machining-certificate",
+   "/states/kansas/communications-bachelors",
+   "/states/kansas/finance-bachelors",
+   "/states/kentucky/finance-bachelors",
+   "/states/kentucky/marketing-bachelors",
+   "/states/kentucky/music-bachelors",
+   "/states/kentucky/other-interdisciplinary-studies-associate",
+   "/states/kentucky/special-education-bachelors",
+   "/states/kentucky/subject-area-teacher-education-bachelors",
+   "/states/louisiana/business-associate",
+   "/states/louisiana/english-bachelors",
+   "/states/louisiana/finance-bachelors",
+   "/states/louisiana/kinesiology-and-exercise-science-bachelors",
+   "/states/louisiana/other-interdisciplinary-studies-bachelors",
+   "/states/louisiana/political-science-bachelors",
+   "/states/louisiana/welding-and-machining-certificate",
+   "/states/maine/nursing-bachelors",
+   "/states/maine/psychology-bachelors",
+   "/states/maryland/economics-bachelors",
+   "/states/maryland/information-science-bachelors",
+   "/states/maryland/kinesiology-and-exercise-science-bachelors",
+   "/states/maryland/social-work-bachelors",
+   "/states/massachusetts/biochemistry-and-molecular-biology-bachelors",
+   "/states/massachusetts/chemistry-bachelors",
+   "/states/massachusetts/social-work-bachelors",
+   "/states/michigan/computer-engineering-bachelors",
+   "/states/michigan/dental-hygiene-and-assisting-certificate",
+   "/states/michigan/diagnostic-and-treatment-professions-bachelors",
+   "/states/michigan/film-and-photography-bachelors",
+   "/states/michigan/human-development-and-family-studies-bachelors",
+   "/states/michigan/music-bachelors",
+   "/states/minnesota/accounting-associate",
+   "/states/minnesota/computer-and-information-science-bachelors",
+   "/states/minnesota/health-and-medical-administration-certificate",
+   "/states/minnesota/other-interdisciplinary-studies-bachelors",
+   "/states/minnesota/public-health-bachelors",
+   "/states/mississippi/subject-area-teacher-education-bachelors",
+   "/states/missouri/allied-health-and-medical-assisting-certificate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 141 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (683)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/wisconsin/health-and-medical-administration-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 41
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-012/virginia--subject-area-teacher-education-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-012/virginia--subject-area-teacher-education-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-012/alabama--cosmetology-certificate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-012/alabama--cosmetology-certificate-phone.png"
+  ]
+ },
+ {
+  "bucket": 13,
+  "checkedAt": "2026-10-05T17:05:57.257Z",
+  "passed": true,
+  "pages": [
+   "/states/missouri/english-bachelors",
+   "/states/missouri/public-relations-and-advertising-bachelors",
+   "/states/nebraska/biology-bachelors",
+   "/states/nebraska/criminal-justice-bachelors",
+   "/states/nevada/cosmetology-certificate",
+   "/states/new-jersey/allied-health-and-medical-assisting-associate",
+   "/states/new-york/clinical-and-counseling-psychology-bachelors",
+   "/states/new-york/communication-sciences-and-disorders-bachelors",
+   "/states/new-york/criminology-bachelors",
+   "/states/new-york/dental-hygiene-and-assisting-certificate",
+   "/states/new-york/health-sciences-bachelors",
+   "/states/new-york/human-services-bachelors",
+   "/states/new-york/management-science-bachelors",
+   "/states/new-york/rehabilitation-and-therapy-bachelors",
+   "/states/new-york/special-education-bachelors",
+   "/states/north-carolina/computer-and-information-science-associate",
+   "/states/north-carolina/teacher-education-certificate",
+   "/states/north-dakota/nursing-bachelors",
+   "/states/north-dakota/teacher-education-bachelors",
+   "/states/ohio/biomedical-engineering-bachelors",
+   "/states/ohio/business-bachelors",
+   "/states/ohio/dental-hygiene-and-assisting-certificate",
+   "/states/ohio/environmental-science-and-conservation-bachelors",
+   "/states/ohio/health-and-medical-administration-associate",
+   "/states/ohio/international-business-bachelors",
+   "/states/ohio/journalism-bachelors",
+   "/states/ohio/mathematics-bachelors",
+   "/states/ohio/public-health-bachelors",
+   "/states/ohio/romance-languages-bachelors",
+   "/states/oklahoma/accounting-bachelors",
+   "/states/oklahoma/allied-health-and-medical-assisting-associate",
+   "/states/oklahoma/business-administration-associate",
+   "/states/oklahoma/criminal-justice-bachelors",
+   "/states/pennsylvania/biomedical-engineering-bachelors",
+   "/states/pennsylvania/business-bachelors",
+   "/states/pennsylvania/computer-engineering-bachelors",
+   "/states/pennsylvania/geology-and-earth-science-bachelors",
+   "/states/pennsylvania/health-and-medical-administration-certificate",
+   "/states/pennsylvania/health-sciences-bachelors",
+   "/states/pennsylvania/international-business-bachelors",
+   "/states/pennsylvania/international-relations-bachelors",
+   "/states/pennsylvania/management-information-systems-bachelors",
+   "/states/pennsylvania/massage-therapy-certificate",
+   "/states/pennsylvania/radio-tv-and-digital-media-bachelors",
+   "/states/pennsylvania/teacher-education-associate",
+   "/states/pennsylvania/writing-and-rhetoric-bachelors",
+   "/states/puerto-rico/diagnostic-and-treatment-professions-bachelors",
+   "/states/rhode-island/biology-bachelors",
+   "/states/rhode-island/communications-bachelors",
+   "/states/rhode-island/finance-bachelors",
+   "/states/rhode-island/marketing-bachelors",
+   "/states/south-carolina/fine-and-studio-arts-bachelors",
+   "/states/south-carolina/practical-nursing-certificate",
+   "/states/south-dakota/nursing-bachelors",
+   "/states/tennessee/allied-health-and-medical-assisting-certificate",
+   "/states/tennessee/finance-bachelors",
+   "/states/texas/agriculture-bachelors",
+   "/states/texas/biomedical-engineering-bachelors",
+   "/states/texas/construction-engineering-technology-bachelors",
+   "/states/texas/culinary-arts-certificate",
+   "/states/texas/diagnostic-and-treatment-professions-bachelors",
+   "/states/texas/electromechanical-technology-associate",
+   "/states/texas/entrepreneurship-bachelors",
+   "/states/texas/international-studies-bachelors",
+   "/states/texas/massage-therapy-certificate",
+   "/states/texas/writing-and-rhetoric-bachelors",
+   "/states/utah/computer-science-bachelors",
+   "/states/utah/liberal-arts-and-general-studies-associate",
+   "/states/utah/psychology-bachelors",
+   "/states/utah/subject-area-teacher-education-bachelors",
+   "/states/utah/teacher-education-bachelors",
+   "/states/virginia/computer-science-bachelors",
+   "/states/virginia/environmental-science-and-conservation-bachelors",
+   "/states/virginia/marketing-bachelors",
+   "/states/virginia/mechanical-engineering-bachelors",
+   "/states/washington/design-and-applied-arts-bachelors",
+   "/states/washington/electrical-engineering-bachelors",
+   "/states/washington/kinesiology-and-exercise-science-bachelors",
+   "/states/washington/mechanical-engineering-bachelors",
+   "/states/washington/romance-languages-bachelors",
+   "/states/west-virginia/allied-health-and-medical-assisting-associate",
+   "/states/west-virginia/criminal-justice-bachelors",
+   "/states/west-virginia/kinesiology-and-exercise-science-bachelors",
+   "/states/wisconsin/design-and-applied-arts-associate",
+   "/states/wisconsin/environmental-science-and-conservation-bachelors",
+   "/states/wisconsin/information-technology-associate",
+   "/states/wisconsin/liberal-arts-and-general-studies-associate",
+   "/states/wisconsin/liberal-arts-and-general-studies-bachelors",
+   "/states/alabama/practical-nursing-certificate",
+   "/states/arizona/communications-bachelors",
+   "/states/arizona/criminal-justice-bachelors",
+   "/states/arizona/finance-bachelors",
+   "/states/arizona/health-and-medical-administration-bachelors",
+   "/states/arizona/marketing-bachelors",
+   "/states/arizona/psychology-bachelors",
+   "/states/arkansas/agricultural-business-bachelors",
+   "/states/arkansas/english-bachelors",
+   "/states/arkansas/finance-bachelors",
+   "/states/california/business-bachelors",
+   "/states/california/health-and-medical-administration-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 145 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (663)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/wisconsin/liberal-arts-and-general-studies-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 45
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-013/missouri--english-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-013/missouri--english-bachelors-phone.png",
+   "data/generated/screenshots/bucket-state-programs-013/missouri--public-relations-and-advertising-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-013/missouri--public-relations-and-advertising-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 14,
+  "checkedAt": "2026-10-05T17:06:12.949Z",
+  "passed": true,
+  "pages": [
+   "/states/california/human-resources-bachelors",
+   "/states/california/management-information-systems-bachelors",
+   "/states/california/management-science-bachelors",
+   "/states/california/physiology-and-pathology-bachelors",
+   "/states/california/subject-area-teacher-education-bachelors",
+   "/states/colorado/computer-and-information-science-bachelors",
+   "/states/colorado/diagnostic-and-treatment-professions-associate",
+   "/states/colorado/mathematics-bachelors",
+   "/states/colorado/mechanical-engineering-bachelors",
+   "/states/connecticut/cosmetology-certificate",
+   "/states/connecticut/history-bachelors",
+   "/states/connecticut/kinesiology-and-exercise-science-bachelors",
+   "/states/connecticut/mechanical-engineering-bachelors",
+   "/states/connecticut/subject-area-teacher-education-bachelors",
+   "/states/district-of-columbia/nursing-bachelors",
+   "/states/district-of-columbia/political-science-bachelors",
+   "/states/district-of-columbia/psychology-bachelors",
+   "/states/florida/anthropology-bachelors",
+   "/states/florida/business-bachelors",
+   "/states/florida/criminal-justice-associate",
+   "/states/florida/diagnostic-and-treatment-professions-bachelors",
+   "/states/florida/international-business-bachelors",
+   "/states/florida/paralegal-studies-associate",
+   "/states/georgia/computer-science-bachelors",
+   "/states/georgia/design-and-applied-arts-bachelors",
+   "/states/georgia/economics-bachelors",
+   "/states/georgia/information-science-bachelors",
+   "/states/hawaii/business-administration-bachelors",
+   "/states/hawaii/liberal-arts-and-general-studies-associate",
+   "/states/idaho/accounting-bachelors",
+   "/states/idaho/biology-bachelors",
+   "/states/idaho/nursing-associate",
+   "/states/idaho/teacher-education-bachelors",
+   "/states/illinois/civil-engineering-bachelors",
+   "/states/illinois/diagnostic-and-treatment-professions-certificate",
+   "/states/illinois/industrial-engineering-bachelors",
+   "/states/illinois/neuroscience-bachelors",
+   "/states/illinois/public-health-bachelors",
+   "/states/indiana/chemistry-bachelors",
+   "/states/indiana/civil-engineering-bachelors",
+   "/states/indiana/health-sciences-bachelors",
+   "/states/indiana/history-bachelors",
+   "/states/indiana/hospitality-management-bachelors",
+   "/states/indiana/special-education-bachelors",
+   "/states/iowa/allied-health-and-medical-assisting-associate",
+   "/states/iowa/allied-health-and-medical-assisting-certificate",
+   "/states/iowa/communications-bachelors",
+   "/states/iowa/human-resources-bachelors",
+   "/states/iowa/liberal-arts-and-general-studies-bachelors",
+   "/states/iowa/social-work-bachelors",
+   "/states/kansas/liberal-arts-and-general-studies-bachelors",
+   "/states/kansas/social-work-bachelors",
+   "/states/kansas/subject-area-teacher-education-bachelors",
+   "/states/kentucky/history-bachelors",
+   "/states/kentucky/public-relations-and-advertising-bachelors",
+   "/states/louisiana/dental-hygiene-and-assisting-certificate",
+   "/states/louisiana/human-development-and-family-studies-bachelors",
+   "/states/louisiana/industrial-technology-associate",
+   "/states/maine/biology-bachelors",
+   "/states/maine/nursing-associate",
+   "/states/maine/teacher-education-bachelors",
+   "/states/maryland/environmental-science-and-conservation-bachelors",
+   "/states/maryland/fine-and-studio-arts-bachelors",
+   "/states/maryland/history-bachelors",
+   "/states/maryland/liberal-arts-and-general-studies-bachelors",
+   "/states/maryland/practical-nursing-certificate",
+   "/states/massachusetts/allied-health-and-medical-assisting-certificate",
+   "/states/massachusetts/biomedical-engineering-bachelors",
+   "/states/massachusetts/chemical-engineering-bachelors",
+   "/states/massachusetts/computer-engineering-bachelors",
+   "/states/massachusetts/criminology-bachelors",
+   "/states/massachusetts/education-bachelors",
+   "/states/michigan/anthropology-bachelors",
+   "/states/michigan/chemical-engineering-bachelors",
+   "/states/michigan/chemistry-bachelors",
+   "/states/michigan/civil-engineering-bachelors",
+   "/states/michigan/hospitality-management-bachelors",
+   "/states/michigan/information-technology-bachelors",
+   "/states/michigan/management-information-systems-bachelors",
+   "/states/michigan/theatre-bachelors",
+   "/states/minnesota/romance-languages-bachelors",
+   "/states/minnesota/sociology-bachelors",
+   "/states/mississippi/accounting-bachelors",
+   "/states/mississippi/criminal-justice-bachelors",
+   "/states/mississippi/kinesiology-and-exercise-science-bachelors",
+   "/states/mississippi/liberal-arts-and-general-studies-bachelors",
+   "/states/missouri/agricultural-business-bachelors",
+   "/states/missouri/business-administration-associate",
+   "/states/missouri/criminal-justice-certificate",
+   "/states/missouri/education-bachelors",
+   "/states/missouri/health-sciences-bachelors",
+   "/states/missouri/history-bachelors",
+   "/states/missouri/mechanical-engineering-bachelors",
+   "/states/missouri/political-science-bachelors",
+   "/states/missouri/special-education-bachelors",
+   "/states/montana/nursing-associate",
+   "/states/montana/nursing-bachelors",
+   "/states/nebraska/kinesiology-and-exercise-science-bachelors",
+   "/states/nebraska/nursing-associate",
+   "/states/new-hampshire/english-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 133 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (603)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/iowa/allied-health-and-medical-assisting-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 33
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-014/california--human-resources-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-014/california--human-resources-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 15,
+  "checkedAt": "2026-10-05T17:06:29.698Z",
+  "passed": true,
+  "pages": [
+   "/states/new-hampshire/nursing-associate",
+   "/states/new-jersey/health-sciences-bachelors",
+   "/states/new-jersey/kinesiology-and-exercise-science-bachelors",
+   "/states/new-jersey/mechanical-engineering-bachelors",
+   "/states/new-jersey/romance-languages-bachelors",
+   "/states/new-jersey/social-work-bachelors",
+   "/states/new-jersey/subject-area-teacher-education-bachelors",
+   "/states/new-jersey/theatre-bachelors",
+   "/states/new-york/communications-associate",
+   "/states/new-york/computer-and-information-science-associate",
+   "/states/new-york/culinary-arts-associate",
+   "/states/new-york/electrical-engineering-technology-bachelors",
+   "/states/new-york/graphic-communications-bachelors",
+   "/states/new-york/health-sciences-associate",
+   "/states/new-york/human-development-and-family-studies-bachelors",
+   "/states/new-york/international-business-bachelors",
+   "/states/new-york/other-health-professions-bachelors",
+   "/states/new-york/other-interdisciplinary-studies-bachelors",
+   "/states/new-york/physics-bachelors",
+   "/states/new-york/visual-and-performing-arts-bachelors",
+   "/states/north-carolina/computer-and-information-science-certificate",
+   "/states/north-carolina/hospitality-management-bachelors",
+   "/states/north-carolina/music-bachelors",
+   "/states/north-carolina/special-education-bachelors",
+   "/states/ohio/business-economics-bachelors",
+   "/states/ohio/criminology-bachelors",
+   "/states/ohio/dietetics-bachelors",
+   "/states/ohio/geology-and-earth-science-bachelors",
+   "/states/ohio/information-science-bachelors",
+   "/states/ohio/other-interdisciplinary-studies-bachelors",
+   "/states/ohio/pre-health-studies-bachelors",
+   "/states/ohio/teacher-education-associate",
+   "/states/oklahoma/marketing-bachelors",
+   "/states/oregon/accounting-bachelors",
+   "/states/oregon/allied-health-and-medical-assisting-certificate",
+   "/states/oregon/diagnostic-and-treatment-professions-associate",
+   "/states/oregon/economics-bachelors",
+   "/states/oregon/english-bachelors",
+   "/states/oregon/environmental-science-and-conservation-bachelors",
+   "/states/oregon/political-science-bachelors",
+   "/states/oregon/teacher-education-bachelors",
+   "/states/pennsylvania/electrician-training-associate",
+   "/states/pennsylvania/hvac-certificate",
+   "/states/pennsylvania/information-technology-bachelors",
+   "/states/pennsylvania/neuroscience-bachelors",
+   "/states/pennsylvania/philosophy-bachelors",
+   "/states/pennsylvania/truck-driving-and-equipment-operation-certificate",
+   "/states/puerto-rico/nursing-associate",
+   "/states/puerto-rico/psychology-bachelors",
+   "/states/rhode-island/accounting-bachelors",
+   "/states/rhode-island/political-science-bachelors",
+   "/states/south-carolina/criminal-justice-associate",
+   "/states/tennessee/other-interdisciplinary-studies-bachelors",
+   "/states/texas/agricultural-business-bachelors",
+   "/states/texas/architecture-bachelors",
+   "/states/texas/computer-networking-associate",
+   "/states/texas/dental-hygiene-and-assisting-bachelors",
+   "/states/texas/geology-and-earth-science-bachelors",
+   "/states/texas/health-and-medical-administration-associate",
+   "/states/texas/hospitality-management-bachelors",
+   "/states/texas/linguistics-and-language-studies-bachelors",
+   "/states/texas/management-science-bachelors",
+   "/states/texas/petroleum-engineering-bachelors",
+   "/states/texas/philosophy-bachelors",
+   "/states/texas/physics-bachelors",
+   "/states/texas/psychology-associate",
+   "/states/utah/finance-bachelors",
+   "/states/utah/kinesiology-and-exercise-science-bachelors",
+   "/states/utah/nursing-associate",
+   "/states/utah/public-health-bachelors",
+   "/states/virginia/biological-and-physical-sciences-associate",
+   "/states/virginia/design-and-applied-arts-bachelors",
+   "/states/virginia/electrical-engineering-bachelors",
+   "/states/virginia/theatre-bachelors",
+   "/states/washington/allied-health-and-medical-assisting-certificate",
+   "/states/washington/computer-and-information-science-bachelors",
+   "/states/washington/diagnostic-and-treatment-professions-associate",
+   "/states/washington/environmental-science-and-conservation-bachelors",
+   "/states/washington/fine-and-studio-arts-bachelors",
+   "/states/washington/history-bachelors",
+   "/states/washington/marketing-bachelors",
+   "/states/washington/music-bachelors",
+   "/states/west-virginia/biology-bachelors",
+   "/states/wisconsin/chemistry-bachelors",
+   "/states/wisconsin/diagnostic-and-treatment-professions-bachelors",
+   "/states/wisconsin/human-resources-associate",
+   "/states/wisconsin/mechanical-engineering-bachelors",
+   "/states/wisconsin/mental-health-and-addiction-services-associate",
+   "/states/wisconsin/teacher-education-associate",
+   "/states/wisconsin/theatre-bachelors",
+   "/states/wyoming/nursing-associate",
+   "/states/alabama/civil-engineering-bachelors",
+   "/states/alabama/liberal-arts-and-general-studies-bachelors",
+   "/states/alabama/subject-area-teacher-education-bachelors",
+   "/states/arizona/computer-and-information-science-bachelors",
+   "/states/arizona/english-bachelors",
+   "/states/arizona/environmental-science-and-conservation-bachelors",
+   "/states/arizona/history-bachelors",
+   "/states/arizona/political-science-bachelors",
+   "/states/arizona/practical-nursing-certificate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 140 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (581)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 40
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-015/new-hampshire--nursing-associate-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-015/new-hampshire--nursing-associate-phone.png",
+   "data/generated/screenshots/bucket-state-programs-015/new-jersey--mechanical-engineering-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-015/new-jersey--mechanical-engineering-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 16,
+  "checkedAt": "2026-10-05T17:06:43.884Z",
+  "passed": true,
+  "pages": [
+   "/states/arkansas/business-bachelors",
+   "/states/california/animal-science-bachelors",
+   "/states/california/architecture-bachelors",
+   "/states/california/clinical-and-counseling-psychology-bachelors",
+   "/states/california/environmental-engineering-bachelors",
+   "/states/california/information-technology-certificate",
+   "/states/california/mental-health-and-addiction-services-certificate",
+   "/states/california/urban-studies-bachelors",
+   "/states/colorado/anthropology-bachelors",
+   "/states/colorado/electrical-engineering-bachelors",
+   "/states/colorado/music-bachelors",
+   "/states/connecticut/civil-engineering-bachelors",
+   "/states/connecticut/design-and-applied-arts-bachelors",
+   "/states/connecticut/fine-and-studio-arts-bachelors",
+   "/states/connecticut/management-information-systems-bachelors",
+   "/states/district-of-columbia/accounting-bachelors",
+   "/states/district-of-columbia/criminal-justice-bachelors",
+   "/states/district-of-columbia/finance-bachelors",
+   "/states/florida/construction-engineering-technology-bachelors",
+   "/states/florida/human-services-bachelors",
+   "/states/florida/information-technology-associate",
+   "/states/florida/journalism-bachelors",
+   "/states/florida/social-sciences-bachelors",
+   "/states/georgia/anthropology-bachelors",
+   "/states/georgia/international-relations-bachelors",
+   "/states/georgia/liberal-arts-and-general-studies-bachelors",
+   "/states/georgia/massage-therapy-certificate",
+   "/states/idaho/liberal-arts-and-general-studies-bachelors",
+   "/states/idaho/nursing-bachelors",
+   "/states/idaho/psychology-bachelors",
+   "/states/illinois/biomedical-engineering-bachelors",
+   "/states/illinois/business-bachelors",
+   "/states/illinois/computer-engineering-bachelors",
+   "/states/illinois/health-sciences-bachelors",
+   "/states/illinois/human-development-and-family-studies-bachelors",
+   "/states/indiana/criminal-justice-associate",
+   "/states/indiana/dental-hygiene-and-assisting-bachelors",
+   "/states/indiana/environmental-science-and-conservation-bachelors",
+   "/states/indiana/health-and-medical-administration-bachelors",
+   "/states/indiana/human-resources-bachelors",
+   "/states/indiana/mechanical-engineering-technology-bachelors",
+   "/states/indiana/public-relations-and-advertising-bachelors",
+   "/states/indiana/theatre-bachelors",
+   "/states/iowa/business-bachelors",
+   "/states/iowa/computer-science-bachelors",
+   "/states/iowa/economics-bachelors",
+   "/states/iowa/health-and-medical-administration-certificate",
+   "/states/iowa/political-science-bachelors",
+   "/states/iowa/romance-languages-bachelors",
+   "/states/iowa/sociology-bachelors",
+   "/states/kansas/english-bachelors",
+   "/states/kansas/fine-and-studio-arts-bachelors",
+   "/states/kansas/sociology-bachelors",
+   "/states/kentucky/political-science-bachelors",
+   "/states/louisiana/allied-health-and-medical-assisting-associate",
+   "/states/louisiana/civil-engineering-bachelors",
+   "/states/louisiana/fine-and-studio-arts-bachelors",
+   "/states/louisiana/mechanical-engineering-bachelors",
+   "/states/louisiana/medical-laboratory-science-certificate",
+   "/states/louisiana/social-work-bachelors",
+   "/states/louisiana/sociology-bachelors",
+   "/states/louisiana/subject-area-teacher-education-bachelors",
+   "/states/maine/accounting-bachelors",
+   "/states/maine/economics-bachelors",
+   "/states/maine/environmental-science-and-conservation-bachelors",
+   "/states/maine/kinesiology-and-exercise-science-bachelors",
+   "/states/maine/liberal-arts-and-general-studies-bachelors",
+   "/states/maine/political-science-bachelors",
+   "/states/maryland/computer-science-bachelors",
+   "/states/maryland/mathematics-bachelors",
+   "/states/massachusetts/health-and-medical-administration-bachelors",
+   "/states/massachusetts/health-sciences-bachelors",
+   "/states/massachusetts/information-science-bachelors",
+   "/states/massachusetts/international-studies-bachelors",
+   "/states/massachusetts/journalism-bachelors",
+   "/states/massachusetts/public-health-bachelors",
+   "/states/massachusetts/rehabilitation-and-therapy-bachelors",
+   "/states/michigan/journalism-bachelors",
+   "/states/michigan/public-health-bachelors",
+   "/states/michigan/specialized-sales-and-merchandising-bachelors",
+   "/states/michigan/vehicle-maintenance-and-repair-certificate",
+   "/states/minnesota/electrical-engineering-bachelors",
+   "/states/minnesota/experimental-psychology-bachelors",
+   "/states/minnesota/health-and-medical-administration-associate",
+   "/states/minnesota/information-technology-associate",
+   "/states/minnesota/mathematics-bachelors",
+   "/states/minnesota/mechanical-engineering-bachelors",
+   "/states/minnesota/special-education-bachelors",
+   "/states/missouri/diagnostic-and-treatment-professions-bachelors",
+   "/states/missouri/economics-bachelors",
+   "/states/missouri/experimental-psychology-bachelors",
+   "/states/montana/business-administration-bachelors",
+   "/states/montana/liberal-arts-and-general-studies-associate",
+   "/states/montana/teacher-education-bachelors",
+   "/states/nebraska/cosmetology-certificate",
+   "/states/nebraska/liberal-arts-and-general-studies-associate",
+   "/states/nebraska/subject-area-teacher-education-bachelors",
+   "/states/new-hampshire/biology-bachelors",
+   "/states/new-hampshire/communications-bachelors",
+   "/states/new-hampshire/criminal-justice-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 133 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (510)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 33
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-016/arkansas--business-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-016/arkansas--business-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 17,
+  "checkedAt": "2026-10-05T17:06:58.371Z",
+  "passed": true,
+  "pages": [
+   "/states/new-hampshire/environmental-science-and-conservation-bachelors",
+   "/states/new-hampshire/kinesiology-and-exercise-science-bachelors",
+   "/states/new-hampshire/teacher-education-bachelors",
+   "/states/new-jersey/civil-engineering-bachelors",
+   "/states/new-jersey/dental-hygiene-and-assisting-associate",
+   "/states/new-jersey/electrician-training-certificate",
+   "/states/new-jersey/health-sciences-associate",
+   "/states/new-jersey/human-resources-bachelors",
+   "/states/new-mexico/cosmetology-certificate",
+   "/states/new-mexico/liberal-arts-and-general-studies-bachelors",
+   "/states/new-mexico/nursing-bachelors",
+   "/states/new-mexico/psychology-bachelors",
+   "/states/new-mexico/teacher-education-bachelors",
+   "/states/new-york/architectural-technology-bachelors",
+   "/states/new-york/criminal-justice-certificate",
+   "/states/new-york/dietetics-bachelors",
+   "/states/new-york/human-resources-bachelors",
+   "/states/new-york/industrial-engineering-bachelors",
+   "/states/north-carolina/geology-and-earth-science-bachelors",
+   "/states/north-carolina/human-development-and-family-studies-bachelors",
+   "/states/north-carolina/linguistics-and-language-studies-bachelors",
+   "/states/north-carolina/public-relations-and-advertising-bachelors",
+   "/states/north-carolina/recreation-management-bachelors",
+   "/states/north-carolina/romance-languages-bachelors",
+   "/states/north-dakota/nursing-associate",
+   "/states/ohio/accounting-associate",
+   "/states/ohio/anthropology-bachelors",
+   "/states/ohio/film-and-photography-bachelors",
+   "/states/ohio/human-development-and-family-studies-bachelors",
+   "/states/ohio/other-health-professions-bachelors",
+   "/states/ohio/writing-and-rhetoric-bachelors",
+   "/states/ohio/zoology-bachelors",
+   "/states/oklahoma/diagnostic-and-treatment-professions-associate",
+   "/states/oklahoma/finance-bachelors",
+   "/states/oklahoma/mechanical-engineering-bachelors",
+   "/states/oregon/design-and-applied-arts-bachelors",
+   "/states/oregon/history-bachelors",
+   "/states/oregon/marketing-bachelors",
+   "/states/oregon/nursing-bachelors",
+   "/states/oregon/other-interdisciplinary-studies-bachelors",
+   "/states/oregon/romance-languages-bachelors",
+   "/states/pennsylvania/culinary-arts-associate",
+   "/states/pennsylvania/film-and-photography-bachelors",
+   "/states/pennsylvania/human-development-and-family-studies-bachelors",
+   "/states/pennsylvania/specialized-sales-and-merchandising-bachelors",
+   "/states/rhode-island/psychology-bachelors",
+   "/states/south-carolina/business-administration-associate",
+   "/states/south-carolina/design-and-applied-arts-bachelors",
+   "/states/south-carolina/finance-bachelors",
+   "/states/south-dakota/practical-nursing-certificate",
+   "/states/south-dakota/psychology-bachelors",
+   "/states/tennessee/dental-hygiene-and-assisting-associate",
+   "/states/tennessee/engineering-technology-bachelors",
+   "/states/tennessee/health-and-medical-administration-bachelors",
+   "/states/texas/accounting-associate",
+   "/states/texas/accounting-certificate",
+   "/states/texas/business-administration-certificate",
+   "/states/texas/business-economics-bachelors",
+   "/states/texas/criminology-bachelors",
+   "/states/texas/dance-bachelors",
+   "/states/texas/foods-and-nutrition-bachelors",
+   "/states/texas/geography-bachelors",
+   "/states/texas/industrial-technology-bachelors",
+   "/states/texas/microbiology-bachelors",
+   "/states/utah/biology-bachelors",
+   "/states/utah/computer-and-information-science-bachelors",
+   "/states/utah/human-development-and-family-studies-bachelors",
+   "/states/utah/theatre-bachelors",
+   "/states/virginia/civil-engineering-bachelors",
+   "/states/virginia/computer-engineering-bachelors",
+   "/states/virginia/finance-bachelors",
+   "/states/virginia/massage-therapy-certificate",
+   "/states/virginia/music-bachelors",
+   "/states/virginia/social-sciences-associate",
+   "/states/washington/civil-engineering-bachelors",
+   "/states/washington/finance-bachelors",
+   "/states/washington/liberal-arts-and-general-studies-bachelors",
+   "/states/washington/mathematics-bachelors",
+   "/states/washington/physiology-and-pathology-bachelors",
+   "/states/washington/writing-and-rhetoric-bachelors",
+   "/states/west-virginia/social-work-bachelors",
+   "/states/wisconsin/criminology-bachelors",
+   "/states/wisconsin/electrical-engineering-bachelors",
+   "/states/wisconsin/geography-bachelors"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (84 pages)",
+    "passed": true,
+    "details": [
+     "Checked 84 pages: 84 passed, 0 failed, 110 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (84)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (437)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables and chart scroll in their cards (84)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /states/texas/accounting-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 84,
+   "descriptionsOver160": 26
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-state-programs-017/new-hampshire--environmental-science-and-conservation-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-state-programs-017/new-hampshire--environmental-science-and-conservation-bachelors-phone.png"
+  ]
+ }
+]

@@ -1,0 +1,56 @@
+{
+ "checkedAt": "2026-10-05T20:15:56.745Z",
+ "passed": false,
+ "pages": 24034,
+ "checks": [
+  {
+   "name": "every page is built (24034)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "numbers, wording, and page HTML on every page (24034)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "titles and descriptions unique across the built site",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "every internal link has a built page (24035 distinct links)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "static page data files (24034)",
+   "passed": true,
+   "details": [
+    "expected 24034"
+   ]
+  },
+  {
+   "name": "sitemap lists every page",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "unknown pages return 404",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "every page fits at phone width (24034)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "link clicks navigate in place (5 samples per page type)",
+   "passed": false,
+   "details": [
+    "/schools/holy-family-university/criminal-justice-bachelors -> /programs/criminal-justice-bachelors: static page data not loaded"
+   ]
+  }
+ ]
+}

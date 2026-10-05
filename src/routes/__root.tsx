@@ -20,7 +20,10 @@ export const Route = createRootRoute({
       },
       { title: 'US College Registry' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+    ],
   }),
   component: RootComponent,
   notFoundComponent: NotFoundPage,

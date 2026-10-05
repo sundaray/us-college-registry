@@ -1,6 +1,7 @@
 import { useState, type PointerEvent } from 'react'
-import type { ComparisonProgram } from '@/data/programs'
+import type { ComparisonProgram } from '@/data/program-page'
 import { formatMoney, formatThousands } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 type DebtEarningsScatterProps = {
   programs: ComparisonProgram[]
@@ -29,10 +30,14 @@ export function DebtEarningsScatter({
 
   const debts = programs.map((program) => program.medianDebt)
   const earnings = programs.map((program) => program.earningsYear1)
-  const debtMin = Math.floor(Math.min(...debts) / 10000) * 10000
-  const debtMax = Math.ceil(Math.max(...debts) / 5000) * 5000
-  const payMin = Math.floor((Math.min(...earnings) - 2000) / 5000) * 5000
-  const payMax = Math.ceil((Math.max(...earnings) + 2000) / 5000) * 5000
+  // Certificate programs often have debt under $10,000, so the axis steps shrink
+  // with the range. Both axes always span at least one step.
+  const debtStep = Math.max(...debts) - Math.min(...debts) > 30000 ? 10000 : 2000
+  const debtMin = Math.floor(Math.min(...debts) / debtStep) * debtStep
+  const debtMax = Math.max(Math.ceil(Math.max(...debts) / debtStep) * debtStep, debtMin + debtStep)
+  const payStep = Math.max(...earnings) - Math.min(...earnings) > 20000 ? 5000 : 2000
+  const payMin = Math.floor((Math.min(...earnings) - payStep / 2) / payStep) * payStep
+  const payMax = Math.ceil((Math.max(...earnings) + payStep / 2) / payStep) * payStep
 
   const plotWidth = width - margin.left - margin.right
   const plotHeight = height - margin.top - margin.bottom
@@ -44,6 +49,7 @@ export function DebtEarningsScatter({
     .map((program, index) => ({ program, index }))
     .sort((first, second) => Number(!!first.program.isCurrent) - Number(!!second.program.isCurrent))
   const current = programs.find((program) => program.isCurrent)
+  const currentIsLeftHalf = current ? xPosition(current.medianDebt) < margin.left + plotWidth / 2 : false
   const active = activeIndex === null ? null : programs[activeIndex]
 
   function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
@@ -68,13 +74,15 @@ export function DebtEarningsScatter({
     <div className="relative">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="h-auto w-full touch-none"
+        className="h-auto w-full"
         role="img"
         aria-label={`Scatter chart of median debt against first-year earnings for ${programs.length} ${stateName} programs.`}
         onPointerMove={handlePointerMove}
+        // A tap picks a dot on phones, which have no hover.
+        onPointerDown={handlePointerMove}
         onPointerLeave={() => setActiveIndex(null)}
       >
-        {range(payMin + 5000, payMax, 5000).map((pay) => (
+        {range(payMin + payStep, payMax, payStep).map((pay) => (
           <g key={pay}>
             <line
               x1={margin.left}
@@ -93,7 +101,7 @@ export function DebtEarningsScatter({
             </text>
           </g>
         ))}
-        {range(debtMin, debtMax, 10000).map((debt) => (
+        {range(debtMin, debtMax, debtStep).map((debt) => (
           <text
             key={debt}
             x={xPosition(debt)}
@@ -166,9 +174,10 @@ export function DebtEarningsScatter({
         })}
         {current ? (
           <text
-            x={xPosition(current.medianDebt) - 12}
+            // Label on the side of the dot with more room, so long names stay inside the chart.
+            x={xPosition(current.medianDebt) + (currentIsLeftHalf ? 12 : -12)}
             y={yPosition(current.earningsYear1) + 4}
-            textAnchor="end"
+            textAnchor={currentIsLeftHalf ? 'start' : 'end'}
             className="fill-primary text-[13px] font-semibold"
           >
             {current.schoolName}
@@ -178,7 +187,12 @@ export function DebtEarningsScatter({
 
       {active ? (
         <div
-          className="pointer-events-none absolute z-10 max-w-60 -translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-md bg-foreground px-2.5 py-2 text-xs leading-snug text-background shadow-md"
+          // Dots near the top show the tooltip below them, so the chart's scroll
+          // box doesn't cut it off.
+          className={cn(
+            'pointer-events-none absolute z-10 max-w-60 -translate-x-1/2 rounded-md bg-foreground px-2.5 py-2 text-xs leading-snug text-background shadow-md',
+            yPosition(active.earningsYear1) < height * 0.3 ? 'translate-y-3' : '-translate-y-[calc(100%+12px)]',
+          )}
           style={{
             left: `${Math.min(Math.max((xPosition(active.medianDebt) / width) * 100, 18), 82)}%`,
             top: `${(yPosition(active.earningsYear1) / height) * 100}%`,

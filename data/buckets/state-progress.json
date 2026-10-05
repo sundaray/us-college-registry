@@ -1,0 +1,117 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T19:19:54.293Z",
+  "passed": true,
+  "pages": [
+   "/states/california",
+   "/states/new-york",
+   "/states/texas",
+   "/states/pennsylvania",
+   "/states/florida",
+   "/states/ohio",
+   "/states/illinois",
+   "/states/north-carolina",
+   "/states/michigan",
+   "/states/massachusetts",
+   "/states/georgia",
+   "/states/minnesota",
+   "/states/wisconsin",
+   "/states/virginia",
+   "/states/indiana",
+   "/states/missouri",
+   "/states/tennessee",
+   "/states/new-jersey",
+   "/states/kentucky",
+   "/states/washington",
+   "/states/colorado",
+   "/states/iowa",
+   "/states/south-carolina",
+   "/states/arizona",
+   "/states/louisiana",
+   "/states/alabama",
+   "/states/oklahoma",
+   "/states/maryland",
+   "/states/arkansas",
+   "/states/utah",
+   "/states/kansas",
+   "/states/connecticut",
+   "/states/oregon",
+   "/states/puerto-rico",
+   "/states/mississippi",
+   "/states/nebraska",
+   "/states/west-virginia",
+   "/states/idaho",
+   "/states/rhode-island",
+   "/states/new-hampshire",
+   "/states/maine",
+   "/states/south-dakota",
+   "/states/new-mexico",
+   "/states/nevada",
+   "/states/district-of-columbia",
+   "/states/north-dakota",
+   "/states/montana",
+   "/states/hawaii",
+   "/states/wyoming"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (49 pages)",
+    "passed": true,
+    "details": [
+     "Checked 49 pages: 49 passed, 0 failed, 32 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (49)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (5027)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (49)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 32,
+   "descriptionsOver160": 0
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-states-001/california-desktop.png",
+   "data/generated/screenshots/bucket-states-001/california-phone.png",
+   "data/generated/screenshots/bucket-states-001/wyoming-desktop.png",
+   "data/generated/screenshots/bucket-states-001/wyoming-phone.png"
+  ]
+ }
+]

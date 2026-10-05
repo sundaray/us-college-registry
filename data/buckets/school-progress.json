@@ -1,0 +1,4113 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T19:08:36.915Z",
+  "passed": true,
+  "pages": [
+   "/schools/pennsylvania-state-university-main-campus",
+   "/schools/arizona-state-university-campus-immersion",
+   "/schools/ohio-state-university-main-campus",
+   "/schools/university-of-minnesota-twin-cities",
+   "/schools/michigan-state-university",
+   "/schools/texas-am-university-college-station",
+   "/schools/rutgers-university-new-brunswick",
+   "/schools/purdue-university-main-campus",
+   "/schools/university-of-arizona",
+   "/schools/university-of-cincinnati-main-campus",
+   "/schools/university-of-georgia",
+   "/schools/university-of-washington-seattle-campus",
+   "/schools/temple-university",
+   "/schools/university-of-illinois-urbana-champaign",
+   "/schools/university-of-pittsburgh-pittsburgh-campus",
+   "/schools/university-of-florida",
+   "/schools/university-of-wisconsin-milwaukee",
+   "/schools/kent-state-university-at-kent",
+   "/schools/texas-state-university",
+   "/schools/brigham-young-university",
+   "/schools/grand-valley-state-university",
+   "/schools/university-of-wisconsin-madison",
+   "/schools/florida-state-university",
+   "/schools/iowa-state-university",
+   "/schools/north-carolina-state-university-at-raleigh",
+   "/schools/northern-arizona-university",
+   "/schools/indiana-university-indianapolis",
+   "/schools/university-of-iowa",
+   "/schools/california-state-university-long-beach",
+   "/schools/university-of-kentucky",
+   "/schools/university-of-texas-at-austin",
+   "/schools/bowling-green-state-university-main-campus",
+   "/schools/ohio-university-main-campus",
+   "/schools/university-of-missouri-columbia",
+   "/schools/university-of-north-texas",
+   "/schools/san-diego-state-university",
+   "/schools/texas-tech-university",
+   "/schools/university-of-central-florida",
+   "/schools/san-francisco-state-university",
+   "/schools/university-of-connecticut",
+   "/schools/california-state-university-northridge",
+   "/schools/miami-university-oxford",
+   "/schools/university-of-akron-main-campus",
+   "/schools/university-of-california-davis",
+   "/schools/university-of-nebraska-lincoln",
+   "/schools/virginia-polytechnic-institute-and-state-university",
+   "/schools/ferris-state-university",
+   "/schools/kennesaw-state-university",
+   "/schools/missouri-state-university-springfield",
+   "/schools/oregon-state-university",
+   "/schools/university-of-arkansas",
+   "/schools/university-of-michigan-ann-arbor",
+   "/schools/university-of-north-carolina-at-charlotte",
+   "/schools/university-of-south-carolina-columbia",
+   "/schools/kansas-state-university",
+   "/schools/liberty-university",
+   "/schools/oklahoma-state-university-main-campus",
+   "/schools/syracuse-university",
+   "/schools/university-of-tennessee-knoxville",
+   "/schools/ball-state-university",
+   "/schools/university-of-houston",
+   "/schools/university-of-south-florida",
+   "/schools/utah-state-university",
+   "/schools/west-virginia-university",
+   "/schools/central-michigan-university",
+   "/schools/ivy-tech-community-college",
+   "/schools/western-washington-university",
+   "/schools/appalachian-state-university",
+   "/schools/colorado-state-university-fort-collins",
+   "/schools/illinois-state-university",
+   "/schools/university-of-new-hampshire-main-campus",
+   "/schools/washington-state-university",
+   "/schools/weber-state-university",
+   "/schools/california-state-university-chico",
+   "/schools/california-state-university-fresno",
+   "/schools/george-mason-university",
+   "/schools/middle-tennessee-state-university",
+   "/schools/southern-illinois-university-carbondale",
+   "/schools/university-of-maryland-college-park",
+   "/schools/california-polytechnic-state-university-san-luis-obispo",
+   "/schools/clemson-university",
+   "/schools/eastern-michigan-university",
+   "/schools/florida-atlantic-university",
+   "/schools/portland-state-university",
+   "/schools/university-of-utah",
+   "/schools/western-michigan-university",
+   "/schools/florida-international-university",
+   "/schools/university-of-california-irvine",
+   "/schools/university-of-oklahoma-norman-campus",
+   "/schools/university-of-rhode-island",
+   "/schools/virginia-commonwealth-university",
+   "/schools/wayne-state-university",
+   "/schools/auburn-university",
+   "/schools/boise-state-university",
+   "/schools/metropolitan-state-university-of-denver",
+   "/schools/mississippi-state-university",
+   "/schools/new-mexico-state-university-main-campus",
+   "/schools/southern-new-hampshire-university",
+   "/schools/university-of-california-berkeley",
+   "/schools/university-of-california-los-angeles"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 50 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (4051)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 33,
+   "descriptionsOver160": 17
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-001/pennsylvania-state-university-main-campus-desktop.png",
+   "data/generated/screenshots/bucket-schools-001/pennsylvania-state-university-main-campus-phone.png",
+   "data/generated/screenshots/bucket-schools-001/ivy-tech-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-001/ivy-tech-community-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 2,
+  "checkedAt": "2026-10-05T18:21:00.966Z",
+  "passed": true,
+  "pages": [
+   "/schools/university-of-california-san-diego",
+   "/schools/university-of-texas-at-arlington",
+   "/schools/drexel-university",
+   "/schools/georgia-southern-university",
+   "/schools/university-of-texas-at-san-antonio",
+   "/schools/utah-valley-university",
+   "/schools/georgia-state-university",
+   "/schools/indiana-university-bloomington",
+   "/schools/university-of-illinois-chicago",
+   "/schools/university-of-new-mexico-main-campus",
+   "/schools/western-kentucky-university",
+   "/schools/austin-community-college-district",
+   "/schools/baylor-university",
+   "/schools/california-state-polytechnic-university-pomona",
+   "/schools/california-state-university-sacramento",
+   "/schools/depaul-university",
+   "/schools/east-carolina-university",
+   "/schools/louisiana-state-university-and-agricultural-and-mechanical-college",
+   "/schools/university-of-alabama",
+   "/schools/university-of-idaho",
+   "/schools/university-of-massachusetts-amherst",
+   "/schools/california-state-university-fullerton",
+   "/schools/new-york-university",
+   "/schools/university-of-hawaii-at-manoa",
+   "/schools/american-public-university-system",
+   "/schools/brigham-young-university-idaho",
+   "/schools/cleveland-state-university",
+   "/schools/eastern-kentucky-university",
+   "/schools/university-of-california-riverside",
+   "/schools/university-of-kansas",
+   "/schools/university-of-southern-california",
+   "/schools/california-state-university-los-angeles",
+   "/schools/cornell-university",
+   "/schools/north-dakota-state-university-main-campus",
+   "/schools/rowan-university",
+   "/schools/sam-houston-state-university",
+   "/schools/university-of-mississippi",
+   "/schools/california-state-university-san-bernardino",
+   "/schools/northern-illinois-university",
+   "/schools/university-of-maine",
+   "/schools/university-of-minnesota-duluth",
+   "/schools/university-of-north-carolina-at-greensboro",
+   "/schools/university-of-northern-iowa",
+   "/schools/western-carolina-university",
+   "/schools/montclair-state-university",
+   "/schools/oakland-university",
+   "/schools/pennsylvania-western-university",
+   "/schools/rasmussen-university-minnesota",
+   "/schools/rochester-institute-of-technology",
+   "/schools/university-at-buffalo",
+   "/schools/university-of-memphis",
+   "/schools/university-of-north-carolina-at-chapel-hill",
+   "/schools/university-of-wisconsin-whitewater",
+   "/schools/central-washington-university",
+   "/schools/commonwealth-university-of-pennsylvania",
+   "/schools/james-madison-university",
+   "/schools/minnesota-state-university-mankato",
+   "/schools/pennsylvania-college-of-technology",
+   "/schools/tidewater-community-college",
+   "/schools/university-of-colorado-boulder",
+   "/schools/university-of-texas-at-el-paso",
+   "/schools/university-of-toledo",
+   "/schools/wichita-state-university",
+   "/schools/full-sail-university",
+   "/schools/grand-canyon-university",
+   "/schools/indiana-university-of-pennsylvania",
+   "/schools/north-carolina-a-and-t-state-university",
+   "/schools/nuc-university",
+   "/schools/purdue-university-global",
+   "/schools/stephen-f-austin-state-university",
+   "/schools/montana-state-university",
+   "/schools/texas-state-technical-college",
+   "/schools/university-of-arizona-global-campus",
+   "/schools/university-of-central-missouri",
+   "/schools/university-of-texas-rio-grande-valley",
+   "/schools/university-of-virginia-main-campus",
+   "/schools/university-of-wisconsin-stevens-point",
+   "/schools/south-dakota-state-university",
+   "/schools/university-of-california-santa-barbara",
+   "/schools/university-of-central-arkansas",
+   "/schools/university-of-north-florida",
+   "/schools/youngstown-state-university",
+   "/schools/binghamton-university",
+   "/schools/boston-university",
+   "/schools/california-state-university-san-marcos",
+   "/schools/keiser-university-ft-lauderdale",
+   "/schools/northern-kentucky-university",
+   "/schools/university-of-california-santa-cruz",
+   "/schools/university-of-central-oklahoma",
+   "/schools/university-of-louisiana-at-lafayette",
+   "/schools/university-of-phoenix-arizona",
+   "/schools/wright-state-university-main-campus",
+   "/schools/dallas-college",
+   "/schools/florida-gulf-coast-university",
+   "/schools/old-dominion-university",
+   "/schools/saint-cloud-state-university",
+   "/schools/slippery-rock-university-of-pennsylvania",
+   "/schools/towson-university",
+   "/schools/university-of-colorado-denver-anschutz-medical-campus",
+   "/schools/university-of-louisville"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 67 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (3414)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 44,
+   "descriptionsOver160": 23
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-002/university-of-california-san-diego-desktop.png",
+   "data/generated/screenshots/bucket-schools-002/university-of-california-san-diego-phone.png",
+   "data/generated/screenshots/bucket-schools-002/university-of-hawaii-at-manoa-desktop.png",
+   "data/generated/screenshots/bucket-schools-002/university-of-hawaii-at-manoa-phone.png"
+  ]
+ },
+ {
+  "bucket": 3,
+  "checkedAt": "2026-10-05T18:21:21.221Z",
+  "passed": true,
+  "pages": [
+   "/schools/university-of-nebraska-at-omaha",
+   "/schools/university-of-oregon",
+   "/schools/central-connecticut-state-university",
+   "/schools/indiana-state-university",
+   "/schools/marquette-university",
+   "/schools/southern-illinois-university-edwardsville",
+   "/schools/stony-brook-university",
+   "/schools/university-of-texas-at-dallas",
+   "/schools/university-of-wisconsin-la-crosse",
+   "/schools/university-of-wisconsin-oshkosh",
+   "/schools/arkansas-tech-university",
+   "/schools/baker-college",
+   "/schools/california-state-polytechnic-university-humboldt",
+   "/schools/eastern-washington-university",
+   "/schools/front-range-community-college",
+   "/schools/idaho-state-university",
+   "/schools/northeastern-university",
+   "/schools/university-of-northern-colorado",
+   "/schools/university-of-notre-dame",
+   "/schools/university-of-wisconsin-stout",
+   "/schools/fox-valley-technical-college",
+   "/schools/george-washington-university",
+   "/schools/loyola-university-chicago",
+   "/schools/murray-state-university",
+   "/schools/northern-michigan-university",
+   "/schools/rhode-island-college",
+   "/schools/university-at-albany",
+   "/schools/university-of-alabama-at-birmingham",
+   "/schools/university-of-miami",
+   "/schools/university-of-north-carolina-wilmington",
+   "/schools/university-of-south-alabama",
+   "/schools/university-of-west-florida",
+   "/schools/arkansas-state-university",
+   "/schools/california-baptist-university",
+   "/schools/college-of-charleston",
+   "/schools/cuny-city-college",
+   "/schools/cuny-lehman-college",
+   "/schools/florida-state-college-at-jacksonville",
+   "/schools/fordham-university",
+   "/schools/indiana-wesleyan-university-marion",
+   "/schools/miller-motte-college-chattanooga",
+   "/schools/radford-university",
+   "/schools/saint-louis-university",
+   "/schools/south-texas-college",
+   "/schools/university-of-wisconsin-eau-claire",
+   "/schools/western-illinois-university",
+   "/schools/cuny-hunter-college",
+   "/schools/des-moines-area-community-college",
+   "/schools/east-tennessee-state-university",
+   "/schools/houston-city-college",
+   "/schools/louisiana-tech-university",
+   "/schools/miami-dade-college",
+   "/schools/morehead-state-university",
+   "/schools/northwestern-university",
+   "/schools/salisbury-university",
+   "/schools/sinclair-community-college",
+   "/schools/southeast-missouri-state-university",
+   "/schools/st-petersburg-college",
+   "/schools/state-university-of-new-york-at-new-paltz",
+   "/schools/state-university-of-new-york-at-oswego",
+   "/schools/texas-womans-university",
+   "/schools/university-of-massachusetts-lowell",
+   "/schools/university-of-north-georgia",
+   "/schools/university-of-southern-maine",
+   "/schools/american-university",
+   "/schools/austin-peay-state-university",
+   "/schools/cuny-queens-college",
+   "/schools/east-stroudsburg-university-of-pennsylvania",
+   "/schools/ecpi-university",
+   "/schools/saginaw-valley-state-university",
+   "/schools/suny-oneonta",
+   "/schools/tarleton-state-university",
+   "/schools/university-of-dayton",
+   "/schools/university-of-houston-downtown",
+   "/schools/villanova-university",
+   "/schools/winona-state-university",
+   "/schools/chattanooga-state-community-college",
+   "/schools/cuny-brooklyn-college",
+   "/schools/fort-hays-state-university",
+   "/schools/georgetown-university",
+   "/schools/hofstra-university",
+   "/schools/ozarks-technical-community-college",
+   "/schools/purdue-university-northwest",
+   "/schools/san-joaquin-valley-college-visalia",
+   "/schools/southeastern-louisiana-university",
+   "/schools/st-johns-university-new-york",
+   "/schools/state-university-of-new-york-at-plattsburgh",
+   "/schools/troy-university",
+   "/schools/university-of-maryland-baltimore-county",
+   "/schools/university-of-pennsylvania",
+   "/schools/university-of-puget-sound",
+   "/schools/university-of-southern-indiana",
+   "/schools/washburn-university",
+   "/schools/bradley-university",
+   "/schools/chippewa-valley-technical-college",
+   "/schools/coastal-carolina-university",
+   "/schools/columbia-university-in-the-city-of-new-york",
+   "/schools/cuny-new-york-city-college-of-technology",
+   "/schools/jacksonville-state-university",
+   "/schools/kean-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 85 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (2863)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 57,
+   "descriptionsOver160": 28
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-003/university-of-nebraska-at-omaha-desktop.png",
+   "data/generated/screenshots/bucket-schools-003/university-of-nebraska-at-omaha-phone.png",
+   "data/generated/screenshots/bucket-schools-003/george-washington-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-003/george-washington-university-phone.png"
+  ]
+ },
+ {
+  "bucket": 4,
+  "checkedAt": "2026-10-05T18:21:40.372Z",
+  "passed": true,
+  "pages": [
+   "/schools/marshall-university",
+   "/schools/metropolitan-state-university",
+   "/schools/palm-beach-state-college",
+   "/schools/shippensburg-university-of-pennsylvania",
+   "/schools/southern-methodist-university",
+   "/schools/tennessee-technological-university",
+   "/schools/university-of-maryland-global-campus",
+   "/schools/university-of-michigan-flint",
+   "/schools/university-of-wisconsin-platteville",
+   "/schools/william-paterson-university-of-new-jersey",
+   "/schools/bryant-and-stratton-college-buffalo",
+   "/schools/california-state-university-dominguez-hills",
+   "/schools/davidson-davie-community-college",
+   "/schools/duquesne-university",
+   "/schools/east-texas-am-university",
+   "/schools/eastern-illinois-university",
+   "/schools/greenville-technical-college",
+   "/schools/johnson-and-wales-university-providence",
+   "/schools/lamar-university",
+   "/schools/northwestern-state-university-of-louisiana",
+   "/schools/purdue-university-fort-wayne",
+   "/schools/san-jacinto-community-college",
+   "/schools/suny-brockport",
+   "/schools/suny-buffalo-state-university",
+   "/schools/texas-am-university-kingsville",
+   "/schools/university-of-hartford",
+   "/schools/university-of-massachusetts-dartmouth",
+   "/schools/university-of-missouri-st-louis",
+   "/schools/university-of-montana",
+   "/schools/university-of-north-alabama",
+   "/schools/university-of-north-dakota",
+   "/schools/university-of-tampa",
+   "/schools/university-of-west-georgia",
+   "/schools/valdosta-state-university",
+   "/schools/west-texas-a-and-m-university",
+   "/schools/boston-college",
+   "/schools/brown-university",
+   "/schools/columbia-college-mo",
+   "/schools/farmingdale-state-college",
+   "/schools/hillsborough-college",
+   "/schools/lone-star-college-system",
+   "/schools/millersville-university-of-pennsylvania",
+   "/schools/northcentral-technical-college",
+   "/schools/pace-university",
+   "/schools/seattle-university",
+   "/schools/sonoma-state-university",
+   "/schools/southeast-community-college-area",
+   "/schools/texas-a-and-m-university-corpus-christi",
+   "/schools/texas-christian-university",
+   "/schools/tulane-university-of-louisiana",
+   "/schools/university-of-denver",
+   "/schools/university-of-houston-clear-lake",
+   "/schools/university-of-st-thomas-mn",
+   "/schools/york-technical-college",
+   "/schools/augusta-university",
+   "/schools/chapman-university",
+   "/schools/clayton-state-university",
+   "/schools/college-of-new-jersey",
+   "/schools/cuny-york-college",
+   "/schools/delgado-community-college",
+   "/schools/duke-university",
+   "/schools/emory-university",
+   "/schools/gateway-technical-college",
+   "/schools/jefferson-community-and-technical-college",
+   "/schools/keene-state-college",
+   "/schools/monroe-community-college",
+   "/schools/morgan-state-university",
+   "/schools/northwest-missouri-state-university",
+   "/schools/pima-community-college",
+   "/schools/rider-university",
+   "/schools/stockton-university",
+   "/schools/university-of-colorado-colorado-springs",
+   "/schools/university-of-michigan-dearborn",
+   "/schools/university-of-tennessee-chattanooga",
+   "/schools/valencia-college",
+   "/schools/valparaiso-university",
+   "/schools/western-technical-college-wi",
+   "/schools/baldwin-wallace-university",
+   "/schools/bluegrass-community-and-technical-college",
+   "/schools/bridgewater-state-university",
+   "/schools/california-state-university-channel-islands",
+   "/schools/california-state-university-east-bay",
+   "/schools/carthage-college",
+   "/schools/cincinnati-state-technical-and-community-college",
+   "/schools/daytona-state-college",
+   "/schools/grand-rapids-community-college",
+   "/schools/guilford-technical-community-college",
+   "/schools/herzing-university-madison",
+   "/schools/madison-area-technical-college",
+   "/schools/midlands-technical-college",
+   "/schools/minnesota-state-university-moorhead",
+   "/schools/national-university",
+   "/schools/northeastern-illinois-university",
+   "/schools/northeastern-state-university",
+   "/schools/pittsburg-state-university",
+   "/schools/plymouth-state-university",
+   "/schools/quinnipiac-university",
+   "/schools/saint-josephs-university-philadelphia",
+   "/schools/southern-connecticut-state-university",
+   "/schools/spokane-community-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 92 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (2363)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 63,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-004/marshall-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-004/marshall-university-phone.png",
+   "data/generated/screenshots/bucket-schools-004/southeast-community-college-area-desktop.png",
+   "data/generated/screenshots/bucket-schools-004/southeast-community-college-area-phone.png"
+  ]
+ },
+ {
+  "bucket": 5,
+  "checkedAt": "2026-10-05T18:21:59.223Z",
+  "passed": true,
+  "pages": [
+   "/schools/st-josephs-university-new-york",
+   "/schools/tennessee-state-university",
+   "/schools/tufts-university",
+   "/schools/universidad-ana-g-mendez-carolina-campus",
+   "/schools/university-of-louisiana-at-monroe",
+   "/schools/university-of-massachusetts-boston",
+   "/schools/university-of-missouri-kansas-city",
+   "/schools/university-of-san-francisco",
+   "/schools/university-of-south-dakota",
+   "/schools/university-of-southern-mississippi",
+   "/schools/university-of-texas-at-tyler",
+   "/schools/vincennes-university",
+   "/schools/angelo-state-university",
+   "/schools/bellevue-university",
+   "/schools/california-state-university-stanislaus",
+   "/schools/college-of-dupage",
+   "/schools/columbus-state-university",
+   "/schools/cuny-borough-of-manhattan-community-college",
+   "/schools/cuny-laguardia-community-college",
+   "/schools/elon-university",
+   "/schools/frostburg-state-university",
+   "/schools/georgia-college-and-state-university",
+   "/schools/harrisburg-area-community-college",
+   "/schools/hope-college",
+   "/schools/kutztown-university-of-pennsylvania",
+   "/schools/lehigh-university",
+   "/schools/loyola-marymount-university",
+   "/schools/new-england-institute-of-technology",
+   "/schools/northwood-technical-college",
+   "/schools/saint-edwards-university",
+   "/schools/saint-leo-university",
+   "/schools/seton-hall-university",
+   "/schools/somerset-community-college",
+   "/schools/southern-utah-university",
+   "/schools/suny-college-of-technology-at-alfred",
+   "/schools/university-of-puerto-rico-mayaguez",
+   "/schools/university-of-wisconsin-green-bay",
+   "/schools/vassar-college",
+   "/schools/waukesha-county-technical-college",
+   "/schools/westfield-state-university",
+   "/schools/york-college-of-pennsylvania",
+   "/schools/augustana-college",
+   "/schools/berkeley-college-woodland-park",
+   "/schools/college-of-staten-island-cuny",
+   "/schools/colorado-mesa-university",
+   "/schools/erie-community-college",
+   "/schools/excelsior-university",
+   "/schools/framingham-state-university",
+   "/schools/gonzaga-university",
+   "/schools/gwinnett-technical-college",
+   "/schools/jackson-state-university",
+   "/schools/kirkwood-community-college",
+   "/schools/la-salle-university",
+   "/schools/lindenwood-university",
+   "/schools/mercy-university",
+   "/schools/midwestern-state-university",
+   "/schools/missouri-university-of-science-and-technology",
+   "/schools/monmouth-university",
+   "/schools/new-jersey-city-university",
+   "/schools/north-carolina-central-university",
+   "/schools/northern-virginia-community-college",
+   "/schools/portland-community-college",
+   "/schools/prairie-view-a-and-m-university",
+   "/schools/st-olaf-college",
+   "/schools/universidad-ana-g-mendez-cupey-campus",
+   "/schools/university-of-north-carolina-asheville",
+   "/schools/university-of-tennessee-martin",
+   "/schools/university-of-wisconsin-river-falls",
+   "/schools/utah-tech-university",
+   "/schools/west-kentucky-community-and-technical-college",
+   "/schools/whitworth-university",
+   "/schools/winthrop-university",
+   "/schools/brandeis-university",
+   "/schools/campbell-university",
+   "/schools/capital-university",
+   "/schools/central-new-mexico-community-college",
+   "/schools/columbia-southern-university",
+   "/schools/cuny-bernard-m-baruch-college",
+   "/schools/devry-university-illinois",
+   "/schools/eastern-connecticut-state-university",
+   "/schools/embry-riddle-aeronautical-university-daytona-beach",
+   "/schools/fairleigh-dickinson-university-metropolitan-campus",
+   "/schools/florida-agricultural-and-mechanical-university",
+   "/schools/forsyth-technical-community-college",
+   "/schools/georgia-institute-of-technology-main-campus",
+   "/schools/harding-university",
+   "/schools/indian-river-state-college",
+   "/schools/manhattan-university",
+   "/schools/missouri-western-state-university",
+   "/schools/monroe-university",
+   "/schools/north-central-college",
+   "/schools/ramapo-college-of-new-jersey",
+   "/schools/ranken-technical-college",
+   "/schools/roger-williams-university",
+   "/schools/roosevelt-university",
+   "/schools/seattle-pacific-university",
+   "/schools/seminole-state-college-of-florida",
+   "/schools/suny-at-fredonia",
+   "/schools/suny-at-purchase-college",
+   "/schools/suny-college-at-geneseo"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 88 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (2072)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 61,
+   "descriptionsOver160": 27
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-005/st-josephs-university-new-york-desktop.png",
+   "data/generated/screenshots/bucket-schools-005/st-josephs-university-new-york-phone.png",
+   "data/generated/screenshots/bucket-schools-005/new-england-institute-of-technology-desktop.png",
+   "data/generated/screenshots/bucket-schools-005/new-england-institute-of-technology-phone.png"
+  ]
+ },
+ {
+  "bucket": 6,
+  "checkedAt": "2026-10-05T18:22:17.215Z",
+  "passed": true,
+  "pages": [
+   "/schools/texas-a-and-m-international-university",
+   "/schools/university-of-arkansas-at-little-rock",
+   "/schools/university-of-san-diego",
+   "/schools/upper-iowa-university",
+   "/schools/virginia-western-community-college",
+   "/schools/western-connecticut-state-university",
+   "/schools/widener-university",
+   "/schools/winston-salem-state-university",
+   "/schools/amarillo-college",
+   "/schools/augsburg-university",
+   "/schools/benedictine-university",
+   "/schools/central-piedmont-community-college",
+   "/schools/colorado-state-university-pueblo",
+   "/schools/dartmouth-college",
+   "/schools/elmhurst-university",
+   "/schools/horry-georgetown-technical-college",
+   "/schools/ithaca-college",
+   "/schools/mcneese-state-university",
+   "/schools/nicholls-state-university",
+   "/schools/northampton-county-area-community-college",
+   "/schools/northeast-community-college",
+   "/schools/northeast-wisconsin-technical-college",
+   "/schools/pacific-lutheran-university",
+   "/schools/remington-college-dallas-campus",
+   "/schools/salem-state-university",
+   "/schools/suffolk-university",
+   "/schools/suny-college-of-technology-at-canton",
+   "/schools/suny-polytechnic-institute",
+   "/schools/university-of-alabama-in-huntsville",
+   "/schools/university-of-north-carolina-at-pembroke",
+   "/schools/university-of-northwestern-st-paul",
+   "/schools/university-of-rochester",
+   "/schools/wentworth-institute-of-technology",
+   "/schools/william-and-mary",
+   "/schools/worcester-state-university",
+   "/schools/xavier-university",
+   "/schools/biola-university",
+   "/schools/california-state-university-monterey-bay",
+   "/schools/college-of-western-idaho",
+   "/schools/community-college-of-allegheny-county",
+   "/schools/concordia-university-wisconsin",
+   "/schools/cuny-john-jay-college-of-criminal-justice",
+   "/schools/cuyahoga-community-college-district",
+   "/schools/davenport-university",
+   "/schools/emmanuel-college",
+   "/schools/flagler-college",
+   "/schools/hudson-valley-community-college",
+   "/schools/lee-university",
+   "/schools/longwood-university",
+   "/schools/marist-university",
+   "/schools/michigan-technological-university",
+   "/schools/milwaukee-area-technical-college",
+   "/schools/minneapolis-community-and-technical-college",
+   "/schools/minnesota-state-community-and-technical-college",
+   "/schools/missouri-southern-state-university",
+   "/schools/montgomery-county-community-college",
+   "/schools/park-university",
+   "/schools/post-university",
+   "/schools/rensselaer-polytechnic-institute",
+   "/schools/robert-morris-university",
+   "/schools/saint-xavier-university",
+   "/schools/salt-lake-community-college",
+   "/schools/santa-clara-university",
+   "/schools/shawnee-state-university",
+   "/schools/smith-college",
+   "/schools/southeastern-university",
+   "/schools/southern-oregon-university",
+   "/schools/stetson-university",
+   "/schools/suny-old-westbury",
+   "/schools/texas-southern-university",
+   "/schools/universidad-ana-g-mendez-gurabo-campus",
+   "/schools/university-of-indianapolis",
+   "/schools/university-of-mary-washington",
+   "/schools/university-of-nebraska-at-kearney",
+   "/schools/university-of-the-incarnate-word",
+   "/schools/vanderbilt-university",
+   "/schools/washington-university-in-st-louis",
+   "/schools/alexandria-technical-and-community-college",
+   "/schools/ashland-community-and-technical-college",
+   "/schools/aurora-university",
+   "/schools/bemidji-state-university",
+   "/schools/bentley-university",
+   "/schools/calvin-university",
+   "/schools/case-western-reserve-university",
+   "/schools/colorado-christian-university",
+   "/schools/columbia-college-chicago",
+   "/schools/concordia-university-saint-paul",
+   "/schools/desales-university",
+   "/schools/dunwoody-college-of-technology",
+   "/schools/elizabethtown-community-and-technical-college",
+   "/schools/fairmont-state-university",
+   "/schools/fitchburg-state-university",
+   "/schools/george-fox-university",
+   "/schools/hamline-university",
+   "/schools/john-carroll-university",
+   "/schools/lake-area-technical-college",
+   "/schools/lewis-university",
+   "/schools/mercer-university",
+   "/schools/mercyhurst-university",
+   "/schools/messiah-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 88 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1891)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 59,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-006/texas-a-and-m-international-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-006/texas-a-and-m-international-university-phone.png",
+   "data/generated/screenshots/bucket-schools-006/lake-area-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-006/lake-area-technical-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 7,
+  "checkedAt": "2026-10-05T18:22:32.969Z",
+  "passed": true,
+  "pages": [
+   "/schools/mitchell-technical-college",
+   "/schools/national-american-university-rapid-city",
+   "/schools/nazareth-university",
+   "/schools/new-jersey-institute-of-technology",
+   "/schools/oakland-community-college",
+   "/schools/piedmont-technical-college",
+   "/schools/pima-medical-institute-tucson",
+   "/schools/providence-college",
+   "/schools/pueblo-community-college",
+   "/schools/rollins-college",
+   "/schools/south-louisiana-community-college",
+   "/schools/southcentral-kentucky-community-and-technical-college",
+   "/schools/southern-university-and-a-and-m-college",
+   "/schools/southwest-wisconsin-technical-college",
+   "/schools/state-university-of-new-york-at-cortland",
+   "/schools/stevenson-university",
+   "/schools/stonehill-college",
+   "/schools/sullivan-university",
+   "/schools/suny-college-at-potsdam",
+   "/schools/susquehanna-university",
+   "/schools/truman-state-university",
+   "/schools/university-of-arkansas-fort-smith",
+   "/schools/university-of-california-merced",
+   "/schools/university-of-new-haven",
+   "/schools/university-of-new-orleans",
+   "/schools/university-of-scranton",
+   "/schools/university-of-south-carolina-upstate",
+   "/schools/western-iowa-tech-community-college",
+   "/schools/western-oregon-university",
+   "/schools/ashland-university",
+   "/schools/assumption-university",
+   "/schools/athens-state-university",
+   "/schools/bunker-hill-community-college",
+   "/schools/california-lutheran-university",
+   "/schools/creighton-university",
+   "/schools/dakota-county-technical-college",
+   "/schools/dallas-baptist-university",
+   "/schools/emporia-state-university",
+   "/schools/endicott-college",
+   "/schools/florida-institute-of-technology",
+   "/schools/governors-state-university",
+   "/schools/grand-view-university",
+   "/schools/hennepin-technical-college",
+   "/schools/indiana-university-south-bend",
+   "/schools/johns-hopkins-university",
+   "/schools/long-island-university",
+   "/schools/metropolitan-community-college-kansas-city",
+   "/schools/nassau-community-college",
+   "/schools/new-school",
+   "/schools/owensboro-community-and-technical-college",
+   "/schools/regent-university",
+   "/schools/saint-norbert-college",
+   "/schools/saint-paul-college",
+   "/schools/shepherd-university",
+   "/schools/siena-university",
+   "/schools/springfield-technical-community-college",
+   "/schools/st-cloud-technical-and-community-college",
+   "/schools/stautzenberger-college-maumee",
+   "/schools/texas-am-university-san-antonio",
+   "/schools/thaddeus-stevens-college-of-technology",
+   "/schools/university-of-minnesota-crookston",
+   "/schools/university-of-portland",
+   "/schools/university-of-wisconsin-parkside",
+   "/schools/wake-technical-community-college",
+   "/schools/west-georgia-technical-college",
+   "/schools/wheaton-college",
+   "/schools/wilkes-university",
+   "/schools/albany-state-university",
+   "/schools/anderson-university-sc",
+   "/schools/asheville-buncombe-technical-community-college",
+   "/schools/augusta-technical-college",
+   "/schools/belmont-university",
+   "/schools/brightpoint-community-college",
+   "/schools/bucknell-university",
+   "/schools/canisius-university",
+   "/schools/carroll-university",
+   "/schools/century-college-mn",
+   "/schools/christopher-newport-university",
+   "/schools/clarkson-university",
+   "/schools/college-of-the-holy-cross",
+   "/schools/community-care-college",
+   "/schools/cuny-bronx-community-college",
+   "/schools/east-central-university",
+   "/schools/eastern-new-mexico-university-main-campus",
+   "/schools/fayetteville-state-university",
+   "/schools/fort-lewis-college",
+   "/schools/franciscan-university-of-steubenville",
+   "/schools/franklin-university",
+   "/schools/gateway-community-and-technical-college",
+   "/schools/gettysburg-college",
+   "/schools/gustavus-adolphus-college",
+   "/schools/harvard-university",
+   "/schools/hawkeye-community-college",
+   "/schools/howard-university",
+   "/schools/husson-university",
+   "/schools/lake-land-college",
+   "/schools/loyola-university-maryland",
+   "/schools/luther-college",
+   "/schools/middle-georgia-state-university",
+   "/schools/montana-state-university-billings"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 100 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1619)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 68,
+   "descriptionsOver160": 32
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-007/mitchell-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-007/mitchell-technical-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 8,
+  "checkedAt": "2026-10-05T18:22:51.479Z",
+  "passed": true,
+  "pages": [
+   "/schools/moraine-park-technical-college",
+   "/schools/northeast-iowa-community-college",
+   "/schools/olivet-nazarene-university",
+   "/schools/rochester-community-and-technical-college",
+   "/schools/sacred-heart-university",
+   "/schools/saint-louis-community-college",
+   "/schools/southern-arkansas-university-main-campus",
+   "/schools/southern-maine-community-college",
+   "/schools/southwestern-oklahoma-state-university",
+   "/schools/st-catherine-university",
+   "/schools/st-lawrence-university",
+   "/schools/stark-state-college",
+   "/schools/state-technical-college-of-missouri",
+   "/schools/thomas-edison-state-university",
+   "/schools/touro-university",
+   "/schools/trine-university",
+   "/schools/university-of-arkansas-at-pine-bluff",
+   "/schools/university-of-la-verne",
+   "/schools/university-of-mary-hardin-baylor",
+   "/schools/university-of-mount-olive",
+   "/schools/university-of-richmond",
+   "/schools/western-governors-university",
+   "/schools/william-rainey-harper-college",
+   "/schools/wingate-university",
+   "/schools/adelphi-university",
+   "/schools/albright-college",
+   "/schools/arapahoe-community-college",
+   "/schools/arcadia-university",
+   "/schools/auburn-university-at-montgomery",
+   "/schools/barnard-college",
+   "/schools/baton-rouge-community-college",
+   "/schools/berkeley-college-new-york",
+   "/schools/buena-vista-university",
+   "/schools/carrington-college-sacramento",
+   "/schools/cedarville-university",
+   "/schools/colorado-school-of-mines",
+   "/schools/community-college-of-philadelphia",
+   "/schools/cuny-medgar-evers-college",
+   "/schools/delta-college",
+   "/schools/illinois-institute-of-technology",
+   "/schools/indiana-university-east",
+   "/schools/indiana-university-kokomo",
+   "/schools/indiana-university-northwest",
+   "/schools/iowa-central-community-college",
+   "/schools/johnson-county-community-college",
+   "/schools/lake-superior-college",
+   "/schools/lebanon-valley-college",
+   "/schools/lewis-and-clark-community-college",
+   "/schools/lipscomb-university",
+   "/schools/maysville-community-and-technical-college",
+   "/schools/merrimack-college",
+   "/schools/metropolitan-community-college-area",
+   "/schools/molloy-university",
+   "/schools/moravian-university",
+   "/schools/mount-holyoke-college",
+   "/schools/muhlenberg-college",
+   "/schools/northern-essex-community-college",
+   "/schools/oral-roberts-university",
+   "/schools/otterbein-university",
+   "/schools/polk-state-college",
+   "/schools/princeton-university",
+   "/schools/ridgewater-college",
+   "/schools/rowan-cabarrus-community-college",
+   "/schools/saint-anselm-college",
+   "/schools/santa-fe-college",
+   "/schools/savannah-state-university",
+   "/schools/tulsa-community-college",
+   "/schools/university-of-arkansas-grantham",
+   "/schools/university-of-mount-union",
+   "/schools/utica-university",
+   "/schools/yale-university",
+   "/schools/yti-career-institute-york",
+   "/schools/academy-of-art-university",
+   "/schools/alabama-state-university",
+   "/schools/allegheny-college",
+   "/schools/athens-technical-college",
+   "/schools/benedictine-college",
+   "/schools/bethel-university-mn",
+   "/schools/bismarck-state-college",
+   "/schools/bowie-state-university",
+   "/schools/brookline-college-phoenix",
+   "/schools/cameron-university",
+   "/schools/catholic-university-of-america",
+   "/schools/central-methodist-university-college-of-liberal-arts-and-sciences",
+   "/schools/cet-san-jose",
+   "/schools/citadel-military-college-of-south-carolina",
+   "/schools/clark-college",
+   "/schools/colorado-state-university-global",
+   "/schools/colorado-technical-university-colorado-springs",
+   "/schools/community-college-of-baltimore-county",
+   "/schools/concordia-college-at-moorhead",
+   "/schools/connecticut-college",
+   "/schools/crowder-college",
+   "/schools/dalton-state-college",
+   "/schools/dickinson-college",
+   "/schools/dominican-university",
+   "/schools/drake-university",
+   "/schools/drury-university",
+   "/schools/fairfield-university",
+   "/schools/fashion-institute-of-technology"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 97 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1435)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 68,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-008/moraine-park-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-008/moraine-park-technical-college-phone.png",
+   "data/generated/screenshots/bucket-schools-008/southern-maine-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-008/southern-maine-community-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 9,
+  "checkedAt": "2026-10-05T18:23:09.183Z",
+  "passed": true,
+  "pages": [
+   "/schools/fayetteville-technical-community-college",
+   "/schools/florida-national-university-main-campus",
+   "/schools/georgia-northwestern-technical-college",
+   "/schools/goodwin-university",
+   "/schools/hobart-william-smith-colleges",
+   "/schools/holmes-community-college",
+   "/schools/itawamba-community-college",
+   "/schools/lander-university",
+   "/schools/le-moyne-college",
+   "/schools/lewis-clark-state-college",
+   "/schools/madisonville-community-college",
+   "/schools/massachusetts-institute-of-technology",
+   "/schools/mckendree-university",
+   "/schools/meredith-college",
+   "/schools/mississippi-gulf-coast-community-college",
+   "/schools/missouri-baptist-university",
+   "/schools/mount-mercy-university",
+   "/schools/mount-wachusett-community-college",
+   "/schools/nashville-state-community-college",
+   "/schools/north-dakota-state-college-of-science",
+   "/schools/oklahoma-state-university-institute-of-technology",
+   "/schools/owens-community-college",
+   "/schools/pearl-river-community-college",
+   "/schools/pepperdine-university",
+   "/schools/perry-technical-institute",
+   "/schools/point-loma-nazarene-university",
+   "/schools/santa-ana-college",
+   "/schools/south-university-savannah",
+   "/schools/southeast-technical-college",
+   "/schools/southwest-minnesota-state-university",
+   "/schools/spartanburg-community-college",
+   "/schools/st-john-fisher-university",
+   "/schools/stanford-university",
+   "/schools/tacoma-community-college",
+   "/schools/tarrant-county-college-district",
+   "/schools/taylor-university",
+   "/schools/university-of-chicago",
+   "/schools/university-of-maryland-eastern-shore",
+   "/schools/university-of-new-england",
+   "/schools/university-of-south-carolina-aiken",
+   "/schools/university-of-the-cumberlands",
+   "/schools/walden-university",
+   "/schools/wellesley-college",
+   "/schools/western-dakota-technical-college",
+   "/schools/wofford-college",
+   "/schools/worcester-polytechnic-institute",
+   "/schools/abilene-christian-university",
+   "/schools/alabama-a-and-m-university",
+   "/schools/alcorn-state-university",
+   "/schools/amherst-college",
+   "/schools/aquinas-college",
+   "/schools/bellarmine-university",
+   "/schools/bridgewater-college",
+   "/schools/brookdale-community-college",
+   "/schools/broward-college",
+   "/schools/bryant-university",
+   "/schools/bucks-county-community-college",
+   "/schools/capella-university",
+   "/schools/carnegie-mellon-university",
+   "/schools/carrington-college-phoenix-north",
+   "/schools/catawba-valley-community-college",
+   "/schools/central-georgia-technical-college",
+   "/schools/city-colleges-of-chicago-malcolm-x-college",
+   "/schools/college-of-saint-scholastica",
+   "/schools/cuny-hostos-community-college",
+   "/schools/cuny-kingsborough-community-college",
+   "/schools/delaware-valley-university",
+   "/schools/drew-university",
+   "/schools/durham-technical-community-college",
+   "/schools/eastern-florida-state-college",
+   "/schools/el-paso-community-college",
+   "/schools/elizabethtown-college",
+   "/schools/empire-state-university",
+   "/schools/erwin-technical-college",
+   "/schools/essex-county-college",
+   "/schools/florida-southern-college",
+   "/schools/fortis-institute-towson",
+   "/schools/francis-marion-university",
+   "/schools/franklin-and-marshall-college",
+   "/schools/gadsden-state-community-college",
+   "/schools/hinds-community-college",
+   "/schools/hudson-county-community-college",
+   "/schools/indiana-university-southeast",
+   "/schools/institute-of-technology-ca",
+   "/schools/john-brown-university",
+   "/schools/johnston-community-college",
+   "/schools/kings-college",
+   "/schools/lackawanna-college",
+   "/schools/lake-forest-college",
+   "/schools/lasell-university",
+   "/schools/lemoore-college",
+   "/schools/lesley-university",
+   "/schools/lincoln-land-community-college",
+   "/schools/lincoln-technical-institute-iselin",
+   "/schools/lincoln-university-mo",
+   "/schools/macalester-college",
+   "/schools/millikin-university",
+   "/schools/mississippi-christian-university",
+   "/schools/modesto-junior-college",
+   "/schools/mount-saint-marys-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 106 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1201)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 75,
+   "descriptionsOver160": 31
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-009/fayetteville-technical-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-009/fayetteville-technical-community-college-phone.png",
+   "data/generated/screenshots/bucket-schools-009/goodwin-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-009/goodwin-university-phone.png"
+  ]
+ },
+ {
+  "bucket": 10,
+  "checkedAt": "2026-10-05T18:23:26.293Z",
+  "passed": true,
+  "pages": [
+   "/schools/national-louis-university",
+   "/schools/new-york-institute-of-technology",
+   "/schools/niagara-county-community-college",
+   "/schools/north-georgia-technical-college",
+   "/schools/north-greenville-university",
+   "/schools/oberlin-college",
+   "/schools/ohio-northern-university",
+   "/schools/oklahoma-city-community-college",
+   "/schools/onondaga-community-college",
+   "/schools/point-park-university",
+   "/schools/quinsigamond-community-college",
+   "/schools/rice-university",
+   "/schools/saint-ambrose-university",
+   "/schools/saint-peters-university",
+   "/schools/saint-vincent-college",
+   "/schools/savannah-college-of-art-and-design",
+   "/schools/stevens-institute-of-technology",
+   "/schools/suny-broome-community-college",
+   "/schools/thomas-jefferson-university",
+   "/schools/tri-county-technical-college",
+   "/schools/tulsa-technology-center",
+   "/schools/tuskegee-university",
+   "/schools/tyler-junior-college",
+   "/schools/university-of-findlay",
+   "/schools/university-of-hawaii-at-hilo",
+   "/schools/university-of-illinois-springfield",
+   "/schools/university-of-redlands",
+   "/schools/university-of-saint-francis-fort-wayne",
+   "/schools/university-of-tulsa",
+   "/schools/virginia-state-university",
+   "/schools/wake-forest-university",
+   "/schools/washtenaw-community-college",
+   "/schools/westminster-university",
+   "/schools/willamette-university",
+   "/schools/williams-college",
+   "/schools/abraham-baldwin-agricultural-college",
+   "/schools/anderson-university-in",
+   "/schools/anoka-technical-college",
+   "/schools/barry-university",
+   "/schools/belhaven-university",
+   "/schools/berea-college",
+   "/schools/blinn-college-district",
+   "/schools/bob-jones-university",
+   "/schools/centenary-university",
+   "/schools/central-lakes-college-brainerd",
+   "/schools/charleston-southern-university",
+   "/schools/claflin-university",
+   "/schools/coalinga-college",
+   "/schools/colgate-university",
+   "/schools/college-of-coastal-georgia",
+   "/schools/delaware-county-community-college",
+   "/schools/delta-state-university",
+   "/schools/dorsey-college",
+   "/schools/eastern-oregon-university",
+   "/schools/eckerd-college",
+   "/schools/evangel-university",
+   "/schools/fort-valley-state-university",
+   "/schools/fortis-college-cuyahoga-falls",
+   "/schools/grinnell-college",
+   "/schools/hagerstown-community-college",
+   "/schools/hazard-community-and-technical-college",
+   "/schools/henry-ford-college",
+   "/schools/howard-college",
+   "/schools/inter-american-university-of-puerto-rico-bayamon",
+   "/schools/inter-american-university-of-puerto-rico-ponce",
+   "/schools/iowa-western-community-college",
+   "/schools/kansas-city-kansas-community-college",
+   "/schools/kennebec-valley-community-college",
+   "/schools/lafayette-college",
+   "/schools/lakeshore-technical-college",
+   "/schools/laredo-college",
+   "/schools/lehigh-carbon-community-college",
+   "/schools/linfield-university",
+   "/schools/linn-benton-community-college",
+   "/schools/loras-college",
+   "/schools/macomb-community-college",
+   "/schools/manatee-technical-college",
+   "/schools/manhattanville-university",
+   "/schools/marymount-university",
+   "/schools/merced-college",
+   "/schools/middlesex-college",
+   "/schools/milwaukee-school-of-engineering",
+   "/schools/minnesota-north-college",
+   "/schools/mohawk-valley-community-college",
+   "/schools/mott-community-college",
+   "/schools/mt-san-antonio-college",
+   "/schools/navarro-college",
+   "/schools/new-castle-school-of-trades",
+   "/schools/nhti-concords-community-college",
+   "/schools/northwest-arkansas-community-college",
+   "/schools/northwest-mississippi-community-college",
+   "/schools/nova-southeastern-university",
+   "/schools/occidental-college",
+   "/schools/ogden-weber-technical-college",
+   "/schools/oregon-institute-of-technology",
+   "/schools/ottawa-university-ottawa",
+   "/schools/pensacola-state-college",
+   "/schools/pontifical-catholic-university-of-puerto-rico-ponce",
+   "/schools/rogers-state-university",
+   "/schools/salve-regina-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 102 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1124)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 73,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-010/national-louis-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-010/national-louis-university-phone.png",
+   "data/generated/screenshots/bucket-schools-010/university-of-hawaii-at-hilo-desktop.png",
+   "data/generated/screenshots/bucket-schools-010/university-of-hawaii-at-hilo-phone.png"
+  ]
+ },
+ {
+  "bucket": 11,
+  "checkedAt": "2026-10-05T18:23:43.281Z",
+  "passed": true,
+  "pages": [
+   "/schools/savannah-technical-college",
+   "/schools/schoolcraft-community-college-district",
+   "/schools/siena-heights-university",
+   "/schools/simpson-college",
+   "/schools/skidmore-college",
+   "/schools/southeastern-oklahoma-state-university",
+   "/schools/southern-careers-institute-austin",
+   "/schools/southwest-university-at-el-paso",
+   "/schools/spring-arbor-university",
+   "/schools/st-marys-university",
+   "/schools/suny-morrisville",
+   "/schools/tennessee-college-of-applied-technology-knoxville",
+   "/schools/texas-am-university-central-texas",
+   "/schools/texas-am-university-victoria",
+   "/schools/texas-wesleyan-university",
+   "/schools/ucnj-union-college-of-union-county-new-jersey",
+   "/schools/university-of-dubuque",
+   "/schools/university-of-puerto-rico-rio-piedras",
+   "/schools/university-of-south-carolina-beaufort",
+   "/schools/university-of-wisconsin-superior",
+   "/schools/virginia-military-institute",
+   "/schools/waldorf-university",
+   "/schools/walsh-university",
+   "/schools/wayne-state-college",
+   "/schools/western-colorado-university",
+   "/schools/western-new-england-university",
+   "/schools/western-technical-college-tx",
+   "/schools/wheaton-college-massachusetts",
+   "/schools/albion-college",
+   "/schools/ata-college-ky",
+   "/schools/azusa-pacific-university",
+   "/schools/bellevue-college",
+   "/schools/benedict-college",
+   "/schools/bethel-university-in",
+   "/schools/big-sandy-community-and-technical-college",
+   "/schools/black-hills-state-university",
+   "/schools/blue-cliff-college-metairie",
+   "/schools/bristol-community-college",
+   "/schools/cabrillo-college",
+   "/schools/camden-county-college",
+   "/schools/campbellsville-university",
+   "/schools/central-carolina-community-college",
+   "/schools/centura-college-chesapeake",
+   "/schools/chattahoochee-technical-college",
+   "/schools/chestnut-hill-college",
+   "/schools/clark-atlanta-university",
+   "/schools/clover-park-technical-college",
+   "/schools/coe-college",
+   "/schools/college-of-health-care-professions-northwest",
+   "/schools/college-of-saint-benedict",
+   "/schools/college-of-southern-idaho",
+   "/schools/concorde-career-college-memphis",
+   "/schools/coppin-state-university",
+   "/schools/cuny-queensborough-community-college",
+   "/schools/denison-university",
+   "/schools/florida-gateway-college",
+   "/schools/fortis-college-baton-rouge",
+   "/schools/fortis-institute-wayne",
+   "/schools/franklin-college",
+   "/schools/franklin-pierce-university",
+   "/schools/friends-university",
+   "/schools/gateway-community-college",
+   "/schools/glendale-career-college",
+   "/schools/gordon-state-college",
+   "/schools/grambling-state-university",
+   "/schools/great-oaks-career-campuses",
+   "/schools/gulf-coast-state-college",
+   "/schools/gurnick-academy-of-medical-arts",
+   "/schools/hamilton-college",
+   "/schools/hampton-university",
+   "/schools/holy-family-university",
+   "/schools/hutchinson-community-college",
+   "/schools/illinois-wesleyan-university",
+   "/schools/indian-hills-community-college",
+   "/schools/indiana-institute-of-technology",
+   "/schools/inter-american-university-of-puerto-rico-metro",
+   "/schools/iona-university",
+   "/schools/j-sargeant-reynolds-community-college",
+   "/schools/kalamazoo-college",
+   "/schools/la-roche-university",
+   "/schools/lake-superior-state-university",
+   "/schools/lewis-and-clark-college",
+   "/schools/lincoln-university-pa",
+   "/schools/louisiana-state-university-shreveport",
+   "/schools/loyola-university-new-orleans",
+   "/schools/marian-university-in",
+   "/schools/maryville-university-of-saint-louis",
+   "/schools/meridian-community-college",
+   "/schools/midwest-technical-institute-illinois",
+   "/schools/montana-technological-university",
+   "/schools/morehouse-college",
+   "/schools/muskingum-university",
+   "/schools/national-park-college",
+   "/schools/nebraska-wesleyan-university",
+   "/schools/nelson-university",
+   "/schools/neumann-university",
+   "/schools/north-park-university",
+   "/schools/north-shore-community-college",
+   "/schools/northwest-florida-state-college",
+   "/schools/northwestern-michigan-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 101 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (1070)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 73,
+   "descriptionsOver160": 28
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-011/savannah-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-011/savannah-technical-college-phone.png",
+   "data/generated/screenshots/bucket-schools-011/montana-technological-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-011/montana-technological-university-phone.png"
+  ]
+ },
+ {
+  "bucket": 12,
+  "checkedAt": "2026-10-05T18:23:59.491Z",
+  "passed": true,
+  "pages": [
+   "/schools/ogeechee-technical-college",
+   "/schools/onondaga-cortland-madison-boces",
+   "/schools/paul-smiths-college-of-arts-and-science",
+   "/schools/phoenix-college",
+   "/schools/pierpont-community-and-technical-college",
+   "/schools/pitt-community-college",
+   "/schools/randolph-macon-college",
+   "/schools/rhodes-college",
+   "/schools/roanoke-college",
+   "/schools/rose-state-college",
+   "/schools/rowan-college-of-south-jersey-gloucester-campus",
+   "/schools/saint-josephs-college-of-maine",
+   "/schools/saint-marys-university-of-minnesota",
+   "/schools/shenandoah-university",
+   "/schools/sheridan-technical-college",
+   "/schools/southwestern-illinois-college",
+   "/schools/sowela-technical-community-college",
+   "/schools/spelman-college",
+   "/schools/spokane-falls-community-college",
+   "/schools/suffolk-county-community-college",
+   "/schools/suny-college-of-technology-at-delhi",
+   "/schools/texas-am-university-texarkana",
+   "/schools/tiffin-university",
+   "/schools/trinity-college",
+   "/schools/trinity-valley-community-college",
+   "/schools/university-of-arkansas-pulaski-technical-college",
+   "/schools/university-of-evansville",
+   "/schools/university-of-maine-at-augusta",
+   "/schools/university-of-northwestern-ohio",
+   "/schools/university-of-sioux-falls",
+   "/schools/university-of-the-pacific",
+   "/schools/virginia-highlands-community-college",
+   "/schools/walters-state-community-college",
+   "/schools/washington-and-jefferson-college",
+   "/schools/webster-university",
+   "/schools/west-virginia-junior-college-morgantown",
+   "/schools/wharton-county-junior-college",
+   "/schools/wichita-state-university-campus-of-applied-sciences-and-technology",
+   "/schools/aims-community-college",
+   "/schools/albertus-magnus-college",
+   "/schools/alvernia-university",
+   "/schools/alvin-community-college",
+   "/schools/american-career-college-los-angeles",
+   "/schools/american-intercontinental-university-system",
+   "/schools/atlanta-technical-college",
+   "/schools/austin-college",
+   "/schools/bates-college",
+   "/schools/bay-path-university",
+   "/schools/berry-college",
+   "/schools/bevill-state-community-college",
+   "/schools/bossier-parish-community-college",
+   "/schools/carson-newman-university",
+   "/schools/central-college",
+   "/schools/central-community-college",
+   "/schools/central-maine-community-college",
+   "/schools/chemeketa-community-college",
+   "/schools/chowan-university",
+   "/schools/clark-university",
+   "/schools/colby-college",
+   "/schools/college-of-central-florida",
+   "/schools/college-of-wooster",
+   "/schools/concorde-career-college-aurora",
+   "/schools/concordia-university-chicago",
+   "/schools/concordia-university-nebraska",
+   "/schools/cornerstone-university",
+   "/schools/curry-college",
+   "/schools/dakota-state-university",
+   "/schools/danville-community-college",
+   "/schools/del-mar-college",
+   "/schools/doane-university",
+   "/schools/eastern-university",
+   "/schools/emerson-college",
+   "/schools/emily-griffith-technical-college",
+   "/schools/fisher-college",
+   "/schools/fresno-city-college",
+   "/schools/fresno-pacific-university",
+   "/schools/gardner-webb-university",
+   "/schools/gaston-college",
+   "/schools/george-c-wallace-community-college-dothan",
+   "/schools/georgia-southwestern-state-university",
+   "/schools/gordon-college",
+   "/schools/grace-college-and-theological-seminary",
+   "/schools/henderson-state-university",
+   "/schools/jackson-state-community-college",
+   "/schools/jamestown-community-college",
+   "/schools/jefferson-state-community-college",
+   "/schools/joliet-junior-college",
+   "/schools/king-university",
+   "/schools/lake-technical-college",
+   "/schools/lancaster-bible-college",
+   "/schools/laramie-county-community-college",
+   "/schools/louisiana-state-university-at-alexandria",
+   "/schools/lubbock-christian-university",
+   "/schools/marion-technical-college-fl",
+   "/schools/marymount-manhattan-college",
+   "/schools/massachusetts-college-of-liberal-arts",
+   "/schools/massasoit-community-college",
+   "/schools/mid-state-technical-college",
+   "/schools/middlesex-community-college",
+   "/schools/minnesota-west-community-and-technical-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 101 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (899)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 72,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-012/ogeechee-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-012/ogeechee-technical-college-phone.png",
+   "data/generated/screenshots/bucket-schools-012/wichita-state-university-campus-of-applied-sciences-and-technology-desktop.png",
+   "data/generated/screenshots/bucket-schools-012/wichita-state-university-campus-of-applied-sciences-and-technology-phone.png"
+  ]
+ },
+ {
+  "bucket": 13,
+  "checkedAt": "2026-10-05T18:24:14.204Z",
+  "passed": true,
+  "pages": [
+   "/schools/minot-state-university",
+   "/schools/misericordia-university",
+   "/schools/mississippi-university-for-women",
+   "/schools/morningside-university",
+   "/schools/mount-st-marys-university",
+   "/schools/north-hennepin-community-college",
+   "/schools/northeast-state-community-college",
+   "/schools/northland-community-and-technical-college",
+   "/schools/northwest-nazarene-university",
+   "/schools/northwest-university",
+   "/schools/northwood-university",
+   "/schools/ohio-wesleyan-university",
+   "/schools/oklahoma-christian-university",
+   "/schools/olympic-college",
+   "/schools/pacific-university",
+   "/schools/pellissippi-state-community-college",
+   "/schools/regis-college",
+   "/schools/riverside-city-college",
+   "/schools/rose-hulman-institute-of-technology",
+   "/schools/ross-medical-education-center-brighton",
+   "/schools/saint-johns-river-state-college",
+   "/schools/saint-johns-university",
+   "/schools/saint-martins-university",
+   "/schools/saint-marys-college-of-california",
+   "/schools/san-juan-college",
+   "/schools/south-college",
+   "/schools/southern-crescent-technical-college",
+   "/schools/southern-wesleyan-university",
+   "/schools/southside-virginia-community-college",
+   "/schools/southwest-baptist-university",
+   "/schools/spartan-college-of-aeronautics-and-technology-ok",
+   "/schools/springfield-college",
+   "/schools/st-bonaventure-university",
+   "/schools/st-francis-college",
+   "/schools/strayer-university-district-of-columbia",
+   "/schools/tennessee-college-of-applied-technology-elizabethton",
+   "/schools/tennessee-college-of-applied-technology-jackson",
+   "/schools/tennessee-college-of-applied-technology-morristown",
+   "/schools/texarkana-college",
+   "/schools/thomas-more-university",
+   "/schools/three-rivers-college",
+   "/schools/trinity-university",
+   "/schools/uei-college-huntington-park",
+   "/schools/university-of-arkansas-at-monticello",
+   "/schools/university-of-bridgeport",
+   "/schools/university-of-charleston",
+   "/schools/university-of-puerto-rico-humacao",
+   "/schools/university-of-st-francis",
+   "/schools/university-of-the-district-of-columbia",
+   "/schools/ursinus-college",
+   "/schools/virginia-peninsula-community-college",
+   "/schools/west-liberty-university",
+   "/schools/william-carey-university",
+   "/schools/wytheville-community-college",
+   "/schools/all-state-career-school",
+   "/schools/allegany-college-of-maryland",
+   "/schools/alverno-college",
+   "/schools/american-career-college-ontario",
+   "/schools/antelope-valley-community-college-district",
+   "/schools/arkansas-state-university-newport",
+   "/schools/atlantic-technical-college",
+   "/schools/belmont-abbey-college",
+   "/schools/bergen-community-college",
+   "/schools/berklee-college-of-music",
+   "/schools/bishop-state-community-college",
+   "/schools/black-river-technical-college",
+   "/schools/blackhawk-technical-college",
+   "/schools/bowdoin-college",
+   "/schools/carl-albert-state-college",
+   "/schools/carleton-college",
+   "/schools/carrington-college-boise",
+   "/schools/carroll-college",
+   "/schools/catawba-college",
+   "/schools/central-penn-college",
+   "/schools/chadron-state-college",
+   "/schools/chicago-state-university",
+   "/schools/city-colleges-of-chicago-kennedy-king-college",
+   "/schools/clark-state-college",
+   "/schools/cleveland-state-community-college",
+   "/schools/college-of-the-sequoias",
+   "/schools/columbia-basin-college",
+   "/schools/columbia-state-community-college",
+   "/schools/community-college-of-denver",
+   "/schools/concorde-career-college-garden-grove",
+   "/schools/concorde-career-college-kansas-city",
+   "/schools/concorde-career-college-san-bernardino",
+   "/schools/concorde-career-college-san-diego",
+   "/schools/concorde-career-institute-jacksonville",
+   "/schools/concordia-university-irvine",
+   "/schools/cuny-graduate-school-and-university-center",
+   "/schools/depauw-university",
+   "/schools/dickinson-state-university",
+   "/schools/dutchess-community-college",
+   "/schools/eastwick-college-nutley",
+   "/schools/florida-southwestern-state-college",
+   "/schools/fortis-college-centerville",
+   "/schools/fortis-college-dothan",
+   "/schools/fortis-institute-scranton",
+   "/schools/fulton-montgomery-community-college",
+   "/schools/furman-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 118 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (854)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 81,
+   "descriptionsOver160": 37
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-013/minot-state-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-013/minot-state-university-phone.png",
+   "data/generated/screenshots/bucket-schools-013/spartan-college-of-aeronautics-and-technology-ok-desktop.png",
+   "data/generated/screenshots/bucket-schools-013/spartan-college-of-aeronautics-and-technology-ok-phone.png"
+  ]
+ },
+ {
+  "bucket": 14,
+  "checkedAt": "2026-10-05T18:24:28.823Z",
+  "passed": true,
+  "pages": [
+   "/schools/gallaudet-university",
+   "/schools/geneva-college",
+   "/schools/george-c-wallace-state-community-college-hanceville",
+   "/schools/georgia-military-college",
+   "/schools/georgian-court-university",
+   "/schools/glenville-state-university",
+   "/schools/grayson-college",
+   "/schools/great-lakes-institute-of-technology",
+   "/schools/guilford-college",
+   "/schools/harcum-college",
+   "/schools/hardin-simmons-university",
+   "/schools/holyoke-community-college",
+   "/schools/intellitec-college-grand-junction",
+   "/schools/iti-technical-college",
+   "/schools/johnson-c-smith-university",
+   "/schools/kalamazoo-valley-community-college",
+   "/schools/keystone-college",
+   "/schools/lakeland-university",
+   "/schools/lamar-institute-of-technology",
+   "/schools/lanier-technical-college",
+   "/schools/lansing-community-college",
+   "/schools/laurel-technical-institute-hermitage-pa",
+   "/schools/lenoir-community-college",
+   "/schools/letourneau-university",
+   "/schools/lorain-county-community-college",
+   "/schools/lycoming-college",
+   "/schools/malone-university",
+   "/schools/marion-technical-college-oh",
+   "/schools/marywood-university",
+   "/schools/massachusetts-college-of-pharmacy-and-health-sciences",
+   "/schools/massachusetts-maritime-academy",
+   "/schools/mcdaniel-college",
+   "/schools/mclennan-community-college",
+   "/schools/mercy-college-of-ohio",
+   "/schools/meridian-college",
+   "/schools/milan-institute-san-antonio-ingram",
+   "/schools/motoring-technical-training-institute",
+   "/schools/mti-college",
+   "/schools/new-mexico-highlands-university",
+   "/schools/north-arkansas-college",
+   "/schools/north-central-texas-college",
+   "/schools/north-country-community-college",
+   "/schools/north-west-college-west-covina",
+   "/schools/northshore-technical-community-college",
+   "/schools/northwest-louisiana-technical-community-college",
+   "/schools/oklahoma-state-university-oklahoma-city",
+   "/schools/orange-county-community-college",
+   "/schools/palm-beach-atlantic-university",
+   "/schools/paris-junior-college",
+   "/schools/parkland-college",
+   "/schools/peirce-college",
+   "/schools/piedmont-virginia-community-college",
+   "/schools/pima-medical-institute-aurora",
+   "/schools/pinellas-technical-college-st-petersburg",
+   "/schools/roane-state-community-college",
+   "/schools/roberts-wesleyan-university",
+   "/schools/saint-marys-college",
+   "/schools/samford-university",
+   "/schools/san-antonio-college",
+   "/schools/south-central-college",
+   "/schools/south-florida-institute-of-technology",
+   "/schools/south-georgia-technical-college",
+   "/schools/southeast-kentucky-community-and-technical-college",
+   "/schools/southeastern-technical-college",
+   "/schools/southern-technical-college-fort-myers-fl",
+   "/schools/southwest-tennessee-community-college",
+   "/schools/southwestern-community-college-nc",
+   "/schools/st-marys-college-of-maryland",
+   "/schools/sul-ross-state-university",
+   "/schools/summit-college",
+   "/schools/suny-maritime-college",
+   "/schools/tennessee-college-of-applied-technology-memphis",
+   "/schools/tennessee-college-of-applied-technology-murfreesboro",
+   "/schools/tennessee-college-of-applied-technology-nashville",
+   "/schools/tennessee-college-of-applied-technology-upper-cumberland",
+   "/schools/texas-southmost-college",
+   "/schools/thomas-college",
+   "/schools/trevecca-nazarene-university",
+   "/schools/trinity-washington-university",
+   "/schools/uei-college-fresno",
+   "/schools/uei-college-gardena",
+   "/schools/union-college",
+   "/schools/unitek-college-fremont-ca",
+   "/schools/university-of-baltimore",
+   "/schools/university-of-maine-at-farmington",
+   "/schools/university-of-massachusetts-global",
+   "/schools/university-of-puerto-rico",
+   "/schools/university-of-puerto-rico-arecibo",
+   "/schools/university-of-saint-mary",
+   "/schools/university-of-texas-permian-basin",
+   "/schools/university-of-the-south",
+   "/schools/victor-valley-college",
+   "/schools/walla-walla-university",
+   "/schools/wayne-community-college",
+   "/schools/west-virginia-state-university",
+   "/schools/west-virginia-university-at-parkersburg",
+   "/schools/westmont-college",
+   "/schools/whittier-college",
+   "/schools/adams-state-university",
+   "/schools/alfred-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 96 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (772)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 74,
+   "descriptionsOver160": 22
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-014/gallaudet-university-desktop.png",
+   "data/generated/screenshots/bucket-schools-014/gallaudet-university-phone.png",
+   "data/generated/screenshots/bucket-schools-014/iti-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-014/iti-technical-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 15,
+  "checkedAt": "2026-10-05T18:24:43.519Z",
+  "passed": true,
+  "pages": [
+   "/schools/arizona-college-of-nursing-tempe",
+   "/schools/arkansas-northeastern-college",
+   "/schools/arkansas-state-university-beebe",
+   "/schools/augustana-university",
+   "/schools/barton-college",
+   "/schools/blue-ridge-community-college-va",
+   "/schools/bluefield-state-university",
+   "/schools/butler-technology-and-career-development-schools",
+   "/schools/butler-university",
+   "/schools/cal-poly-maritime-academy",
+   "/schools/caldwell-university",
+   "/schools/career-and-technology-education-centers-of-licking-county",
+   "/schools/carlow-university",
+   "/schools/carrington-college-portland",
+   "/schools/central-carolina-technical-college",
+   "/schools/central-ohio-technical-college",
+   "/schools/central-oregon-community-college",
+   "/schools/central-virginia-community-college",
+   "/schools/charter-oak-state-college",
+   "/schools/christian-brothers-university",
+   "/schools/coahoma-community-college",
+   "/schools/coker-university",
+   "/schools/college-of-business-and-technology",
+   "/schools/college-of-lake-county",
+   "/schools/college-of-the-mainland",
+   "/schools/college-of-westchester",
+   "/schools/collin-county-community-college-district",
+   "/schools/colorado-mountain-college",
+   "/schools/concord-university",
+   "/schools/concorde-career-college-grand-prairie",
+   "/schools/concorde-career-college-north-hollywood",
+   "/schools/concordia-university-texas",
+   "/schools/cossatot-community-college-of-the-university-of-arkansas",
+   "/schools/county-college-of-morris",
+   "/schools/culver-stockton-college",
+   "/schools/cumberland-university",
+   "/schools/davis-technical-college",
+   "/schools/dillard-university",
+   "/schools/dominican-university-new-york",
+   "/schools/east-los-angeles-college",
+   "/schools/eastern-iowa-community-college-district",
+   "/schools/edgewood-university",
+   "/schools/edp-university-of-puerto-rico-inc-san-juan",
+   "/schools/faulkner-university",
+   "/schools/fortis-college-orange-park",
+   "/schools/galveston-college",
+   "/schools/genesee-community-college",
+   "/schools/hallmark-university",
+   "/schools/harris-stowe-state-university",
+   "/schools/hawaii-pacific-university",
+   "/schools/hill-college",
+   "/schools/hocking-college",
+   "/schools/hood-college",
+   "/schools/huertas-college",
+   "/schools/hunter-business-school",
+   "/schools/immaculata-university",
+   "/schools/indian-capital-technology-center-muskogee",
+   "/schools/institute-for-business-and-technology",
+   "/schools/intellitec-college-colorado-springs",
+   "/schools/inter-american-university-of-puerto-rico-aguadilla",
+   "/schools/jackson-college",
+   "/schools/jacksonville-university",
+   "/schools/james-a-rhodes-state-college",
+   "/schools/jefferson-community-college",
+   "/schools/john-c-calhoun-state-community-college",
+   "/schools/johnson-college",
+   "/schools/kapiolani-community-college",
+   "/schools/kettering-university",
+   "/schools/keuka-college",
+   "/schools/kilgore-college",
+   "/schools/knox-college",
+   "/schools/lakeland-community-college",
+   "/schools/langston-university",
+   "/schools/laurel-technical-institute-uniontown-pa",
+   "/schools/lees-mcrae-college",
+   "/schools/lindsey-wilson-university",
+   "/schools/lively-technical-college",
+   "/schools/loma-linda-university",
+   "/schools/los-angeles-film-school",
+   "/schools/louisiana-delta-community-college",
+   "/schools/lurleen-b-wallace-community-college",
+   "/schools/luzerne-county-community-college",
+   "/schools/manchester-university",
+   "/schools/maria-college-of-albany",
+   "/schools/midland-university",
+   "/schools/milan-institute-visalia",
+   "/schools/minnesota-state-college-southeast",
+   "/schools/moody-bible-institute",
+   "/schools/morton-college",
+   "/schools/mount-aloysius-college",
+   "/schools/mountain-empire-community-college",
+   "/schools/mt-san-jacinto-community-college-district",
+   "/schools/new-river-community-college",
+   "/schools/nichols-college",
+   "/schools/north-carolina-wesleyan-university",
+   "/schools/north-central-state-college",
+   "/schools/north-central-university",
+   "/schools/northeast-mississippi-community-college",
+   "/schools/northern-state-university",
+   "/schools/northwest-iowa-community-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 111 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (693)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 77,
+   "descriptionsOver160": 34
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-015/arizona-college-of-nursing-tempe-desktop.png",
+   "data/generated/screenshots/bucket-schools-015/arizona-college-of-nursing-tempe-phone.png",
+   "data/generated/screenshots/bucket-schools-015/college-of-business-and-technology-desktop.png",
+   "data/generated/screenshots/bucket-schools-015/college-of-business-and-technology-phone.png"
+  ]
+ },
+ {
+  "bucket": 16,
+  "checkedAt": "2026-10-05T18:24:58.238Z",
+  "passed": true,
+  "pages": [
+   "/schools/northwest-technical-college",
+   "/schools/oglethorpe-university",
+   "/schools/osceola-technical-college",
+   "/schools/our-lady-of-the-lake-university",
+   "/schools/patrick-and-henry-community-college",
+   "/schools/pennco-tech-bristol",
+   "/schools/pickens-technical-college",
+   "/schools/pinellas-technical-college-clearwater",
+   "/schools/plaza-college",
+   "/schools/pratt-institute-main",
+   "/schools/reed-college",
+   "/schools/reinhardt-university",
+   "/schools/rend-lake-college",
+   "/schools/richmond-community-college",
+   "/schools/rivier-university",
+   "/schools/robeson-community-college",
+   "/schools/rock-valley-college",
+   "/schools/rosedale-technical-college",
+   "/schools/shorter-university",
+   "/schools/simmons-university",
+   "/schools/south-carolina-state-university",
+   "/schools/south-piedmont-community-college",
+   "/schools/south-puget-sound-community-college",
+   "/schools/southeastern-college-boynton-beach",
+   "/schools/southern-nazarene-university",
+   "/schools/southwest-institute-of-healing-arts",
+   "/schools/southwestern-college-ks",
+   "/schools/southwestern-university",
+   "/schools/st-louis-college-of-health-careers-fenton",
+   "/schools/st-philips-college",
+   "/schools/state-fair-community-college",
+   "/schools/swedish-institute-a-college-of-health-sciences",
+   "/schools/tallahassee-state-college",
+   "/schools/tcat-athens",
+   "/schools/temple-college",
+   "/schools/tennessee-college-of-applied-technology-dickson",
+   "/schools/tennessee-college-of-applied-technology-hohenwald",
+   "/schools/ultimate-medical-academy",
+   "/schools/unitech-training-academy-lafayette",
+   "/schools/universal-technical-institute-canton",
+   "/schools/universidad-del-sagrado-corazon",
+   "/schools/university-of-dallas",
+   "/schools/university-of-detroit-mercy",
+   "/schools/university-of-hawaii-west-oahu",
+   "/schools/university-of-montevallo",
+   "/schools/university-of-mount-saint-vincent",
+   "/schools/university-of-olivet",
+   "/schools/university-of-pikeville",
+   "/schools/valley-city-state-university",
+   "/schools/vance-granville-community-college",
+   "/schools/vet-tech-institute-of-indiana",
+   "/schools/virginia-union-university",
+   "/schools/viterbo-university",
+   "/schools/volunteer-state-community-college",
+   "/schools/wartburg-college",
+   "/schools/washington-college",
+   "/schools/wayland-baptist-university",
+   "/schools/weatherford-college",
+   "/schools/william-penn-university",
+   "/schools/wilmington-college",
+   "/schools/wiregrass-georgia-technical-college",
+   "/schools/yakima-valley-college",
+   "/schools/yavapai-college",
+   "/schools/adrian-college",
+   "/schools/advanced-technology-institute",
+   "/schools/alamance-community-college",
+   "/schools/alma-college",
+   "/schools/american-national-university",
+   "/schools/angelina-college",
+   "/schools/anoka-ramsey-community-college",
+   "/schools/arkansas-state-university-mountain-home",
+   "/schools/art-center-college-of-design",
+   "/schools/asher-college",
+   "/schools/atlantic-cape-community-college",
+   "/schools/averett-university",
+   "/schools/avila-university",
+   "/schools/baptist-health-system-school-of-health-professions",
+   "/schools/bard-college",
+   "/schools/beckfield-college-florence",
+   "/schools/beloit-college",
+   "/schools/bethel-university-tn",
+   "/schools/blue-mountain-christian-university",
+   "/schools/bluefield-university",
+   "/schools/bryan-university-az",
+   "/schools/butte-college",
+   "/schools/cambridge-college-of-healthcare-and-technology-altamonte-springs-fl",
+   "/schools/caribbean-university-bayamon",
+   "/schools/cbd-college",
+   "/schools/cem-college-san-juan",
+   "/schools/central-state-university",
+   "/schools/central-texas-college",
+   "/schools/centre-college",
+   "/schools/cerritos-college",
+   "/schools/chipola-college",
+   "/schools/clarke-university",
+   "/schools/cleveland-community-college",
+   "/schools/coastal-carolina-community-college",
+   "/schools/cochise-county-community-college-district",
+   "/schools/college-of-eastern-idaho",
+   "/schools/college-of-our-lady-of-the-elms"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 98 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (649)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 69,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-016/northwest-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-016/northwest-technical-college-phone.png",
+   "data/generated/screenshots/bucket-schools-016/pinellas-technical-college-clearwater-desktop.png",
+   "data/generated/screenshots/bucket-schools-016/pinellas-technical-college-clearwater-phone.png"
+  ]
+ },
+ {
+  "bucket": 17,
+  "checkedAt": "2026-10-05T18:25:13.016Z",
+  "passed": true,
+  "pages": [
+   "/schools/college-of-the-desert",
+   "/schools/community-college-of-aurora",
+   "/schools/community-college-of-beaver-county",
+   "/schools/compass-career-college",
+   "/schools/concorde-career-institute-miramar",
+   "/schools/concorde-career-institute-tampa",
+   "/schools/cornell-college",
+   "/schools/crown-college",
+   "/schools/daytona-college",
+   "/schools/dean-college",
+   "/schools/delta-college-inc",
+   "/schools/dordt-university",
+   "/schools/dyouville-university",
+   "/schools/east-central-college",
+   "/schools/east-mississippi-community-college",
+   "/schools/east-texas-baptist-university",
+   "/schools/eastland-fairfield-career-and-technical-schools",
+   "/schools/elgin-community-college",
+   "/schools/elmira-college",
+   "/schools/erie-institute-of-technology-inc",
+   "/schools/felician-university",
+   "/schools/flint-hills-technical-college",
+   "/schools/fortis-college",
+   "/schools/francis-tuttle-technology-center",
+   "/schools/frederick-community-college",
+   "/schools/georgia-piedmont-technical-college",
+   "/schools/germanna-community-college",
+   "/schools/goucher-college",
+   "/schools/gwinnett-college-lilburn",
+   "/schools/gwynedd-mercy-university",
+   "/schools/hampden-sydney-college",
+   "/schools/hanover-college",
+   "/schools/herkimer-county-community-college",
+   "/schools/high-desert-medical-college",
+   "/schools/houston-christian-university",
+   "/schools/ibmc-college",
+   "/schools/illinois-central-college",
+   "/schools/illinois-college",
+   "/schools/illinois-eastern-community-colleges",
+   "/schools/intercoast-colleges-west-covina",
+   "/schools/jefferson-college",
+   "/schools/johnson-university",
+   "/schools/judson-university",
+   "/schools/kenyon-college",
+   "/schools/kiamichi-technology-center-mcalester",
+   "/schools/lane-college",
+   "/schools/laurel-ridge-community-college",
+   "/schools/lawrence-technological-university",
+   "/schools/lawson-state-community-college",
+   "/schools/lenoir-rhyne-university",
+   "/schools/los-angeles-pacific-university",
+   "/schools/madonna-university",
+   "/schools/maine-maritime-academy",
+   "/schools/manhattan-area-technical-college",
+   "/schools/massachusetts-bay-community-college",
+   "/schools/masters-university-and-seminary",
+   "/schools/mayfield-college",
+   "/schools/mayville-state-university",
+   "/schools/methodist-university",
+   "/schools/mid-america-christian-university",
+   "/schools/mid-eastctc-adult-education",
+   "/schools/mid-michigan-college",
+   "/schools/midway-university",
+   "/schools/midwest-institute",
+   "/schools/milwaukee-career-college",
+   "/schools/mitchell-community-college",
+   "/schools/mohave-community-college",
+   "/schools/monmouth-college",
+   "/schools/mount-vernon-nazarene-university",
+   "/schools/mountainland-technical-college",
+   "/schools/muskegon-community-college",
+   "/schools/new-york-film-academy",
+   "/schools/newberry-college",
+   "/schools/north-central-missouri-college",
+   "/schools/north-idaho-college",
+   "/schools/north-west-college-pomona",
+   "/schools/northeast-alabama-community-college",
+   "/schools/northeast-texas-community-college",
+   "/schools/northern-wyoming-community-college-district",
+   "/schools/northwest-vista-college",
+   "/schools/northwestern-oklahoma-state-university",
+   "/schools/nunez-community-college",
+   "/schools/oconee-fall-line-technical-college",
+   "/schools/ohio-business-college-sheffield",
+   "/schools/oklahoma-city-university",
+   "/schools/oklahoma-panhandle-state-university",
+   "/schools/orleans-technical-college",
+   "/schools/ouachita-baptist-university",
+   "/schools/pasadena-city-college",
+   "/schools/pasco-hernando-state-college",
+   "/schools/penn-commercial-business-technical-school",
+   "/schools/pennsylvania-highlands-community-college",
+   "/schools/piedmont-university",
+   "/schools/pikes-peak-state-college",
+   "/schools/prairie-state-college",
+   "/schools/presbyterian-college",
+   "/schools/prince-georges-community-college",
+   "/schools/queens-university-of-charlotte",
+   "/schools/rappahannock-community-college",
+   "/schools/regis-university"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 104 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (618)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 75,
+   "descriptionsOver160": 29
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-017/college-of-the-desert-desktop.png",
+   "data/generated/screenshots/bucket-schools-017/college-of-the-desert-phone.png",
+   "data/generated/screenshots/bucket-schools-017/flint-hills-technical-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-017/flint-hills-technical-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 18,
+  "checkedAt": "2026-10-05T18:25:27.700Z",
+  "passed": true,
+  "pages": [
+   "/schools/rio-grande-valley-college",
+   "/schools/ripon-college",
+   "/schools/riverland-community-college",
+   "/schools/rochester-christian-university",
+   "/schools/rockland-community-college",
+   "/schools/rocky-mountain-college",
+   "/schools/roxbury-community-college",
+   "/schools/russell-sage-college",
+   "/schools/sacramento-city-college",
+   "/schools/saint-francis-university",
+   "/schools/saint-mary-of-the-woods-college",
+   "/schools/san-diego-miramar-college",
+   "/schools/school-of-visual-arts",
+   "/schools/seton-hill-university",
+   "/schools/shaw-university",
+   "/schools/south-florida-state-college",
+   "/schools/south-plains-college",
+   "/schools/southern-california-institute-of-technology",
+   "/schools/southern-regional-technical-college",
+   "/schools/southern-technical-college-orlando-fl",
+   "/schools/southwest-texas-college",
+   "/schools/southwest-virginia-community-college",
+   "/schools/spalding-university",
+   "/schools/swarthmore-college",
+   "/schools/tennessee-college-of-applied-technology-northwest",
+   "/schools/tennessee-college-of-applied-technology-pulaski",
+   "/schools/texas-tech-university-health-sciences-center",
+   "/schools/trinity-christian-college",
+   "/schools/triton-college",
+   "/schools/tusculum-university",
+   "/schools/union-university",
+   "/schools/university-of-arkansas-for-medical-sciences",
+   "/schools/university-of-mary",
+   "/schools/university-of-minnesota-morris",
+   "/schools/university-of-mobile",
+   "/schools/university-of-puerto-rico-aguadilla",
+   "/schools/university-of-st-thomas-tx",
+   "/schools/victoria-college",
+   "/schools/virginia-wesleyan-university",
+   "/schools/wabash-college",
+   "/schools/wagner-college",
+   "/schools/walsh-college",
+   "/schools/warner-pacific-university",
+   "/schools/waynesburg-university",
+   "/schools/wenatchee-valley-college",
+   "/schools/western-new-mexico-university",
+   "/schools/whitman-college",
+   "/schools/wilkes-community-college",
+   "/schools/william-jessup-university",
+   "/schools/william-peace-university",
+   "/schools/wisconsin-lutheran-college",
+   "/schools/woodbury-university",
+   "/schools/wor-wic-community-college",
+   "/schools/adventhealth-university",
+   "/schools/aiken-technical-college",
+   "/schools/american-college-of-healthcare-and-technology",
+   "/schools/american-international-college",
+   "/schools/american-musical-and-dramatic-academy",
+   "/schools/ameritas-college",
+   "/schools/anne-arundel-community-college",
+   "/schools/apollo-career-center",
+   "/schools/ave-maria-university",
+   "/schools/black-hawk-college",
+   "/schools/blue-ridge-community-and-technical-college",
+   "/schools/brenau-university",
+   "/schools/bridgevalley-community-and-technical-college",
+   "/schools/butler-community-college",
+   "/schools/caldwell-community-college-and-technical-institute",
+   "/schools/california-college-of-the-arts",
+   "/schools/career-care-institute",
+   "/schools/central-arizona-college",
+   "/schools/chaminade-university-of-honolulu",
+   "/schools/chatham-university",
+   "/schools/chattanooga-college-medical-dental-and-and-technical-careers",
+   "/schools/city-colleges-of-chicago-wilbur-wright-college",
+   "/schools/clarkson-college",
+   "/schools/clinton-community-college",
+   "/schools/cloud-county-community-college",
+   "/schools/coastal-alabama-community-college",
+   "/schools/coastal-pines-technical-college",
+   "/schools/coconino-community-college",
+   "/schools/college-for-creative-studies",
+   "/schools/college-of-health-care-professions-austin",
+   "/schools/college-of-idaho",
+   "/schools/columbia-college-sc",
+   "/schools/columbia-greene-community-college",
+   "/schools/columbus-college-of-art-and-design",
+   "/schools/corban-university",
+   "/schools/cox-college",
+   "/schools/craven-community-college",
+   "/schools/culinary-institute-of-america",
+   "/schools/danville-area-community-college",
+   "/schools/delta-college-of-arts-and-technology",
+   "/schools/dewey-university-carolina",
+   "/schools/diversified-vocational-college",
+   "/schools/dominican-university-of-california",
+   "/schools/downey-adult-school",
+   "/schools/east-ohio-college",
+   "/schools/eastern-international-college-jersey-city",
+   "/schools/eastern-maine-community-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 100 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (586)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 79,
+   "descriptionsOver160": 21
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-018/rio-grande-valley-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-018/rio-grande-valley-college-phone.png",
+   "data/generated/screenshots/bucket-schools-018/rocky-mountain-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-018/rocky-mountain-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 19,
+  "checkedAt": "2026-10-05T18:25:42.093Z",
+  "passed": true,
+  "pages": [
+   "/schools/eastern-virginia-career-college",
+   "/schools/eastwick-college-hackensack",
+   "/schools/eastwick-college-ramsey",
+   "/schools/ehove-career-center",
+   "/schools/eti-technical-college-of-niles",
+   "/schools/finger-lakes-community-college",
+   "/schools/flathead-valley-community-college",
+   "/schools/florida-education-institute",
+   "/schools/fort-scott-community-college",
+   "/schools/fox-college",
+   "/schools/fvi-school-of-nursing-and-technology",
+   "/schools/gannon-university",
+   "/schools/george-c-wallace-state-community-college-selma",
+   "/schools/georgia-highlands-college",
+   "/schools/graceland-university-lamoni",
+   "/schools/greenfield-community-college",
+   "/schools/h-w-brewster-technical-college",
+   "/schools/hannibal-lagrange-university",
+   "/schools/hartnell-college",
+   "/schools/hawaii-community-college",
+   "/schools/healthcare-career-college",
+   "/schools/helms-college",
+   "/schools/hendrix-college",
+   "/schools/hohokus-school-of-trade-and-technical-sciences",
+   "/schools/howard-community-college",
+   "/schools/illinois-valley-community-college",
+   "/schools/institute-of-medical-careers",
+   "/schools/inter-american-university-of-puerto-rico-arecibo",
+   "/schools/inver-hills-community-college",
+   "/schools/iowa-lakes-community-college",
+   "/schools/james-sprunt-community-college",
+   "/schools/john-a-logan-college",
+   "/schools/jones-county-junior-college",
+   "/schools/joyce-university-of-nursing-and-health-sciences",
+   "/schools/juniata-college",
+   "/schools/kansas-city-art-institute",
+   "/schools/kettering-college",
+   "/schools/kishwaukee-college",
+   "/schools/la-sierra-university",
+   "/schools/labette-community-college",
+   "/schools/lake-washington-institute-of-technology",
+   "/schools/lamar-state-college-orange",
+   "/schools/lee-college",
+   "/schools/livingstone-college",
+   "/schools/louisiana-state-university-eunice",
+   "/schools/louisiana-state-university-health-sciences-center-new-orleans",
+   "/schools/lourdes-university",
+   "/schools/mandl-school-the-college-of-allied-health",
+   "/schools/mars-hill-university",
+   "/schools/marshalltown-community-college",
+   "/schools/massachusetts-college-of-art-and-design",
+   "/schools/mcmurry-university",
+   "/schools/menlo-college",
+   "/schools/mesa-community-college",
+   "/schools/midwestern-career-college",
+   "/schools/milan-institute-palm-desert",
+   "/schools/mildred-elley-school-albany-campus",
+   "/schools/mineral-area-college",
+   "/schools/minneapolis-college-of-art-and-design",
+   "/schools/mississippi-delta-community-college",
+   "/schools/moberly-area-community-college",
+   "/schools/monroe-county-community-college",
+   "/schools/montana-state-university-northern",
+   "/schools/montcalm-community-college",
+   "/schools/moraine-valley-community-college",
+   "/schools/moreno-valley-college",
+   "/schools/motlow-state-community-college",
+   "/schools/mount-saint-mary-college",
+   "/schools/mount-st-joseph-university",
+   "/schools/mt-hood-community-college",
+   "/schools/murray-state-college",
+   "/schools/nash-community-college",
+   "/schools/nebraska-methodist-college-of-nursing-and-allied-health",
+   "/schools/new-england-college",
+   "/schools/newman-university",
+   "/schools/niagara-university",
+   "/schools/north-iowa-area-community-college",
+   "/schools/north-seattle-college",
+   "/schools/north-west-college-van-nuys",
+   "/schools/northeastern-oklahoma-am-college",
+   "/schools/northwest-shoals-community-college",
+   "/schools/northwest-state-community-college",
+   "/schools/ocean-county-college",
+   "/schools/odessa-college",
+   "/schools/ohio-dominican-university",
+   "/schools/ohio-technical-college",
+   "/schools/oklahoma-baptist-university",
+   "/schools/orangeburg-calhoun-technical-college",
+   "/schools/orion-technical-college",
+   "/schools/pacific-union-college",
+   "/schools/parker-university",
+   "/schools/passaic-county-community-college",
+   "/schools/pennco-tech-blackwood",
+   "/schools/peru-state-college",
+   "/schools/pfeiffer-university",
+   "/schools/pinnacle-career-institute",
+   "/schools/praxis-institute",
+   "/schools/red-rocks-community-college",
+   "/schools/richland-community-college",
+   "/schools/ringling-college-of-art-and-design"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 112 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (524)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 81,
+   "descriptionsOver160": 31
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-019/eastern-virginia-career-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-019/eastern-virginia-career-college-phone.png",
+   "data/generated/screenshots/bucket-schools-019/hawaii-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-019/hawaii-community-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 20,
+  "checkedAt": "2026-10-05T18:25:54.282Z",
+  "passed": true,
+  "pages": [
+   "/schools/river-valley-community-college",
+   "/schools/riverside-college-of-health-sciences",
+   "/schools/rockford-university",
+   "/schools/rockingham-community-college",
+   "/schools/ross-medical-education-center-flint",
+   "/schools/ross-medical-education-center-warren",
+   "/schools/rowan-college-at-burlington-county",
+   "/schools/san-diego-city-college",
+   "/schools/san-diego-mesa-college",
+   "/schools/santa-barbara-city-college",
+   "/schools/scioto-county-career-technical-center",
+   "/schools/seattle-central-college",
+   "/schools/shawnee-community-college",
+   "/schools/shelton-state-community-college",
+   "/schools/skagit-valley-college",
+   "/schools/smith-chason-college",
+   "/schools/south-georgia-state-college",
+   "/schools/southeastern-community-college-ia",
+   "/schools/southern-california-health-institute",
+   "/schools/southern-university-at-new-orleans",
+   "/schools/southern-university-at-shreveport",
+   "/schools/southwestern-oregon-community-college",
+   "/schools/st-clair-county-community-college",
+   "/schools/stanbridge-university",
+   "/schools/summit-academy-opportunities-industrialization-center",
+   "/schools/suny-college-of-agriculture-and-technology-at-cobleskill",
+   "/schools/suny-corning-community-college",
+   "/schools/technical-college-of-the-lowcountry",
+   "/schools/technical-college-of-the-rockies",
+   "/schools/tennessee-college-of-applied-technology-harriman",
+   "/schools/tennessee-college-of-applied-technology-henry-carroll",
+   "/schools/tennessee-college-of-applied-technology-jacksboro",
+   "/schools/texas-lutheran-university",
+   "/schools/thiel-college",
+   "/schools/thomas-university",
+   "/schools/tidewater-tech-trades",
+   "/schools/trinidad-state-college",
+   "/schools/trinity-international-university-illinois",
+   "/schools/truett-mcconnell-university",
+   "/schools/ulster-county-community-college",
+   "/schools/university-of-arkansas-east-arkansas-community-college",
+   "/schools/university-of-nebraska-medical-center",
+   "/schools/university-of-puerto-rico-at-cayey",
+   "/schools/university-of-rio-grande",
+   "/schools/university-of-tennessee-southern",
+   "/schools/university-of-texas-health-science-center-at-san-antonio",
+   "/schools/university-of-virginias-college-at-wise",
+   "/schools/university-of-west-alabama",
+   "/schools/valley-grande-institute-for-academic-studies",
+   "/schools/vaughn-college-of-aeronautics-and-technology",
+   "/schools/vernon-college",
+   "/schools/warner-university",
+   "/schools/washington-state-college-of-ohio",
+   "/schools/wellspring-school-of-allied-health-kansas-city",
+   "/schools/west-virginia-northern-community-college",
+   "/schools/western-suffolk-boces",
+   "/schools/westminster-college-pa",
+   "/schools/william-jewell-college",
+   "/schools/william-t-mcfatter-technical-college",
+   "/schools/william-woods-university",
+   "/schools/wittenberg-university",
+   "/schools/abcott-institute",
+   "/schools/adult-and-continuing-education-bcts",
+   "/schools/albany-technical-college",
+   "/schools/allen-university",
+   "/schools/american-institute-of-alternative-medicine",
+   "/schools/american-national-university-louisville",
+   "/schools/american-river-college",
+   "/schools/asbury-university",
+   "/schools/aspen-university",
+   "/schools/atenas-university",
+   "/schools/athena-career-academy",
+   "/schools/atlanta-metropolitan-state-college",
+   "/schools/baker-university",
+   "/schools/baltimore-city-community-college",
+   "/schools/baptist-health-college-little-rock",
+   "/schools/baptist-health-sciences-university",
+   "/schools/barton-county-community-college",
+   "/schools/berkshire-community-college",
+   "/schools/big-bend-community-college",
+   "/schools/bladen-community-college",
+   "/schools/blue-ridge-community-college-nc",
+   "/schools/bluffton-university",
+   "/schools/boricua-college",
+   "/schools/brescia-university",
+   "/schools/brevard-college",
+   "/schools/brunswick-community-college",
+   "/schools/bryan-university-mo",
+   "/schools/buckeye-hills-career-center",
+   "/schools/butler-county-community-college",
+   "/schools/cabarrus-college-of-health-sciences",
+   "/schools/cairn-university-langhorne",
+   "/schools/california-healing-arts-college",
+   "/schools/california-institute-of-the-arts",
+   "/schools/cape-cod-community-college",
+   "/schools/cape-fear-community-college",
+   "/schools/career-networks-institute",
+   "/schools/carl-sandburg-college",
+   "/schools/carolinas-college-of-health-sciences",
+   "/schools/carroll-community-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 121 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (449)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 87,
+   "descriptionsOver160": 34
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-020/river-valley-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-020/river-valley-community-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 21,
+  "checkedAt": "2026-10-05T18:26:07.612Z",
+  "passed": true,
+  "pages": [
+   "/schools/carteret-community-college",
+   "/schools/casper-college",
+   "/schools/cci-training-center-arlington",
+   "/schools/center-for-instruction-technology-and-innovation",
+   "/schools/centra-college",
+   "/schools/central-christian-college-of-kansas",
+   "/schools/central-coast-college",
+   "/schools/central-pennsylvania-institute-of-science-and-technology",
+   "/schools/chandler-gilbert-community-college",
+   "/schools/charlotte-technical-college",
+   "/schools/chattahoochee-valley-community-college",
+   "/schools/chicago-school-at-los-angeles",
+   "/schools/choffin-career-and-technical-center",
+   "/schools/city-colleges-of-chicago-harold-washington-college",
+   "/schools/city-colleges-of-chicago-harry-s-truman-college",
+   "/schools/city-colleges-of-chicago-olive-harvey-college",
+   "/schools/city-colleges-of-chicago-richard-j-daley-college",
+   "/schools/cleary-university",
+   "/schools/cleveland-institute-of-art",
+   "/schools/clovis-community-college",
+   "/schools/colby-community-college",
+   "/schools/colby-sawyer-college",
+   "/schools/college-of-the-canyons",
+   "/schools/collins-career-technical-center",
+   "/schools/colorado-college",
+   "/schools/colorado-northwestern-community-college",
+   "/schools/columbiana-county-career-and-technical-center",
+   "/schools/columbus-technical-college",
+   "/schools/connors-state-college",
+   "/schools/converse-university",
+   "/schools/crestpoint-university",
+   "/schools/cybertex-institute-of-technology",
+   "/schools/defiance-college",
+   "/schools/delta-college-south",
+   "/schools/diablo-valley-college",
+   "/schools/dyersburg-state-community-college",
+   "/schools/east-central-community-college",
+   "/schools/east-valley-institute-of-technology",
+   "/schools/eastern-arizona-college",
+   "/schools/eastern-mennonite-university",
+   "/schools/edgecombe-community-college",
+   "/schools/edison-state-community-college",
+   "/schools/edmonds-college",
+   "/schools/emory-and-henry-university",
+   "/schools/eureka-college",
+   "/schools/everett-community-college",
+   "/schools/ferrum-college",
+   "/schools/florida-academy",
+   "/schools/fond-du-lac-tribal-and-community-college",
+   "/schools/franciscan-missionaries-of-our-lady-university",
+   "/schools/freed-hardeman-university",
+   "/schools/galen-college-of-nursing-louisville",
+   "/schools/garden-city-community-college",
+   "/schools/genesis-career-college-lebanon",
+   "/schools/georgetown-college",
+   "/schools/georgia-gwinnett-college",
+   "/schools/grays-harbor-college",
+   "/schools/great-bay-community-college",
+   "/schools/greater-johnstown-career-and-technology-center",
+   "/schools/greensboro-college",
+   "/schools/gwinnett-college-marietta-campus",
+   "/schools/hartwick-college",
+   "/schools/harvey-mudd-college",
+   "/schools/hastings-college",
+   "/schools/helena-college-university-of-montana",
+   "/schools/henderson-community-college",
+   "/schools/highline-college",
+   "/schools/hilbert-college",
+   "/schools/hiram-college",
+   "/schools/hollywood-institute",
+   "/schools/hondros-college-of-nursing",
+   "/schools/hopkinsville-community-college",
+   "/schools/howard-payne-university",
+   "/schools/huntingdon-college",
+   "/schools/huntington-university",
+   "/schools/institute-of-beauty-and-wellness",
+   "/schools/inter-american-university-of-puerto-rico-san-german",
+   "/schools/isothermal-community-college",
+   "/schools/jones-technical-institute",
+   "/schools/kansas-wesleyan-university",
+   "/schools/kaskaskia-college",
+   "/schools/kentucky-state-university",
+   "/schools/kentucky-wesleyan-college",
+   "/schools/kirtland-community-college",
+   "/schools/laboure-college-of-healthcare",
+   "/schools/lagrange-college",
+   "/schools/laguna-college-of-art-and-design",
+   "/schools/lake-michigan-college",
+   "/schools/lake-region-state-college",
+   "/schools/lane-community-college",
+   "/schools/laurus-college",
+   "/schools/life-university",
+   "/schools/lim-college",
+   "/schools/lincoln-memorial-university",
+   "/schools/lynn-university",
+   "/schools/marian-university-wi",
+   "/schools/mary-baldwin-university",
+   "/schools/maryland-institute-college-of-art",
+   "/schools/medical-career-and-technical-college",
+   "/schools/medquest-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 98 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (389)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 75,
+   "descriptionsOver160": 23
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-021/carteret-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-021/carteret-community-college-phone.png",
+   "data/generated/screenshots/bucket-schools-021/casper-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-021/casper-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 22,
+  "checkedAt": "2026-10-05T18:26:21.037Z",
+  "passed": true,
+  "pages": [
+   "/schools/mercer-county-community-college",
+   "/schools/mercy-college-of-health-sciences",
+   "/schools/metropolitan-college-of-new-york",
+   "/schools/mid-plains-community-college",
+   "/schools/midamerica-nazarene-university",
+   "/schools/milligan-university",
+   "/schools/missouri-valley-college",
+   "/schools/mitchell-college",
+   "/schools/mount-marty-university",
+   "/schools/mount-mary-university",
+   "/schools/mountwest-community-and-technical-college",
+   "/schools/new-age-training",
+   "/schools/new-community-career-and-technical-institute",
+   "/schools/new-mexico-junior-college",
+   "/schools/new-professions-technical-institute",
+   "/schools/new-york-school-for-medical-and-dental-assistants",
+   "/schools/nicolet-area-technical-college",
+   "/schools/normandale-community-college",
+   "/schools/north-florida-college",
+   "/schools/northeastern-junior-college",
+   "/schools/northern-maine-community-college",
+   "/schools/northern-oklahoma-college",
+   "/schools/northwestern-college",
+   "/schools/oakton-college",
+   "/schools/ohio-christian-university",
+   "/schools/okaloosa-technical-college",
+   "/schools/oklahoma-wesleyan-university",
+   "/schools/orange-technical-college",
+   "/schools/otero-college",
+   "/schools/otis-college-of-art-and-design",
+   "/schools/pacific-northwest-college-of-art",
+   "/schools/paul-d-camp-community-college",
+   "/schools/pci-health-training-center",
+   "/schools/pennsylvania-institute-of-technology",
+   "/schools/philadelphia-technician-training",
+   "/schools/phillips-community-college-of-the-university-of-arkansas",
+   "/schools/pickaway-ross-joint-vocational-school-district",
+   "/schools/pine-technical-and-community-college",
+   "/schools/point-university",
+   "/schools/pratt-community-college",
+   "/schools/premiere-career-college",
+   "/schools/provo-college",
+   "/schools/ranger-college",
+   "/schools/raritan-valley-community-college",
+   "/schools/reid-state-technical-college",
+   "/schools/river-parishes-community-college",
+   "/schools/rockhurst-university",
+   "/schools/rogue-community-college",
+   "/schools/ross-medical-education-center-cincinnati",
+   "/schools/ross-medical-education-center-lansing",
+   "/schools/rust-college",
+   "/schools/saddleback-college",
+   "/schools/saint-elizabeth-university",
+   "/schools/sampson-community-college",
+   "/schools/sandhills-community-college",
+   "/schools/santa-fe-community-college",
+   "/schools/santa-rosa-junior-college",
+   "/schools/sauk-valley-community-college",
+   "/schools/scottsdale-community-college",
+   "/schools/shasta-college",
+   "/schools/shoreline-college",
+   "/schools/simpson-university",
+   "/schools/south-suburban-college",
+   "/schools/southeast-arkansas-college",
+   "/schools/southeastern-college-charleston",
+   "/schools/southeastern-college-charlotte",
+   "/schools/southern-adventist-university",
+   "/schools/southern-union-state-community-college",
+   "/schools/southwestern-adventist-university",
+   "/schools/st-thomas-aquinas-college",
+   "/schools/sullivan-county-community-college",
+   "/schools/sumner-college",
+   "/schools/sussex-county-community-college",
+   "/schools/tennessee-college-of-applied-technology-crump",
+   "/schools/tennessee-college-of-applied-technology-hartsville",
+   "/schools/texas-college",
+   "/schools/toccoa-falls-college",
+   "/schools/traviss-technical-college",
+   "/schools/tri-rivers-career-center",
+   "/schools/umpqua-community-college",
+   "/schools/union-adventist-university",
+   "/schools/universal-technical-institute-of-texas-inc",
+   "/schools/university-of-hawaii-maui-college",
+   "/schools/university-of-jamestown",
+   "/schools/university-of-montana-western",
+   "/schools/university-of-north-carolina-school-of-the-arts",
+   "/schools/university-of-silicon-valley",
+   "/schools/university-of-tennessee-health-science-center",
+   "/schools/university-of-texas-md-anderson-cancer-center",
+   "/schools/university-of-texas-medical-branch-at-galveston",
+   "/schools/university-of-the-ozarks",
+   "/schools/university-of-valley-forge",
+   "/schools/upstate-medical-university",
+   "/schools/visible-music-college",
+   "/schools/walla-walla-community-college",
+   "/schools/walnut-hill-college",
+   "/schools/washington-and-lee-university",
+   "/schools/waubonsee-community-college",
+   "/schools/webber-international-university",
+   "/schools/west-virginia-junior-college-charleston"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 104 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (385)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 85,
+   "descriptionsOver160": 19
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-022/mercer-county-community-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-022/mercer-county-community-college-phone.png",
+   "data/generated/screenshots/bucket-schools-022/new-community-career-and-technical-institute-desktop.png",
+   "data/generated/screenshots/bucket-schools-022/new-community-career-and-technical-institute-phone.png"
+  ]
+ },
+ {
+  "bucket": 23,
+  "checkedAt": "2026-10-05T18:26:34.484Z",
+  "passed": true,
+  "pages": [
+   "/schools/west-virginia-wesleyan-college",
+   "/schools/western-piedmont-community-college",
+   "/schools/whatcom-community-college",
+   "/schools/wiley-university",
+   "/schools/williston-state-college",
+   "/schools/wilson-community-college",
+   "/schools/yeshiva-university",
+   "/schools/zane-state-college",
+   "/schools/academy-for-nursing-and-health-occupations",
+   "/schools/academy-of-cosmetology",
+   "/schools/ace-institute-of-technology",
+   "/schools/advanced-career-institute",
+   "/schools/advantage-career-institute",
+   "/schools/agnes-scott-college",
+   "/schools/ambria-college-of-nursing",
+   "/schools/american-institute-of-medical-sciences-and-education",
+   "/schools/american-medical-academy",
+   "/schools/american-medical-sciences-center",
+   "/schools/angeles-college",
+   "/schools/anna-maria-college",
+   "/schools/art-academy-of-cincinnati",
+   "/schools/artistic-nails-and-beauty-academy-tampa",
+   "/schools/associated-technical-college-los-angeles",
+   "/schools/ata-college-ca",
+   "/schools/auguste-escoffier-school-of-culinary-arts-austin",
+   "/schools/aultman-college-of-nursing-and-health-sciences",
+   "/schools/aveda-arts-and-sciences-institute-minneapolis",
+   "/schools/aveda-institute-fort-myers",
+   "/schools/aveda-institute-provo",
+   "/schools/aveda-institute-tampa-bay",
+   "/schools/avenue-five-institute",
+   "/schools/ayers-career-college",
+   "/schools/bay-de-noc-community-college",
+   "/schools/bellin-college",
+   "/schools/benes-career-academy",
+   "/schools/best-care-college",
+   "/schools/bethany-college-ks",
+   "/schools/bethel-college-north-newton",
+   "/schools/blake-austin-college",
+   "/schools/boca-beauty-academy",
+   "/schools/brazosport-college",
+   "/schools/briar-cliff-university",
+   "/schools/bryan-college-dayton",
+   "/schools/bryan-college-of-health-sciences",
+   "/schools/bushnell-university",
+   "/schools/california-nurses-educational-institute",
+   "/schools/calumet-college-of-saint-joseph",
+   "/schools/cambridge-college",
+   "/schools/cambridge-college-of-healthcare-and-technology-delray-beach-fl",
+   "/schools/canton-city-schools-adult-career-and-technical-education",
+   "/schools/cape-girardeau-career-and-technology-center",
+   "/schools/capri-college-davenport",
+   "/schools/capri-college-dubuque",
+   "/schools/casa-loma-college-los-angeles",
+   "/schools/celebrity-school-of-beauty",
+   "/schools/center-for-allied-health-education",
+   "/schools/central-alabama-community-college",
+   "/schools/central-oklahoma-college",
+   "/schools/charles-a-jones-career-and-education-center",
+   "/schools/christ-college-of-nursing-and-health-sciences",
+   "/schools/claremont-mckenna-college",
+   "/schools/clarendon-college",
+   "/schools/coffeyville-community-college",
+   "/schools/college-of-saint-mary",
+   "/schools/college-of-southern-maryland",
+   "/schools/college-of-the-albemarle",
+   "/schools/college-of-the-florida-keys",
+   "/schools/college-of-wilmington",
+   "/schools/columbia-college-va",
+   "/schools/contra-costa-college",
+   "/schools/cortiva-institute-linthicum-md",
+   "/schools/cortiva-institute-maitland-fl",
+   "/schools/cortiva-institute-st-petersburg-fl",
+   "/schools/covenant-college",
+   "/schools/cowley-county-community-college",
+   "/schools/crafton-hills-college",
+   "/schools/cuesta-college",
+   "/schools/culinary-institute-inc",
+   "/schools/daemen-university",
+   "/schools/dakota-college-at-bottineau",
+   "/schools/denver-college-of-nursing",
+   "/schools/douglas-education-center",
+   "/schools/eagle-gate-college-murray",
+   "/schools/east-georgia-state-college",
+   "/schools/elizabeth-city-state-university",
+   "/schools/ellsworth-community-college",
+   "/schools/employment-solutions-college-for-technical-education",
+   "/schools/erie-1-boces",
+   "/schools/evergreen-state-college",
+   "/schools/first-institute-of-travel-inc",
+   "/schools/five-towns-college",
+   "/schools/foothill-college",
+   "/schools/fort-pierce-beauty-academy",
+   "/schools/franklin-technology-center-adult-education",
+   "/schools/gavilan-college",
+   "/schools/genesis-career-college-cookeville",
+   "/schools/georgia-career-institute",
+   "/schools/glen-oaks-community-college",
+   "/schools/glendale-community-college",
+   "/schools/gogebic-community-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 99 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (272)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 82,
+   "descriptionsOver160": 17
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-023/west-virginia-wesleyan-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-023/west-virginia-wesleyan-college-phone.png",
+   "data/generated/screenshots/bucket-schools-023/williston-state-college-desktop.png",
+   "data/generated/screenshots/bucket-schools-023/williston-state-college-phone.png"
+  ]
+ },
+ {
+  "bucket": 24,
+  "checkedAt": "2026-10-05T18:26:48.546Z",
+  "passed": true,
+  "pages": [
+   "/schools/good-samaritan-college-of-nursing-and-health-science",
+   "/schools/gwinnett-college",
+   "/schools/harford-community-college",
+   "/schools/harrisburg-university-of-science-and-technology",
+   "/schools/healthcare-training-institute-nj",
+   "/schools/heartland-community-college",
+   "/schools/heidelberg-university",
+   "/schools/helene-fuld-college-of-nursing",
+   "/schools/heritage-university",
+   "/schools/highland-community-college-il",
+   "/schools/hollins-university",
+   "/schools/hollywood-institute-of-beauty-careers",
+   "/schools/holy-name-medical-center-sister-claire-tynan-school-of-nursing",
+   "/schools/houghton-university",
+   "/schools/infinity-college",
+   "/schools/institute-of-technology-or",
+   "/schools/inter-american-university-of-puerto-rico-barranquitas",
+   "/schools/inter-american-university-of-puerto-rico-guayama",
+   "/schools/interior-designers-institute",
+   "/schools/international-academy",
+   "/schools/international-school-of-beauty-inc",
+   "/schools/international-school-of-skin-nailcare-and-massage-therapy",
+   "/schools/jarvis-christian-university",
+   "/schools/jersey-college",
+   "/schools/john-wood-community-college",
+   "/schools/kankakee-community-college",
+   "/schools/kentucky-christian-university",
+   "/schools/la-belle-beauty-academy",
+   "/schools/lake-erie-college",
+   "/schools/lake-sumter-state-college",
+   "/schools/lancaster-county-career-and-technology-center",
+   "/schools/lancaster-school-of-cosmetology-and-therapeutic-bodywork",
+   "/schools/los-medanos-college",
+   "/schools/louisiana-christian-university",
+   "/schools/lower-columbia-college",
+   "/schools/m-t-training-center",
+   "/schools/maine-college-of-health-professions",
+   "/schools/manhattan-school-of-computer-technology",
+   "/schools/manor-college",
+   "/schools/martin-luther-college",
+   "/schools/mchenry-county-college",
+   "/schools/mcvsd",
+   "/schools/mdt-college-of-health-sciences",
+   "/schools/medical-institute-of-palm-beach",
+   "/schools/mendocino-college",
+   "/schools/meridian-institute-of-surgical-assisting",
+   "/schools/metro-technology-centers",
+   "/schools/miami-regional-university",
+   "/schools/midland-college",
+   "/schools/milwaukee-institute-of-art-and-design",
+   "/schools/missouri-state-university-west-plains",
+   "/schools/montgomery-college",
+   "/schools/montserrat-college-of-art",
+   "/schools/moore-college-of-art-and-design",
+   "/schools/morgan-community-college",
+   "/schools/national-career-college",
+   "/schools/national-career-institute",
+   "/schools/neosho-county-community-college",
+   "/schools/new-college-of-florida",
+   "/schools/new-river-community-and-technical-college",
+   "/schools/new-york-automotive-and-diesel-institute",
+   "/schools/new-york-medical-career-training-center",
+   "/schools/nightingale-college",
+   "/schools/north-central-michigan-college",
+   "/schools/northland-pioneer-college",
+   "/schools/northwest-college",
+   "/schools/northwest-educational-center",
+   "/schools/notre-dame-de-namur-university",
+   "/schools/notre-dame-of-maryland-university",
+   "/schools/oakland-city-university",
+   "/schools/ohio-medical-career-college",
+   "/schools/orange-coast-college",
+   "/schools/ozarka-college",
+   "/schools/pacific-college-of-health-and-science",
+   "/schools/pacific-oaks-college",
+   "/schools/parisian-spa-institute",
+   "/schools/pci-academy-ames",
+   "/schools/peninsula-college",
+   "/schools/pierce-college-district",
+   "/schools/pittsburgh-institute-of-aeronautics",
+   "/schools/pitzer-college",
+   "/schools/platt-college-los-angeles",
+   "/schools/prism-career-institute-philadelphia",
+   "/schools/raphaels-school-of-beauty-culture-inc-boardman",
+   "/schools/reading-area-community-college",
+   "/schools/reading-hospital-school-of-health-sciences",
+   "/schools/redlands-community-college",
+   "/schools/rio-salado-college",
+   "/schools/rosemont-college",
+   "/schools/saber-college",
+   "/schools/salem-college",
+   "/schools/salem-community-college",
+   "/schools/salem-university",
+   "/schools/san-bernardino-valley-college",
+   "/schools/san-joaquin-delta-college",
+   "/schools/sandusky-career-center",
+   "/schools/santiago-canyon-college",
+   "/schools/school-of-automotive-machinists-and-technology",
+   "/schools/schreiner-university",
+   "/schools/schuyler-steuben-chemung-tioga-allegany-boces"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 97 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (100)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (292)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 81,
+   "descriptionsOver160": 16
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-024/good-samaritan-college-of-nursing-and-health-science-desktop.png",
+   "data/generated/screenshots/bucket-schools-024/good-samaritan-college-of-nursing-and-health-science-phone.png",
+   "data/generated/screenshots/bucket-schools-024/harrisburg-university-of-science-and-technology-desktop.png",
+   "data/generated/screenshots/bucket-schools-024/harrisburg-university-of-science-and-technology-phone.png"
+  ]
+ },
+ {
+  "bucket": 25,
+  "checkedAt": "2026-10-05T18:27:00.318Z",
+  "passed": true,
+  "pages": [
+   "/schools/sentara-college-of-health-sciences",
+   "/schools/sierra-college",
+   "/schools/snead-state-community-college",
+   "/schools/snow-college",
+   "/schools/south-texas-training-center",
+   "/schools/southeastern-college-columbia",
+   "/schools/southeastern-technical-institute",
+   "/schools/southern-missouri-technical-institute",
+   "/schools/southern-state-community-college",
+   "/schools/southside-college-of-health-sciences",
+   "/schools/southwest-mississippi-community-college",
+   "/schools/southwestern-christian-university",
+   "/schools/southwestern-college-ca",
+   "/schools/southwestern-community-college-ia",
+   "/schools/southwestern-michigan-college",
+   "/schools/spartan-college-of-aeronautics-and-technology-ca",
+   "/schools/spbk-enterprises-inc",
+   "/schools/st-charles-community-college",
+   "/schools/st-lukes-college",
+   "/schools/st-pauls-school-of-nursing-queens",
+   "/schools/st-pauls-school-of-nursing-staten-island",
+   "/schools/st-thomas-university",
+   "/schools/standard-healthcare-services-college-of-nursing",
+   "/schools/state-college-of-florida-manatee-sarasota",
+   "/schools/stephens-college",
+   "/schools/suny-adirondack",
+   "/schools/suny-downstate-health-sciences-university",
+   "/schools/suny-westchester-community-college",
+   "/schools/surry-community-college",
+   "/schools/taylor-college",
+   "/schools/tennessee-college-of-applied-technology-livingston",
+   "/schools/texas-health-school",
+   "/schools/tompkins-cortland-community-college",
+   "/schools/touro-university-worldwide",
+   "/schools/transylvania-university",
+   "/schools/treasure-valley-community-college",
+   "/schools/trident-technical-college",
+   "/schools/trinity-college-of-jacksonville",
+   "/schools/trinity-college-of-nursing-and-health-sciences",
+   "/schools/union-commonwealth-university",
+   "/schools/unitek-college-hayward-ca",
+   "/schools/universal-spa-training-academy",
+   "/schools/universidad-adventista-de-las-antillas",
+   "/schools/university-of-arkansas-community-college-morrilton",
+   "/schools/university-of-holy-cross",
+   "/schools/university-of-maine-at-presque-isle",
+   "/schools/university-of-maryland-baltimore",
+   "/schools/university-of-south-carolina-lancaster",
+   "/schools/university-of-texas-health-science-center-at-houston",
+   "/schools/vanguard-university-of-southern-california",
+   "/schools/ventura-adult-and-continuing-education",
+   "/schools/victorias-academy-of-cosmetology",
+   "/schools/wayne-county-community-college-district",
+   "/schools/west-coast-university-texas",
+   "/schools/west-shore-community-college",
+   "/schools/west-valley-college",
+   "/schools/westchester-school-for-medical-and-dental-assistants",
+   "/schools/western-oklahoma-state-college",
+   "/schools/western-wyoming-community-college",
+   "/schools/white-mountains-community-college",
+   "/schools/williams-technical-college",
+   "/schools/wilson-college",
+   "/schools/windward-community-college",
+   "/schools/xavier-university-of-louisiana",
+   "/schools/yuba-college"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (65 pages)",
+    "passed": true,
+    "details": [
+     "Checked 65 pages: 65 passed, 0 failed, 60 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (65)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (200)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (65)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (skipped: no link between two pages of this bucket)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 53,
+   "descriptionsOver160": 7
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-schools-025/sentara-college-of-health-sciences-desktop.png",
+   "data/generated/screenshots/bucket-schools-025/sentara-college-of-health-sciences-phone.png",
+   "data/generated/screenshots/bucket-schools-025/southeastern-college-columbia-desktop.png",
+   "data/generated/screenshots/bucket-schools-025/southeastern-college-columbia-phone.png"
+  ]
+ }
+]

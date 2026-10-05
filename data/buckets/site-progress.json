@@ -1,0 +1,73 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T20:36:41.644Z",
+  "passed": true,
+  "pages": [
+   "/",
+   "/programs",
+   "/schools",
+   "/careers"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (4 pages)",
+    "passed": true,
+    "details": [
+     "Checked 4 pages: 4 passed, 0 failed, 4 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (4)",
+    "passed": true,
+    "details": [
+     "expected 4"
+    ]
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (3804)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (4)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 4,
+   "descriptionsOver160": 0
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-site-001/home-desktop.png",
+   "data/generated/screenshots/bucket-site-001/home-phone.png"
+  ]
+ }
+]

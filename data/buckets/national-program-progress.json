@@ -1,0 +1,315 @@
+[
+ {
+  "bucket": 1,
+  "checkedAt": "2026-10-05T20:37:02.500Z",
+  "passed": true,
+  "pages": [
+   "/programs/business-administration-bachelors",
+   "/programs/cosmetology-certificate",
+   "/programs/nursing-bachelors",
+   "/programs/psychology-bachelors",
+   "/programs/nursing-associate",
+   "/programs/biology-bachelors",
+   "/programs/liberal-arts-and-general-studies-associate",
+   "/programs/teacher-education-bachelors",
+   "/programs/accounting-bachelors",
+   "/programs/practical-nursing-certificate",
+   "/programs/communications-bachelors",
+   "/programs/criminal-justice-bachelors",
+   "/programs/kinesiology-and-exercise-science-bachelors",
+   "/programs/political-science-bachelors",
+   "/programs/diagnostic-and-treatment-professions-associate",
+   "/programs/english-bachelors",
+   "/programs/marketing-bachelors",
+   "/programs/allied-health-and-medical-assisting-certificate",
+   "/programs/finance-bachelors",
+   "/programs/computer-and-information-science-bachelors",
+   "/programs/sociology-bachelors",
+   "/programs/liberal-arts-and-general-studies-bachelors",
+   "/programs/fine-and-studio-arts-bachelors",
+   "/programs/allied-health-and-medical-assisting-associate",
+   "/programs/history-bachelors",
+   "/programs/subject-area-teacher-education-bachelors",
+   "/programs/economics-bachelors",
+   "/programs/business-administration-associate",
+   "/programs/computer-science-bachelors",
+   "/programs/social-work-bachelors",
+   "/programs/mechanical-engineering-bachelors",
+   "/programs/design-and-applied-arts-bachelors",
+   "/programs/health-and-medical-administration-certificate",
+   "/programs/welding-and-machining-certificate",
+   "/programs/theatre-bachelors",
+   "/programs/diagnostic-and-treatment-professions-certificate",
+   "/programs/electrical-engineering-bachelors",
+   "/programs/environmental-science-and-conservation-bachelors",
+   "/programs/criminal-justice-associate",
+   "/programs/mathematics-bachelors",
+   "/programs/music-bachelors",
+   "/programs/vehicle-maintenance-and-repair-certificate",
+   "/programs/health-and-medical-administration-bachelors",
+   "/programs/civil-engineering-bachelors",
+   "/programs/business-bachelors",
+   "/programs/dental-hygiene-and-assisting-certificate",
+   "/programs/chemistry-bachelors",
+   "/programs/romance-languages-bachelors",
+   "/programs/public-health-bachelors",
+   "/programs/massage-therapy-certificate",
+   "/programs/health-and-medical-administration-associate",
+   "/programs/other-interdisciplinary-studies-bachelors",
+   "/programs/diagnostic-and-treatment-professions-bachelors",
+   "/programs/dental-hygiene-and-assisting-associate",
+   "/programs/public-relations-and-advertising-bachelors",
+   "/programs/journalism-bachelors",
+   "/programs/anthropology-bachelors",
+   "/programs/special-education-bachelors",
+   "/programs/computer-engineering-bachelors",
+   "/programs/hvac-certificate",
+   "/programs/human-resources-bachelors",
+   "/programs/chemical-engineering-bachelors",
+   "/programs/health-sciences-bachelors",
+   "/programs/film-and-photography-bachelors",
+   "/programs/management-information-systems-bachelors",
+   "/programs/electrician-training-certificate",
+   "/programs/human-development-and-family-studies-bachelors",
+   "/programs/criminal-justice-certificate",
+   "/programs/hospitality-management-bachelors",
+   "/programs/biochemistry-and-molecular-biology-bachelors",
+   "/programs/vehicle-maintenance-and-repair-associate",
+   "/programs/radio-tv-and-digital-media-bachelors",
+   "/programs/biomedical-engineering-bachelors",
+   "/programs/management-science-bachelors",
+   "/programs/writing-and-rhetoric-bachelors",
+   "/programs/criminology-bachelors",
+   "/programs/international-relations-bachelors",
+   "/programs/accounting-associate",
+   "/programs/information-science-bachelors",
+   "/programs/communication-sciences-and-disorders-bachelors",
+   "/programs/international-business-bachelors",
+   "/programs/neuroscience-bachelors",
+   "/programs/geology-and-earth-science-bachelors",
+   "/programs/medical-laboratory-science-bachelors",
+   "/programs/geography-bachelors",
+   "/programs/culinary-arts-associate",
+   "/programs/business-associate",
+   "/programs/information-technology-bachelors",
+   "/programs/experimental-psychology-bachelors",
+   "/programs/ethnic-cultural-and-gender-studies-bachelors",
+   "/programs/teacher-education-associate",
+   "/programs/design-and-applied-arts-associate",
+   "/programs/industrial-engineering-bachelors",
+   "/programs/international-studies-bachelors",
+   "/programs/linguistics-and-language-studies-bachelors",
+   "/programs/animal-science-bachelors",
+   "/programs/business-economics-bachelors",
+   "/programs/social-sciences-bachelors",
+   "/programs/truck-driving-and-equipment-operation-certificate",
+   "/programs/business-administration-certificate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (100 pages)",
+    "passed": true,
+    "details": [
+     "Checked 100 pages: 100 passed, 0 failed, 100 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (104)",
+    "passed": true,
+    "details": [
+     "expected 104"
+    ]
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (3716)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (100)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /programs/business-administration-bachelors)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 100,
+   "descriptionsOver160": 0
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-national-programs-001/programs--business-administration-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-national-programs-001/programs--business-administration-bachelors-phone.png",
+   "data/generated/screenshots/bucket-national-programs-001/programs--ethnic-cultural-and-gender-studies-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-national-programs-001/programs--ethnic-cultural-and-gender-studies-bachelors-phone.png"
+  ]
+ },
+ {
+  "bucket": 2,
+  "checkedAt": "2026-10-05T19:47:09.690Z",
+  "passed": true,
+  "pages": [
+   "/programs/philosophy-bachelors",
+   "/programs/agricultural-business-bachelors",
+   "/programs/dental-hygiene-and-assisting-bachelors",
+   "/programs/computer-and-information-science-associate",
+   "/programs/human-services-bachelors",
+   "/programs/architecture-bachelors",
+   "/programs/physics-bachelors",
+   "/programs/education-bachelors",
+   "/programs/liberal-arts-and-general-studies-certificate",
+   "/programs/medical-laboratory-science-certificate",
+   "/programs/area-studies-bachelors",
+   "/programs/entrepreneurship-bachelors",
+   "/programs/information-technology-associate",
+   "/programs/dance-bachelors",
+   "/programs/ecology-and-evolution-bachelors",
+   "/programs/visual-and-performing-arts-bachelors",
+   "/programs/mechanical-engineering-technology-bachelors",
+   "/programs/paralegal-studies-associate",
+   "/programs/culinary-arts-certificate",
+   "/programs/graphic-communications-bachelors",
+   "/programs/rehabilitation-and-therapy-bachelors",
+   "/programs/aerospace-engineering-bachelors",
+   "/programs/electromechanical-technology-associate",
+   "/programs/microbiology-bachelors",
+   "/programs/clinical-and-counseling-psychology-bachelors",
+   "/programs/interdisciplinary-studies-bachelors",
+   "/programs/parks-and-recreation-bachelors",
+   "/programs/physiology-and-pathology-bachelors",
+   "/programs/engineering-bachelors",
+   "/programs/industrial-technology-bachelors",
+   "/programs/statistics-bachelors",
+   "/programs/agriculture-bachelors",
+   "/programs/office-administration-certificate",
+   "/programs/construction-engineering-technology-bachelors",
+   "/programs/heavy-equipment-maintenance-certificate",
+   "/programs/public-administration-bachelors",
+   "/programs/recreation-management-bachelors",
+   "/programs/zoology-bachelors",
+   "/programs/nutrition-science-bachelors",
+   "/programs/specialized-sales-and-merchandising-bachelors",
+   "/programs/arts-management-bachelors",
+   "/programs/biological-and-physical-sciences-associate",
+   "/programs/computer-networking-associate",
+   "/programs/environmental-engineering-bachelors",
+   "/programs/other-health-professions-bachelors",
+   "/programs/electrician-training-associate",
+   "/programs/nursing-certificate",
+   "/programs/health-sciences-associate",
+   "/programs/applied-mathematics-bachelors",
+   "/programs/electrical-engineering-technology-bachelors",
+   "/programs/dietetics-bachelors",
+   "/programs/accounting-certificate",
+   "/programs/cell-biology-and-anatomy-bachelors",
+   "/programs/mental-health-and-addiction-services-associate",
+   "/programs/foods-and-nutrition-bachelors",
+   "/programs/industrial-technology-associate",
+   "/programs/other-social-sciences-bachelors",
+   "/programs/psychology-associate",
+   "/programs/information-technology-certificate",
+   "/programs/pre-health-studies-bachelors",
+   "/programs/computer-and-information-science-certificate",
+   "/programs/engineering-technology-bachelors",
+   "/programs/human-services-associate",
+   "/programs/other-interdisciplinary-studies-associate",
+   "/programs/architectural-technology-bachelors",
+   "/programs/heavy-equipment-maintenance-associate",
+   "/programs/fire-science-certificate",
+   "/programs/mental-health-and-addiction-services-certificate",
+   "/programs/practical-nursing-associate",
+   "/programs/social-sciences-associate",
+   "/programs/teacher-education-certificate",
+   "/programs/cognitive-science-bachelors",
+   "/programs/petroleum-engineering-bachelors",
+   "/programs/urban-studies-bachelors",
+   "/programs/biology-associate",
+   "/programs/physical-science-technology-associate",
+   "/programs/communications-associate",
+   "/programs/human-resources-associate"
+  ],
+  "checks": [
+   {
+    "name": "typecheck",
+    "passed": true
+   },
+   {
+    "name": "build and prerender",
+    "passed": true
+   },
+   {
+    "name": "numbers, wording, and page HTML (78 pages)",
+    "passed": true,
+    "details": [
+     "Checked 78 pages: 78 passed, 0 failed, 78 warnings."
+    ]
+   },
+   {
+    "name": "titles and descriptions unique across all pages",
+    "passed": true
+   },
+   {
+    "name": "static page data files (78)",
+    "passed": true
+   },
+   {
+    "name": "sitemap lists every page",
+    "passed": true
+   },
+   {
+    "name": "internal links return 200 (872)",
+    "passed": true
+   },
+   {
+    "name": "unknown pages return 404",
+    "passed": true
+   },
+   {
+    "name": "layout at desktop and phone width",
+    "passed": true
+   },
+   {
+    "name": "every page fits at phone width; tables scroll in their cards (78)",
+    "passed": true
+   },
+   {
+    "name": "link click navigates in place (from /programs/computer-and-information-science-associate)",
+    "passed": true
+   }
+  ],
+  "warnings": {
+   "titlesOver60": 78,
+   "descriptionsOver160": 0
+  },
+  "screenshots": [
+   "data/generated/screenshots/bucket-national-programs-002/philosophy-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-national-programs-002/philosophy-bachelors-phone.png",
+   "data/generated/screenshots/bucket-national-programs-002/visual-and-performing-arts-bachelors-desktop.png",
+   "data/generated/screenshots/bucket-national-programs-002/visual-and-performing-arts-bachelors-phone.png"
+  ]
+ }
+]
