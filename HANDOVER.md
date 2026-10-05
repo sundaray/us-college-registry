@@ -13,7 +13,7 @@ This project is independent. Never connect it to the user's job board project.
 - Path: `/Users/hemanta/Documents/pseo`
 - Stack: TanStack Start (React 19, Vite 8), Tailwind v4, shadcn preset `base-vega` (Base UI primitives), pnpm.
 - Commands: `pnpm dev` (port 3000), `pnpm typecheck`, `pnpm build`.
-- Site name "DegreeLedger" is a placeholder. The domain is not chosen yet.
+- Site name for now: "us-college-registry", shown on the page as "US College Registry". The domain is not chosen yet. Use `us-college-registry` as the Worker and Alchemy app name.
 - Follow the user's global CLAUDE.md: no em dashes anywhere (code comments, page copy, docs), plain words, descriptive parameter names (never one letter), no function names starting with `to`.
 
 ## The reference page (approved by the user)
@@ -28,7 +28,6 @@ The user reviewed this page section by section. Keep its layout, sections, and w
 - `src/components/program/`: `program-header.tsx` (tinted band), `debt-earnings-scatter.tsx`, `earnings-bars.tsx`.
 - `src/components/slash-icon.tsx`: breadcrumb separator, copied from the user's jobhunter project.
 - shadcn components in `src/components/ui/`: accordion, badge, breadcrumb, button, card, table.
-- `sample-page/` is an outdated early mockup with wrong numbers. Ignore it.
 
 ## Decisions already made (ask the user before changing any)
 
@@ -124,7 +123,7 @@ Limits that shape the build (check the current numbers at https://developers.clo
 
 - Static assets: 20,000 files per Worker version on the free plan, 100,000 on paid. About 26,000 prebuilt pages do not fit the free plan.
 - Worker script size is limited, so bundling all page data into the Worker code is not an option either.
-- The plan that works on both free and paid: render pages on request in the Worker and read each page's data from D1 (as jobhunter does), with Cloudflare caching in front. Ask the user which Cloudflare plan they use before committing to an approach.
+- The user has the Workers Paid plan ($5 a month), so up to 100,000 static assets per version are allowed and all ~26,000 pages can be prebuilt as static files. The other option is rendering pages on request in the Worker from data in D1 (as jobhunter does), with Cloudflare caching in front. Pick one, explain the trade-off to the user in a few lines, and get a yes before building it.
 
 ## Build in buckets of 100
 

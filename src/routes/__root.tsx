@@ -18,7 +18,7 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      { title: 'DegreeLedger' },
+      { title: 'US College Registry' },
     ],
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
