@@ -113,15 +113,24 @@ No page type is generated in bulk until the user approves its template:
 3. Generate every page type in buckets of 100 with the verification below.
 4. Nothing is finished while any internal link or breadcrumb link is broken. If a link target doesn't exist yet, don't add the link; add it when the target page is built, and re-run the link check on the pages that link to it.
 
-### Hosting limit to keep in mind
+### Hosting: Cloudflare Worker deployed with Alchemy
 
-The hosting choice is open. Cloudflare's free plan allows 20,000 static files per Worker version, and the paid plan allows 100,000 (https://developers.cloudflare.com/workers/platform/limits). About 26,000 prebuilt pages would not fit the free plan, so either use a paid plan or render pages on request from stored data. Keep the data layer flexible until the user decides.
+Decided by the user: the site deploys to Cloudflare as a Worker using Alchemy, the same way as the user's jobhunter project. Copy its setup:
+
+- `/Users/hemanta/Documents/jobhunter/alchemy.run.ts` (Alchemy v2, `alchemy` package `2.0.0-beta.79`, `Cloudflare.Website.Vite` for the TanStack Start site, `Cloudflare.D1.Database` for data, stages with `alchemy dev` and `alchemy deploy --stage prod`).
+- The `deploying-tanstack-start-cloudflare` skill covers this setup.
+
+Limits that shape the build (check the current numbers at https://developers.cloudflare.com/workers/platform/limits):
+
+- Static assets: 20,000 files per Worker version on the free plan, 100,000 on paid. About 26,000 prebuilt pages do not fit the free plan.
+- Worker script size is limited, so bundling all page data into the Worker code is not an option either.
+- The plan that works on both free and paid: render pages on request in the Worker and read each page's data from D1 (as jobhunter does), with Cloudflare caching in front. Ask the user which Cloudflare plan they use before committing to an approach.
 
 ## Build in buckets of 100
 
 - Order: pages with every section filled first, bachelor's first, then by graduate count (`IPEDSCOUNT2`) descending.
 - First, regenerate the UT Austin nursing page from the script. It must match the reference numbers below exactly. That is the regression check.
-- The project uses git (first commit 2026-10-05, branch `master`). Commit after each bucket passes verification, one commit per bucket.
+- The project uses git (first commit 2026-10-05, branch `main`, remote `https://github.com/sundaray/us-college-registry`). Commit after each bucket passes verification, one commit per bucket.
 - For each bucket: generate, verify, fix, then record the result in a progress log (for example `data/buckets/progress.json`: bucket number, slugs, pass or fail, issues found) so work can resume in a later session.
 - After bucket 1 of each page type, show the user a summary and two sample pages before continuing.
 - If a bucket has failures you can't explain, stop and report to the user.
