@@ -121,6 +121,7 @@ The hosting choice is open. Cloudflare's free plan allows 20,000 static files pe
 
 - Order: pages with every section filled first, bachelor's first, then by graduate count (`IPEDSCOUNT2`) descending.
 - First, regenerate the UT Austin nursing page from the script. It must match the reference numbers below exactly. That is the regression check.
+- The project uses git (first commit 2026-10-05, branch `master`). Commit after each bucket passes verification, one commit per bucket.
 - For each bucket: generate, verify, fix, then record the result in a progress log (for example `data/buckets/progress.json`: bucket number, slugs, pass or fail, issues found) so work can resume in a later session.
 - After bucket 1 of each page type, show the user a summary and two sample pages before continuing.
 - If a bucket has failures you can't explain, stop and report to the user.
