@@ -23,7 +23,10 @@ export const Website = Cloudflare.Website.StaticSite(
       // Prod has no workers.dev address, so each page has one address for
       // search engines. Other stages stay on workers.dev.
       workersDev: !isProd,
-      command: 'pnpm build',
+      // The same build as `pnpm build`, started with node. Alchemy starts the
+      // command without a shell, and on Windows `pnpm` is a .cmd script that only
+      // a shell can start, so `pnpm build` fails there with "NotFound".
+      command: 'node node_modules/vite/bin/vite.js build',
       outdir: 'dist/client',
       // Build on every deploy (about a minute). Alchemy's check for unchanged files
       // opens every input and output file at once, and the ~26,000 page data files
