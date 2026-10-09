@@ -1,6 +1,6 @@
 // Regression check: the generated UT Austin nursing bachelor's record must match the
-// figures the user approved on the hand-built reference page (HANDOVER.md,
-// "Reference numbers"). Run after `pnpm build-data`:
+// figures the user approved on the hand-built reference page. Run after
+// `pnpm build-data`:
 //
 //   pnpm check-reference
 //
