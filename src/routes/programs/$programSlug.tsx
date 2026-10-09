@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { NationalProgramHeader } from '@/components/national/national-program-header'
 import { RelatedNationalLink } from '@/components/national/national-program-link'
+import { NationalRankingTable } from '@/components/national/national-ranking-table'
 import { NationalStateTable } from '@/components/national/national-state-table'
 import { KeyFigure, Note, OccupationRow, payRangeScale, Section } from '@/components/page-sections'
 import { ProgramLink } from '@/components/program/program-link'
@@ -14,12 +15,14 @@ import { formatCount, formatMoney, formatShare } from '@/lib/format'
 import {
   buildNationalDescription,
   buildNationalFaq,
+  buildNationalRankingNotes,
   buildNationalSummary,
   buildNationalTitle,
   programKind,
   programLabel,
   unrankedNote,
 } from '@/lib/national-program-copy'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 // BLS figures on this page are for the whole US; the shared OccupationRow names
@@ -31,10 +34,11 @@ export const Route = createFileRoute('/programs/$programSlug')({
     const page = await getNationalProgramPage({ data: params })
     return { page, faq: buildNationalFaq(page) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/programs/${params.programSlug}`)],
       meta: [
         { title: buildNationalTitle(page) },
         { name: 'description', content: buildNationalDescription(page) },
@@ -92,6 +96,19 @@ function NationalProgramPageView() {
             <KeyFigure label="Debt-to-earnings" value={formatShare(national.debtToEarnings)} context={across(national.debtToEarningsCount)} />
           </div>
 
+          <Section name="ranking" title={`All ${formatCount(page.ranking.length)} programs, ranked by graduate pay`}>
+            <p>
+              Each program is ranked by the median pay of its graduates one year after they finished, from College
+              Scorecard. This measures what graduates earn, not how good the teaching is. Pay also depends on where
+              graduates live and work. Programs that don't report a figure are listed last when you sort by it.
+            </p>
+            {fieldNote ? <Note>{fieldNote}</Note> : null}
+            <NationalRankingTable programs={page.ranking} />
+            {buildNationalRankingNotes(page).map((note) => (
+              <Note key={note}>{note}</Note>
+            ))}
+          </Section>
+
           <Section name="states" title={`${programLabel(page)} programs by state`}>
             <p>
               Each row is the median across the state's {kind} programs. State names link to the full ranking of that
@@ -102,8 +119,7 @@ function NationalProgramPageView() {
           </Section>
 
           <Section name="quick-picks" title="Quick picks nationwide">
-            <div className="grid gap-3 md:grid-cols-3">
-              <QuickPick title="Highest first-year pay" picks={page.picks.byPay} value={(pick) => formatMoney(pick.earningsYear1)} />
+            <div className="grid gap-3 md:grid-cols-2">
               <QuickPick title="Lowest median debt" picks={page.picks.byDebt} value={(pick) => formatMoney(pick.medianDebt)} />
               <QuickPick title="Lowest debt for the pay" picks={page.picks.byDebtForPay} value={(pick) => formatShare(pick.medianDebt / pick.earningsYear1)} />
             </div>
@@ -111,7 +127,6 @@ function NationalProgramPageView() {
               Only the {formatCount(page.programPageCount)} programs with their own page here are included. "Debt for the
               pay" is median debt divided by first-year pay.
             </Note>
-            {fieldNote ? <Note>{fieldNote}</Note> : null}
           </Section>
 
           {page.matchingJob ? (
@@ -164,7 +179,8 @@ function NationalProgramPageView() {
               <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
               <li>Medians are across programs, not students: each program counts once, however many graduates it has.</li>
               <li>National medians include every program in the 50 states, DC, and US territories, including schools that have since closed. Schools with several campuses that report one combined figure are counted once.</li>
-              <li>Scorecard figures describe graduating classes from several years ago. BLS wages are from May 2025.</li>
+              <li>Programs are ranked by College Scorecard median pay one year after graduation. Pay after cost of living uses the price level of the school's state.</li>
+              <li>Scorecard figures describe graduating classes from several years ago. BLS wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
             </ul>
             <h3 className="text-base font-bold">Sources</h3>
             <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">
@@ -172,6 +188,7 @@ function NationalProgramPageView() {
               <li>Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2025</li>
               <li>Bureau of Labor Statistics, Employment Projections 2025 to 2035</li>
               <li>NCES, CIP 2020 to SOC 2018 crosswalk</li>
+              <li>Bureau of Economic Analysis, Regional Price Parities, 2024</li>
             </ol>
           </Section>
         </div>

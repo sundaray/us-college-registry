@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-10-05T20:59:15.222Z",
+ "checkedAt": "2026-10-06T07:33:39.691Z",
  "passed": true,
  "pages": 24268,
  "checks": [
@@ -36,12 +36,12 @@
    "details": []
   },
   {
-   "name": "unknown pages return 404",
+   "name": "every page has its own canonical link, and robots.txt names the sitemap (24268)",
    "passed": true,
    "details": []
   },
   {
-   "name": "every page fits at phone width (24268)",
+   "name": "unknown pages return 404",
    "passed": true,
    "details": []
   },

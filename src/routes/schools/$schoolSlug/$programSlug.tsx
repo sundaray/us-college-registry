@@ -35,6 +35,7 @@ import {
   year5ChangeLabel,
 } from '@/lib/program-copy'
 import { comparisonNote } from '@/lib/field-notes'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 import { KeyFigure, Note, OccupationRow, payRangeScale, Section } from '@/components/page-sections'
 
@@ -44,10 +45,11 @@ export const Route = createFileRoute('/schools/$schoolSlug/$programSlug')({
     const metrics = computeMetrics(page)
     return { page, metrics, faq: buildFaq(page, metrics) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/schools/${params.schoolSlug}/${params.programSlug}`)],
       meta: [
         { title: buildPageTitle(page) },
         { name: 'description', content: buildMetaDescription(page) },

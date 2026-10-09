@@ -1,13 +1,15 @@
 // Final check of the complete static site, after every bucket has passed.
 //
-//   SITE_URL=https://example.invalid pnpm build   (all pages, no BUCKET)
-//   pnpm verify-site
+//   pnpm build   (all pages, no BUCKET)
+//   pnpm verify-site [--no-layout]
 //
 // Runs the independent number checker on every page, checks that every internal
 // link points at a built file, that the sitemap and static page data are
-// complete, that unknown pages return 404, that every page fits at phone width,
-// and that link clicks navigate in place on a sample of pages. Writes the result
-// to data/buckets/site-check.json.
+// complete, that every page's canonical link is its own address on the site,
+// that unknown pages return 404, that every page fits at phone width (skipped
+// with --no-layout), and that link clicks navigate in place on a sample of
+// pages. Writes the result to data/buckets/site-check.json. A build made with
+// SITE_URL set needs the same SITE_URL here, for the sitemap check.
 
 import { spawn, spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
@@ -20,11 +22,13 @@ import type { SiteIndexEntry } from '../src/data/site-pages'
 import type { SchoolIndexEntry } from '../src/data/school-page'
 import type { StateIndexEntry } from '../src/data/state-page'
 import type { StateProgramIndexEntry } from '../src/data/state-program-page'
+import { SITE_ORIGIN } from '../src/lib/site'
 
 const PREVIEW_PORT = 4175
 const PREVIEW_ORIGIN = `http://localhost:${PREVIEW_PORT}`
 const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-const PLACEHOLDER_SITE_URL = process.env.SITE_URL ?? 'https://example.invalid'
+const SITEMAP_HOST = process.env.SITE_URL ?? SITE_ORIGIN
+const SKIP_LAYOUT = process.argv.includes('--no-layout')
 const PHONE_TABS = 6
 // Link clicks tried per page type.
 const NAVIGATION_SAMPLES = 5
@@ -103,8 +107,23 @@ async function main() {
   record(`static page data files (${cacheFiles.length})`, cacheFiles.length === pagePaths.length, [`expected ${pagePaths.length}`])
 
   const sitemap = await readFile('dist/client/sitemap.xml', 'utf8')
-  const missingFromSitemap = pagePaths.filter((pagePath) => !sitemap.includes(`<loc>${PLACEHOLDER_SITE_URL}${pagePath}</loc>`))
+  const missingFromSitemap = pagePaths.filter((pagePath) => !sitemap.includes(`<loc>${SITEMAP_HOST}${pagePath}</loc>`))
   record('sitemap lists every page', missingFromSitemap.length === 0, missingFromSitemap)
+
+  // Each page names itself as the canonical address ("SEO" guide), and
+  // robots.txt points crawlers at the sitemap.
+  const canonicalProblems: string[] = []
+  for (const pagePath of pagePaths) {
+    const html = await readFile(builtFile(pagePath), 'utf8')
+    const canonicalTags = html.match(/<link[^>]*rel="canonical"[^>]*>/g) ?? []
+    const href = canonicalTags[0]?.match(/href="([^"]*)"/)?.[1]
+    if (canonicalTags.length !== 1 || href !== `${SITE_ORIGIN}${pagePath}`) {
+      canonicalProblems.push(`${pagePath}: ${canonicalTags.length} canonical links, ${href ?? 'no href'}`)
+    }
+  }
+  const robots = await readFile('dist/client/robots.txt', 'utf8').catch(() => '')
+  if (!robots.includes(`Sitemap: ${SITE_ORIGIN}/sitemap.xml`)) canonicalProblems.push('robots.txt does not point to the sitemap')
+  record(`every page has its own canonical link, and robots.txt names the sitemap (${pagePaths.length})`, canonicalProblems.length === 0, canonicalProblems)
 
   const preview = spawn('npx', ['vite', 'preview', '--port', String(PREVIEW_PORT), '--strictPort'], { stdio: 'ignore' })
   try {
@@ -116,8 +135,12 @@ async function main() {
     }
     record('unknown pages return 404', notFoundProblems.length === 0, notFoundProblems)
 
-    const phoneProblems = await checkPhoneLayout(pagePaths, chartPaths)
-    record(`every page fits at phone width (${pagePaths.length})`, phoneProblems.length === 0, phoneProblems)
+    if (SKIP_LAYOUT) {
+      console.log('SKIP  every page fits at phone width (--no-layout)')
+    } else {
+      const phoneProblems = await checkPhoneLayout(pagePaths, chartPaths)
+      record(`every page fits at phone width (${pagePaths.length})`, phoneProblems.length === 0, phoneProblems)
+    }
 
     const navigationProblems: string[] = []
     for (const paths of [programPaths, rankingPaths, schoolPaths, statePaths, nationalPaths, occupationPaths, sitePaths]) {

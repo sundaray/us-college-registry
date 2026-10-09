@@ -12,6 +12,7 @@ import type { OccupationPage } from '@/data/occupation-page'
 import { formatCount, formatMoney, roundedPercent } from '@/lib/format'
 import { buildOccupationDescription, buildOccupationFaq, buildOccupationSummary, buildOccupationTitle } from '@/lib/occupation-copy'
 import { joinWords } from '@/lib/school-copy'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/careers/$careerSlug')({
@@ -19,10 +20,11 @@ export const Route = createFileRoute('/careers/$careerSlug')({
     const page = await getOccupationPage({ data: params })
     return { page, faq: buildOccupationFaq(page) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/careers/${params.careerSlug}`)],
       meta: [
         { title: buildOccupationTitle(page) },
         { name: 'description', content: buildOccupationDescription(page) },

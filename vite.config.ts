@@ -3,6 +3,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { SITE_ORIGIN } from './src/lib/site'
 
 const BUCKET_SIZE = 100
 
@@ -58,16 +59,21 @@ export default defineConfig(({ command }) => ({
       // Static prerendering, as in the TanStack Start "Static Prerendering" guide.
       // Pages are listed explicitly, so links are not crawled. autoSubfolderIndex
       // false writes /schools/x/y.html and /schools/x.html, which Cloudflare serves
-      // at /schools/x/y and /schools/x.
+      // at /schools/x/y and /schools/x. autoStaticPathsDiscovery is off because
+      // it adds the list pages again with a trailing slash (/programs/), which
+      // put a second copy of each in the sitemap and in dist (programs/index.html).
+      // Cloudflare redirects /programs/ to /programs.
       prerender: {
         enabled: true,
         crawlLinks: false,
         autoSubfolderIndex: false,
+        autoStaticPathsDiscovery: false,
         failOnError: true,
       },
       pages: command === 'build' ? prerenderPages() : [],
-      // The sitemap needs the site's address, which isn't chosen yet.
-      sitemap: process.env.SITE_URL ? { enabled: true, host: process.env.SITE_URL } : undefined,
+      // Built-in sitemap ("SEO" guide). Bucket runs set SITE_URL to a placeholder
+      // host; every other build lists the pages under the site's address.
+      sitemap: { enabled: true, host: process.env.SITE_URL ?? SITE_ORIGIN },
     }),
     viteReact(),
     tailwindcss(),

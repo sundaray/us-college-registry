@@ -5,6 +5,7 @@ import { CareersTable } from '@/components/site/careers-table'
 import { ListPageHeader } from '@/components/site/list-page-header'
 import { getCareersListPage } from '@/data/get-site-pages'
 import { formatCount } from '@/lib/format'
+import { canonicalLink } from '@/lib/site'
 import { buildCareersListDescription, buildCareersListTitle } from '@/lib/site-copy'
 
 // The index route matches /careers exactly; occupation pages are its children.
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/careers/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     return {
+      links: [canonicalLink('/careers')],
       meta: [{ title: buildCareersListTitle() }, { name: 'description', content: buildCareersListDescription(loaderData) }],
     }
   },

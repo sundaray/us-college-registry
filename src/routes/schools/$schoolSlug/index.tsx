@@ -23,6 +23,7 @@ import {
   primaryLevel,
   quickPicks,
 } from '@/lib/school-copy'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 // The index route matches /schools/{school} exactly; program pages are its
@@ -32,10 +33,11 @@ export const Route = createFileRoute('/schools/$schoolSlug/')({
     const page = await getSchoolPage({ data: params })
     return { page, faq: buildSchoolFaq(page) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/schools/${params.schoolSlug}`)],
       meta: [
         { title: buildSchoolTitle(page) },
         { name: 'description', content: buildSchoolDescription(page) },

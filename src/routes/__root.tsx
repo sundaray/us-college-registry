@@ -8,6 +8,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { SITE_NAME } from '@/lib/site-copy'
 import appCss from '../styles/app.css?url'
 
 export const Route = createRootRoute({
@@ -18,7 +19,7 @@ export const Route = createRootRoute({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
-      { title: 'US College Registry' },
+      { title: `${SITE_NAME.start} ${SITE_NAME.end}` },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },

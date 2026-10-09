@@ -22,6 +22,7 @@ import {
   priceComparison,
   schoolSectionTitle,
 } from '@/lib/state-copy'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 // The index route matches /states/{state} exactly; ranking pages are its siblings
@@ -31,10 +32,11 @@ export const Route = createFileRoute('/states/$stateSlug/')({
     const page = await getStatePage({ data: params })
     return { page, faq: buildStateFaq(page) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/states/${params.stateSlug}`)],
       meta: [
         { title: buildStateTitle(page) },
         { name: 'description', content: buildStateDescription(page) },

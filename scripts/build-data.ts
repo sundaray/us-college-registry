@@ -10,7 +10,7 @@
 
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { NationalPick, NationalProgramIndexEntry, NationalProgramPage, NationalStateRow } from '../src/data/national-program-page'
+import type { NationalPick, NationalProgramIndexEntry, NationalProgramPage, NationalRankedProgram, NationalStateRow } from '../src/data/national-program-page'
 import type { OccupationIndexEntry, OccupationPage, OccupationProgram, OccupationStateRow } from '../src/data/occupation-page'
 import type {
   CareersListPage,
@@ -1279,6 +1279,67 @@ async function main() {
         unrankedPlaceCount += 1
       }
 
+      // Every program of the field and credential that reports first-year pay and
+      // whose school is in a state pool, ranked like the state tables. The rest
+      // of the national pool can't be named: Scorecard's institution file has no
+      // school for them, or the school's main campus is in another state.
+      const listed = [...statePools]
+        .filter(([stateKey]) => stateKey.startsWith(`${key}|`))
+        .flatMap(([, pool]) => pool.filter((row) => row.earningsYear1 !== undefined))
+      const withPayCount = countWhere(nationalPool, (row) => row.earningsYear1 !== undefined)
+      const withoutSchoolCount = countWhere(
+        nationalPool,
+        (row) => row.earningsYear1 !== undefined && (!row.unitId || !institutions.has(row.unitId)),
+      )
+      // Pay after prices uses the school's state price level, and only where at
+      // least half of the graduates who work are working in the school's state.
+      const priced = listed.map((row) => {
+        const institution = institutions.get(row.unitId!)!
+        const stateInfo = STATES[institution.state]
+        const priceIndex = stateInfo ? priceParities.states.get(`${stateInfo.fips}000`)?.index : undefined
+        const mostStay =
+          row.workingCount !== undefined && row.workingCount > 0 && row.workingInStateCount !== undefined && row.workingInStateCount * 2 >= row.workingCount
+        return { row, institution, priceIndex: mostStay ? priceIndex : undefined }
+      })
+      const listedWithBoth = listed.filter(hasPayAndDebt)
+      const debtRatio = (row: ProgramRow) => row.debtMedian! / row.earningsYear1!
+      const ranking: NationalRankedProgram[] = priced.map(({ row, institution, priceIndex }) => {
+        const thousandths = priceIndex !== undefined ? Math.round(priceIndex * 1000) : undefined
+        return {
+          unitId: row.unitId!,
+          schoolName: schoolDisplayName(row.unitId!),
+          city: institution.city,
+          stateCode: institution.state,
+          stateName: STATES[institution.state]?.name ?? institution.state,
+          control: institution.control,
+          isOpen: institution.isOperating,
+          earningsYear1: row.earningsYear1!,
+          earningsYear5: row.earningsYear5,
+          medianDebt: row.debtMedian,
+          ...(priceIndex !== undefined ? { earningsYear1AfterPrices: payAfterPrices(row.earningsYear1!, priceIndex) } : {}),
+          ...(hrefByRow.has(row) ? { href: hrefByRow.get(row) } : {}),
+          payRank: 1 + countWhere(listed, (other) => other.earningsYear1! > row.earningsYear1!),
+          // Pay after prices is compared exactly: a / ta > b / tb when a * tb > b * ta.
+          ...(thousandths !== undefined
+            ? {
+                afterPricesRank:
+                  1 +
+                  countWhere(priced, (other) => {
+                    if (other.priceIndex === undefined) return false
+                    return other.row.earningsYear1! * thousandths > row.earningsYear1! * Math.round(other.priceIndex * 1000)
+                  }),
+              }
+            : {}),
+          ...(row.debtMedian !== undefined
+            ? {
+                debtRank: 1 + countWhere(listedWithBoth, (other) => other.debtMedian! < row.debtMedian!),
+                ratioRank: 1 + countWhere(listedWithBoth, (other) => debtRatio(other) < debtRatio(row)),
+              }
+            : {}),
+        }
+      })
+      ranking.sort((first, second) => first.payRank - second.payRank || first.schoolName.localeCompare(second.schoolName))
+
       const picksFrom = fieldPageRows.map((row): NationalPick => {
         const institution = institutions.get(row.unitId!)!
         return {
@@ -1292,7 +1353,6 @@ async function main() {
       })
       const byName = (first: NationalPick, second: NationalPick) => first.schoolName.localeCompare(second.schoolName)
       const picks = {
-        byPay: [...picksFrom].sort((first, second) => second.earningsYear1 - first.earningsYear1 || byName(first, second)).slice(0, NATIONAL_PICK_COUNT),
         byDebt: [...picksFrom]
           .sort((first, second) => first.medianDebt - second.medianDebt || second.earningsYear1 - first.earningsYear1 || byName(first, second))
           .slice(0, NATIONAL_PICK_COUNT),
@@ -1334,6 +1394,9 @@ async function main() {
         states,
         unrankedPlaceCount,
         programPageCount: fieldPageRows.length,
+        ranking,
+        unlistedCount: withPayCount - ranking.length,
+        withoutSchoolCount,
         picks,
         ...(matching && matchingOutlook?.stateMedianPay !== undefined ? { matchingJob: { ...matchingOutlook, pluralName: matching.pluralName } } : {}),
         occupations: occupationCodesFor(cipCode).map((socCode) => nationalOutlookFor(socCode)!),

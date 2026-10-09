@@ -6,6 +6,7 @@ import { ListPageHeader } from '@/components/site/list-page-header'
 import { getProgramsListPage } from '@/data/get-site-pages'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount } from '@/lib/format'
+import { canonicalLink } from '@/lib/site'
 import { buildProgramsListDescription, buildProgramsListTitle, programsListCount } from '@/lib/site-copy'
 
 // The index route matches /programs exactly; national program pages are its
@@ -15,6 +16,7 @@ export const Route = createFileRoute('/programs/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     return {
+      links: [canonicalLink('/programs')],
       meta: [{ title: buildProgramsListTitle() }, { name: 'description', content: buildProgramsListDescription(loaderData) }],
     }
   },

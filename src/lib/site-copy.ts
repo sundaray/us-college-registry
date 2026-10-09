@@ -1,15 +1,20 @@
-// Titles and sentences for the home page and the navbar's list pages. The
-// headings name US colleges on their own, because the site name may change.
+// Titles and sentences for the home page and the navbar's list pages. The home
+// page heading is the site name. Browser tab titles name US colleges on their
+// own, because they say more in search results than the name does.
 
 import type { CareersListPage, HomePage, ProgramsListPage, SchoolsListPage } from '@/data/site-pages'
 import { formatCount } from '@/lib/format'
 
-// The name in the top bar, the footer, and the home page's browser tab. Change it
-// here when the domain is chosen.
-export const SITE_NAME = { start: 'US College', end: 'Registry' }
+// The name in the top bar, the footer, the home page heading, and the default
+// browser tab title.
+export const SITE_NAME = { start: 'US College', end: 'Programs' }
 
 export function buildHomeTitle() {
   return 'Compare US College Programs by Graduate Pay, Debt, and Careers'
+}
+
+export function buildHomeSubtitle() {
+  return 'Compare programs, graduate salaries, and student debt.'
 }
 
 export function buildHomeDescription(page: HomePage) {

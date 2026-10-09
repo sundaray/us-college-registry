@@ -24,6 +24,7 @@ import {
   programsWithDebt,
 } from '@/lib/state-program-copy'
 import { comparisonNote } from '@/lib/field-notes'
+import { canonicalLink } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/states/$stateSlug/$programSlug')({
@@ -31,10 +32,11 @@ export const Route = createFileRoute('/states/$stateSlug/$programSlug')({
     const page = await getStateProgramPage({ data: params })
     return { page, faq: buildStateProgramFaq(page) }
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) return {}
     const { page, faq } = loaderData
     return {
+      links: [canonicalLink(`/states/${params.stateSlug}/${params.programSlug}`)],
       meta: [
         { title: buildStateProgramTitle(page) },
         { name: 'description', content: buildStateProgramDescription(page) },

@@ -9,7 +9,8 @@ import { getHomePage } from '@/data/get-site-pages'
 import type { ListedCareer, ListedProgram } from '@/data/site-pages'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney } from '@/lib/format'
-import { buildHomeDescription, buildHomeTitle } from '@/lib/site-copy'
+import { canonicalLink } from '@/lib/site'
+import { buildHomeDescription, buildHomeSubtitle, buildHomeTitle, SITE_NAME } from '@/lib/site-copy'
 
 // The approved reference program page, used as the example of what a program is.
 const EXAMPLE_PROGRAM_HREF = '/schools/university-of-texas-at-austin/nursing-bachelors'
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     return {
+      links: [canonicalLink('/')],
       meta: [{ title: buildHomeTitle() }, { name: 'description', content: buildHomeDescription(loaderData) }],
     }
   },
@@ -40,7 +42,14 @@ function Home() {
       <main>
         <div data-section="header" className="border-b border-primary/12 bg-primary/6">
           <div className="mx-auto flex max-w-3xl flex-col gap-4 px-5 pt-10 pb-9.5">
-            <h1 className="text-[clamp(32px,6vw,48px)] leading-tight font-extrabold tracking-tight text-balance">{buildHomeTitle()}</h1>
+            <div className="flex flex-col gap-2">
+              <h1 className="text-[clamp(32px,6vw,48px)] leading-tight font-extrabold tracking-tight text-balance">
+                {SITE_NAME.start} {SITE_NAME.end}
+              </h1>
+              <p className="text-[clamp(19px,3vw,22px)] leading-snug font-semibold text-balance text-foreground/75">
+                {buildHomeSubtitle()}
+              </p>
+            </div>
             <p className="max-w-[60ch] text-lg leading-relaxed">
               Look up programs at US colleges, universities, and trade schools by state, by field, or by the career they
               lead to. For each one, see what graduates earn one and five years after finishing, how much federal student

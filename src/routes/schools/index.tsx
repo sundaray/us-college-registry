@@ -5,6 +5,7 @@ import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { ListPageHeader } from '@/components/site/list-page-header'
 import { getSchoolsListPage } from '@/data/get-site-pages'
 import { formatCount } from '@/lib/format'
+import { canonicalLink } from '@/lib/site'
 import { buildSchoolsListDescription, buildSchoolsListTitle, schoolsListCount } from '@/lib/site-copy'
 
 // The index route matches /schools exactly; school pages are its children.
@@ -13,6 +14,7 @@ export const Route = createFileRoute('/schools/')({
   head: ({ loaderData }) => {
     if (!loaderData) return {}
     return {
+      links: [canonicalLink('/schools')],
       meta: [{ title: buildSchoolsListTitle() }, { name: 'description', content: buildSchoolsListDescription(loaderData) }],
     }
   },

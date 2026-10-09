@@ -34,6 +34,10 @@ TITLES = {
     '/schools': 'US Colleges and Trade Schools by State, With Graduate Pay and Debt',
     '/careers': 'Careers That US College Programs Lead To, by Pay and Job Growth',
 }
+# The H1 matches the title, except on the home page, whose H1 is the site name
+# with a subtitle under it (user decision 2026-10-06).
+HEADINGS = {'/': 'US College Programs'}
+HOME_SUBTITLE = 'Compare programs, graduate salaries, and student debt.'
 
 
 class Site:
@@ -261,8 +265,11 @@ def check_page(html_text, site, page_path):
     description = (description_node.attributes.get('content') or '').strip() if description_node else ''
     h1_node = root.find(lambda node: node.tag == 'h1')
     h1 = visible_text(h1_node) if h1_node else ''
-    if title != TITLES.get(page_path) or h1 != title:
-        errors.append(f'title or H1 is not the expected {TITLES.get(page_path)!r}: {title!r}, {h1!r}')
+    expected_h1 = HEADINGS.get(page_path, title)
+    if title != TITLES.get(page_path) or h1 != expected_h1:
+        errors.append(f'title or H1 is not the expected {TITLES.get(page_path)!r}, {expected_h1!r}: {title!r}, {h1!r}')
+    if page_path == '/' and HOME_SUBTITLE not in visible_text(root):
+        errors.append(f'home subtitle {HOME_SUBTITLE!r} is missing')
     if not description:
         errors.append('missing meta description')
     if len(title) > 60:

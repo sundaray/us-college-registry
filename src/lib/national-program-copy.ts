@@ -3,7 +3,7 @@
 // state pages, every figure is a median across programs, and sentences say "the
 // median program pays its graduates" so they don't read as a typical graduate's pay.
 
-import type { NationalPick, NationalProgramPage, NationalStateRow } from '@/data/national-program-page'
+import type { NationalProgramPage, NationalStateRow } from '@/data/national-program-page'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
 import { joinWords } from '@/lib/school-copy'
 
@@ -31,11 +31,50 @@ function stateNames(states: NationalStateRow[]) {
 }
 
 export function buildNationalTitle(page: NationalProgramPage) {
-  return `${programLabel(page)} Programs in the US, Ranked by Graduate Pay and Debt`
+  return `Highest-Paying ${programLabel(page)} Programs in the US`
 }
 
 export function buildNationalDescription(page: NationalProgramPage) {
-  return `${formatCount(page.national.earningsYear1Count)} ${programKind(page)} programs ranked by graduate pay and debt, with every state's median. Median first-year pay: ${formatMoney(page.national.earningsYear1)}.`
+  return `${formatCount(page.ranking.length)} ${programKind(page)} programs ranked by graduate pay and debt, with every state's median. Median first-year pay: ${formatMoney(page.national.earningsYear1)}.`
+}
+
+// Notes under the national ranking table, in the order they appear.
+export function buildNationalRankingNotes(page: NationalProgramPage) {
+  const notes: string[] = []
+  const unadjusted = page.ranking.filter((program) => program.earningsYear1AfterPrices === undefined).length
+  const adjusted = page.ranking.length - unadjusted
+  const afterPrices = [
+    `Pay after cost of living divides first-year pay by the Bureau of Economic Analysis price level of the school's state, where the US average is 100.`,
+    `It is shown for ${formatCount(adjusted)} ${adjusted === 1 ? 'program' : 'programs'} where at least half of the graduates who work are working in the school's state.`,
+  ]
+  if (unadjusted > 0) {
+    afterPrices.push(
+      unadjusted === 1
+        ? `The other program, whose graduates mostly work in other states or whose state has no price level, is listed last when you sort by it.`
+        : `The other ${formatCount(unadjusted)}, whose graduates mostly work in other states or whose state has no price level, are listed last when you sort by it.`,
+    )
+  }
+  notes.push(afterPrices.join(' '))
+
+  const counts: string[] = []
+  const payOnly = page.ranking.filter((program) => program.medianDebt === undefined).length
+  if (payOnly === 1) counts.push('One program reports pay but not debt, so it is ranked only by pay.')
+  else if (payOnly > 1) counts.push(`${formatCount(payOnly)} programs report pay but not debt, so they are ranked only by pay.`)
+  const closed = page.ranking.filter((program) => !program.isOpen).length
+  if (closed === 1) counts.push('One of these schools has since closed.')
+  else if (closed > 1) counts.push(`${formatCount(closed)} of these schools have since closed.`)
+  if (counts.length > 0) notes.push(counts.join(' '))
+
+  const withheld = ['College Scorecard withholds pay for programs with too few graduates, to protect their privacy, so those programs can\'t be ranked.']
+  const withoutSchool = page.withoutSchoolCount
+  const combined = page.unlistedCount - withoutSchool
+  if (withoutSchool === 1) withheld.push("One more program reports pay but isn't listed, because College Scorecard's school file doesn't name its school.")
+  else if (withoutSchool > 1) withheld.push(`${formatCount(withoutSchool)} more programs report pay but aren't listed, because College Scorecard's school file doesn't name their schools.`)
+  if (combined === 1) withheld.push("One more reports one combined figure for campuses in several states, so it isn't listed.")
+  else if (combined > 1) withheld.push(`${formatCount(combined)} more report one combined figure for campuses in several states, so they aren't listed.`)
+  if (page.unlistedCount > 0) withheld.push('The national medians above still count them.')
+  notes.push(withheld.join(' '))
+  return notes
 }
 
 function paySentence(page: NationalProgramPage) {
@@ -68,11 +107,6 @@ export function unrankedNote(page: NationalProgramPage) {
   return `Programs in ${places} report pay, but too few to rank. A state ranking needs at least five programs that report both pay and debt.`
 }
 
-// The first pick's program and any that tie with it on the value.
-function sharingFirst(picks: NationalPick[], value: (pick: NationalPick) => number) {
-  return picks.filter((pick) => value(pick) === value(picks[0]))
-}
-
 export function buildNationalFaq(page: NationalProgramPage) {
   const kind = programKind(page)
   const faq: { question: string; answer: string }[] = []
@@ -98,15 +132,16 @@ export function buildNationalFaq(page: NationalProgramPage) {
     faq.push({ question: `Which state pays ${kind} graduates the most?`, answer: answer.join(' ') })
   }
 
-  const top = sharingFirst(page.picks.byPay, (pick) => pick.earningsYear1)
-  const topNames = joinWords(top.map((pick) => `${pick.schoolName} in ${pick.stateName}`))
-  faq.push({
-    question: `Which ${kind} program pays the most?`,
-    answer:
-      top.length === 1
-        ? `${topNames} reports the highest first-year pay among the ${formatCount(page.programPageCount)} programs with their own page here, ${formatMoney(top[0].earningsYear1)}. Its median federal debt is ${formatMoney(top[0].medianDebt)}.`
-        : `${topNames} report the highest first-year pay among the ${formatCount(page.programPageCount)} programs with their own page here, ${formatMoney(top[0].earningsYear1)}.`,
-  })
+  const top = page.ranking.filter((program) => program.payRank === 1)
+  const topNames = joinWords(top.map((program) => `${program.schoolName} in ${program.stateName}`))
+  const topAnswer = [
+    top.length === 1
+      ? `${topNames} reports the highest first-year pay of the ${formatCount(page.ranking.length)} programs ranked here, ${formatMoney(top[0].earningsYear1)}.`
+      : `${topNames} report the highest first-year pay of the ${formatCount(page.ranking.length)} programs ranked here, ${formatMoney(top[0].earningsYear1)}.`,
+  ]
+  if (top.length === 1 && top[0].medianDebt !== undefined) topAnswer.push(`Its median federal debt is ${formatMoney(top[0].medianDebt)}.`)
+  if (top.length === 1 && !top[0].isOpen) topAnswer.push('The school has since closed.')
+  faq.push({ question: `Which ${kind} program pays the most?`, answer: topAnswer.join(' ') })
 
   faq.push({
     question: `How much debt do ${kind} graduates have?`,
