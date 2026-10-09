@@ -1,0 +1,28 @@
+diff --git a/lib/Cloudflare/Workers/Assets.js b/lib/Cloudflare/Workers/Assets.js
+index 0b620c44c33f1df9c7b57536cc6f2bc443840c6f..3fba0cd5937970c88c90de1702bdfc622aec1651 100644
+--- a/lib/Cloudflare/Workers/Assets.js
++++ b/lib/Cloudflare/Workers/Assets.js
+@@ -12,7 +12,8 @@ import * as Semaphore from "effect/Semaphore";
+ import { sha256, sha256Object } from "../../Util/index.js";
+ import { initialCwd } from "../../Util/Node.js";
+ const MAX_ASSET_SIZE = 1024 * 1024 * 25; // 25MB
+-const MAX_ASSET_COUNT = 20_000;
++// Workers Paid plan limit (https://developers.cloudflare.com/workers/platform/limits/#static-assets).
++const MAX_ASSET_COUNT = 100_000;
+ export const isAssets = (value) => value?.kind === "Cloudflare.Workers.Assets";
+ /**
+  * `base` → manifest path prefix. Only a root-relative base names a path
+diff --git a/src/Cloudflare/Workers/Assets.ts b/src/Cloudflare/Workers/Assets.ts
+index ba21504bc687e8eaa1b705a3b7c6f8f66971969e..8951333b61786acc57b7b87cf3a4a88a9b0950f5 100644
+--- a/src/Cloudflare/Workers/Assets.ts
++++ b/src/Cloudflare/Workers/Assets.ts
+@@ -15,7 +15,8 @@ import { sha256, sha256Object } from "../../Util/index.ts";
+ import { initialCwd } from "../../Util/Node.ts";
+ 
+ const MAX_ASSET_SIZE = 1024 * 1024 * 25; // 25MB
+-const MAX_ASSET_COUNT = 20_000;
++// Workers Paid plan limit (https://developers.cloudflare.com/workers/platform/limits/#static-assets).
++const MAX_ASSET_COUNT = 100_000;
+ 
+ export interface Assets {
+   kind: "Cloudflare.Workers.Assets";

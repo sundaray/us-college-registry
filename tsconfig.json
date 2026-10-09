@@ -14,5 +14,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "scripts", "vite.config.ts"]
+  "include": ["src", "scripts", "vite.config.ts", "alchemy.run.ts"]
 }

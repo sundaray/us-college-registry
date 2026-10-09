@@ -7,3 +7,4 @@ data/raw/*
 !data/raw/SOURCES.md
 data/generated
 __pycache__
+.alchemy/
