@@ -110,6 +110,24 @@ async function main() {
   const missingFromSitemap = pagePaths.filter((pagePath) => !sitemap.includes(`<loc>${SITEMAP_HOST}${pagePath}</loc>`))
   record('sitemap lists every page', missingFromSitemap.length === 0, missingFromSitemap)
 
+  // The "not found" page. Cloudflare serves dist/client/404.html, with a 404
+  // status, at every address the site doesn't have. It must be a page a visitor
+  // can read and leave by its links. It must carry none of the app's scripts:
+  // they would start the router at the missing address and replace the page
+  // with an error. It asks not to be indexed and stays out of the sitemap.
+  const notFoundHtml = await readFile('dist/client/404.html', 'utf8').catch(() => '')
+  const notFoundProblemsInFile: string[] = []
+  if (!notFoundHtml) {
+    notFoundProblemsInFile.push('dist/client/404.html is missing')
+  } else {
+    for (const wanted of ['>404</h1>', 'looking for doesn', '>Return Home</a>', 'href="/programs"', 'href="/schools"', 'href="/careers"', '<header', '<footer', 'rel="stylesheet"', 'name="robots" content="noindex"']) {
+      if (!notFoundHtml.includes(wanted)) notFoundProblemsInFile.push(`404.html has no ${wanted}`)
+    }
+    if (/type="module"|modulepreload|\$_TSR/.test(notFoundHtml)) notFoundProblemsInFile.push("404.html still has the app's scripts")
+  }
+  if (sitemap.includes('/404</loc>')) notFoundProblemsInFile.push('the sitemap lists /404')
+  record('the "not found" page is built for Cloudflare to serve', notFoundProblemsInFile.length === 0, notFoundProblemsInFile)
+
   // Each page names itself as the canonical address ("SEO" guide), and
   // robots.txt points crawlers at the sitemap.
   const canonicalProblems: string[] = []

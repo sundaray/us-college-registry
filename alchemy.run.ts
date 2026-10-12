@@ -36,6 +36,9 @@ export const Website = Cloudflare.Website.StaticSite(
         // Pages are written as /schools/x.html and served at /schools/x, with no
         // trailing slash.
         htmlHandling: 'drop-trailing-slash',
+        // An address the site doesn't have gets 404.html (the /404 route) with a
+        // 404 status. Without this Cloudflare sends the status with an empty page.
+        notFoundHandling: '404-page',
       },
     }
   }),

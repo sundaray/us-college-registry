@@ -3,13 +3,13 @@
 import type { ReactNode } from 'react'
 import {
   HeadContent,
-  Link,
   Outlet,
   ScriptOnce,
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
 import { BackToTop } from '@/components/back-to-top'
+import { NotFoundPage } from '@/components/not-found-page'
 import { GA_MEASUREMENT_ID, SITE_ORIGIN } from '@/lib/site'
 import { SITE_NAME } from '@/lib/site-copy'
 import appCss from '../styles/app.css?url'
@@ -76,16 +76,3 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   )
 }
 
-function NotFoundPage() {
-  return (
-    <main className="grid min-h-screen place-items-center px-5">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <h1 className="text-5xl font-extrabold tracking-tight">404</h1>
-        <p className="text-muted-foreground">The page you're looking for doesn't exist.</p>
-        <Link to="/" className="font-medium text-primary underline underline-offset-3">
-          Return Home
-        </Link>
-      </div>
-    </main>
-  )
-}

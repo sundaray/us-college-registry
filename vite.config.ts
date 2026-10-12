@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -26,6 +26,19 @@ const PAGE_TYPES = {
 
 type PageType = keyof typeof PAGE_TYPES
 
+const NOT_FOUND_FILE = 'dist/client/404.html'
+
+// The "not found" file without the app's scripts. Cloudflare serves this one
+// file at whatever address a visitor asked for. With its scripts, the router
+// starts at that address, finds a route whose data file is missing and replaces
+// the page with an error. Without them the page stays as it was written, and
+// its links are plain links. Google's tag stays, so the visit is still counted.
+function withoutAppScripts(html: string) {
+  return html
+    .replace(/<link rel="modulepreload"[^>]*>/g, '')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/g, (script) => (script.includes('googletagmanager') ? script : ''))
+}
+
 function pagePaths(pageType: PageType) {
   const { index, pathOf } = PAGE_TYPES[pageType]
   let entries: IndexEntry[]
@@ -44,7 +57,23 @@ function prerenderPages() {
   const paths = bucket
     ? pagePaths(pageType).slice((bucket - 1) * BUCKET_SIZE, bucket * BUCKET_SIZE)
     : (Object.keys(PAGE_TYPES) as PageType[]).flatMap((type) => pagePaths(type))
-  return paths.map((pagePath) => ({ path: pagePath, prerender: { enabled: true } }))
+  const pages: {
+    path: string
+    prerender: { enabled: boolean; onSuccess?: (result: { html: string }) => void }
+    sitemap?: { exclude: boolean }
+  }[] = paths.map((pagePath) => ({ path: pagePath, prerender: { enabled: true } }))
+  // A full build also writes the "not found" page to 404.html, which Cloudflare
+  // serves for every address the site doesn't have (alchemy.run.ts). onSuccess
+  // runs after the file is written and writes it again without the app's
+  // scripts. It is not a page to find in search, so it stays out of the sitemap.
+  if (!bucket) {
+    pages.push({
+      path: '/404',
+      prerender: { enabled: true, onSuccess: ({ html }) => writeFileSync(NOT_FOUND_FILE, withoutAppScripts(html)) },
+      sitemap: { exclude: true },
+    })
+  }
+  return pages
 }
 
 export default defineConfig(({ command }) => ({

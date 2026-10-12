@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as R404RouteImport } from './routes/404'
 import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as CareersCareerSlugRouteImport } from './routes/careers/$careerSlug'
 import { Route as ProgramsIndexRouteImport } from './routes/programs/index'
@@ -23,6 +24,11 @@ import { Route as StatesStateSlugProgramSlugRouteImport } from './routes/states/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const R404Route = R404RouteImport.update({
+  id: '/404',
+  path: '/404',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareersIndexRoute = CareersIndexRouteImport.update({
@@ -75,6 +81,7 @@ const StatesStateSlugProgramSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/careers/': typeof CareersIndexRoute
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/careers': typeof CareersIndexRoute
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
   '/careers/': typeof CareersIndexRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
     | '/careers/'
@@ -126,6 +136,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
     | '/careers'
@@ -138,6 +149,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
     | '/careers/'
@@ -151,6 +163,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   CareersCareerSlugRoute: typeof CareersCareerSlugRoute
   ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
   CareersIndexRoute: typeof CareersIndexRoute
@@ -169,6 +182,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/careers/': {
@@ -239,6 +259,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   CareersCareerSlugRoute: CareersCareerSlugRoute,
   ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
   CareersIndexRoute: CareersIndexRoute,
