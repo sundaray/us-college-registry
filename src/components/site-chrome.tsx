@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { PAGE_TOP_ID } from '@/components/back-to-top'
 import { SITE_NAME } from '@/lib/site-copy'
 import { cn } from '@/lib/utils'
 
@@ -8,7 +9,7 @@ export function SiteHeader() {
   return (
     <header className="reveal-edge-on-scroll sticky top-0 z-20 border-b bg-card">
       <div className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-between gap-4 px-5 py-3.5 xl:max-w-6xl">
-        <Link to="/" className="text-lg font-extrabold tracking-tight text-foreground">
+        <Link id={PAGE_TOP_ID} to="/" className="text-lg font-extrabold tracking-tight text-foreground">
           {SITE_NAME.start} <span className="text-primary">{SITE_NAME.end}</span>
         </Link>
         <nav aria-label="Main" className="flex flex-wrap gap-5 text-sm text-muted-foreground">

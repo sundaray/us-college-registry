@@ -9,6 +9,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { BackToTop } from '@/components/back-to-top'
 import { GA_MEASUREMENT_ID, SITE_ORIGIN } from '@/lib/site'
 import { SITE_NAME } from '@/lib/site-copy'
 import appCss from '../styles/app.css?url'
@@ -55,6 +56,7 @@ function RootComponent() {
   return (
     <RootDocument>
       <Outlet />
+      <BackToTop />
     </RootDocument>
   )
 }
