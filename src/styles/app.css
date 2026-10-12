@@ -131,3 +131,52 @@
     @apply font-sans;
     }
 }
+
+/* A faint grid behind the tinted band at the top of a page: squares of size-6,
+   with lines a little darker than the band. */
+@utility hero-grid {
+  --grid-line: color-mix(in oklab, var(--primary) 5%, transparent);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: --spacing(6) --spacing(6);
+  background-position: center top;
+}
+
+/* A sideways scroller fades at the edge that still has more to show. A scroll
+   timeline is inactive while nothing overflows, so the fade only appears when
+   there is something to scroll to. Browsers without scroll timelines show no
+   fade and scroll as before. */
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes fade-scroll-edges {
+  from {
+    --fade-start: 0px;
+    --fade-end: --spacing(8);
+  }
+  10%,
+  90% {
+    --fade-start: --spacing(8);
+    --fade-end: --spacing(8);
+  }
+  to {
+    --fade-start: --spacing(8);
+    --fade-end: 0px;
+  }
+}
+
+@utility fade-scroll-edges {
+  animation: fade-scroll-edges linear;
+  animation-timeline: scroll(self inline);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+}

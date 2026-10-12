@@ -126,7 +126,7 @@ export function PayRange({
           className="absolute inset-y-0 rounded-full border border-primary bg-primary/15"
           style={{ left: `${position(low)}%`, right: `${100 - position(high)}%` }}
         />
-        <div className="absolute -top-1 h-4 w-[3px] -translate-x-1/2 rounded-full bg-primary" style={{ left: `${position(middle)}%` }} />
+        <div className="absolute -top-1 h-4 w-0.75 -translate-x-1/2 rounded-full bg-primary" style={{ left: `${position(middle)}%` }} />
       </div>
       <div className="mt-1.5 flex justify-between text-xs text-muted-foreground tabular-nums">
         <span>Bottom 10%: {formatMoney(low)}</span>

@@ -91,6 +91,10 @@ export type OccupationOutlook = {
   workExperience?: string
 }
 
+// An occupation with the name it takes inside a sentence ("software developers"),
+// for pages that write its pay as a sentence.
+export type NamedOccupation = OccupationOutlook & { sentenceName: string }
+
 // Only for fields that train for one licensed job (scripts/reference/matching-occupations.ts).
 export type MatchingOccupationPay = {
   socCode: string

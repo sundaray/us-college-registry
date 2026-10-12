@@ -4,9 +4,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
 // Tables that don't fit scroll sideways inside a shadcn ScrollArea, with a
 // horizontal ScrollBar as in the shadcn Scroll Area docs.
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({
+  className,
+  containerClassName,
+  ...props
+}: React.ComponentProps<"table"> & { containerClassName?: string }) {
   return (
-    <ScrollArea data-slot="table-container" className="relative w-full">
+    <ScrollArea data-slot="table-container" className={cn("relative w-full", containerClassName)}>
       <table
         data-slot="table"
         className={cn("w-full caption-bottom text-sm", className)}

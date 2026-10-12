@@ -1,6 +1,6 @@
 # Handover: US College Programs
 
-Updated 2026-10-09. The code, its comments, and git history hold the details. This file holds what they don't: the user's decisions, the reasons behind unusual setup, and what comes next. Read all of it before writing code.
+Updated 2026-10-12. The code, its comments, and git history hold the details. This file holds what they don't: the user's decisions, the reasons behind unusual setup, and what comes next. Read all of it before writing code.
 
 ## What this is
 
@@ -78,7 +78,27 @@ Data rules:
 - RN-to-BSN note: Scorecard groups RN-to-BSN programs (for nurses already working) with programs for new students, which puts them near the top of nursing rankings. A general note that names no school appears on nursing bachelor's ranking, program, and national pages (`src/lib/field-notes.ts`).
 - Tables sit in a shadcn `ScrollArea` with a horizontal `ScrollBar`, so they scroll inside their card on phones. The debt and pay scatter chart keeps a 560 px minimum width in a ScrollArea. The charts are hand-built; TanStack Charts was still alpha and is to be revisited after launch.
 - The home page H1 is the site name with the subtitle "Compare programs, graduate salaries, and student debt." The browser tab title is "Compare US College Programs by Graduate Pay, Debt, and Careers".
-- National program pages are rankings titled "Highest-Paying {Field (Credential)} Programs in the US". The table lists every program of that field and credential that reports first-year pay, sortable four ways. The top 10 show first, and the rest are in the HTML as hidden rows until "Show all", so crawlers see every row and link.
+- National program pages are rankings titled "Highest-Paying {Field (Credential)} Programs in the US". The table lists every program of that field and credential that reports first-year pay, sortable four ways and paged ten rows at a time. Every row stays in the HTML and rows on other pages are hidden, so crawlers see every row and link.
+
+## Revised page design (national pages done, other page types next)
+
+On 2026-10-12 the user reviewed `/programs/computer-engineering-bachelors` change by change. The 178 national program pages now use the revised blocks in `src/components/page-blocks.tsx`. The other page types still use `page-sections.tsx` and are unchanged, apart from the site header and footer. Move them one at a time, each after the user approves a preview of that page type.
+
+- Summary: an h2 "Summary" with no card. Paragraph one is the national pay and debt, paragraph two the states.
+- Key figures: labels in `text-sm`, semibold, `text-neutral-700`. The tiles share rows (subgrid), so the figures stay level.
+- Four questions sit under the key figures with no title, all closed: what "median" means, then one per figure. An answer that names a government source ends with a paragraph that says what the source is, with the name in semibold.
+- Questions and answers are `text-base`, answers in `text-neutral-700`, chevrons `size-6`. Both lists of questions go into one FAQPage block, in page order.
+- Header band: breadcrumb, title and one source line, with the `hero-grid` utility. The official field name is the first item of "About this data".
+- Ranking table: the title names the field and credential. The table and its pager are wider than the page column on large screens. Notes under tables run the full column width.
+- Lowest-debt lists draw on every ranked program that reports debt, in the table's own order. A program without a page is a plain name.
+- Debt divided by first-year pay has one name everywhere on the page: debt-to-earnings. The tile, the question, the table column, the sort button and the list heading all use it.
+- Careers: plain introduction, and each job's text as full sentences (`src/lib/job-copy.ts`).
+- No fixed pixel classes. Use the theme's named sizes, and name sizes by class when talking to the user. A fixed size became the nearest named one, the larger when it fell halfway.
+- `text-pretty` on the page root. Tables that scroll sideways fade at the edge (`fade-scroll-edges`).
+- Writing follows the user's punctuation guide: no comma before "and" or "or" in a list unless it is needed for clarity, a comma joins two complete sentences only with and, or, but, yet or while, and no em dashes.
+- Names we choose follow the same guide ("Radio, TV and Digital Media"). Official government titles keep their own commas ("Bookkeeping, Accounting, and Auditing Clerks").
+- The user reviews each change in a preview before code is written. Every control in a preview must work, and every figure is checked against `data/raw`.
+- To run a checker without a build, start `pnpm exec vite dev --port 3111`, save the pages into a folder, link `dist/client/schools` into it, and pass the folder as `--html-dir`.
 
 ## Checks
 

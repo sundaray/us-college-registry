@@ -26,7 +26,7 @@ export function NationalStateTable({ states }: { states: NationalStateRow[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('pay')
   const sortable = states.length >= 3
   const sorted = [...states].sort(
-    (first, second) => rankFor(first, sortKey) - rankFor(second, sortKey) || first.payRank - second.payRank || first.stateName.localeCompare(second.stateName),
+    (first, second) => rankFor(first, sortKey) - rankFor(second, sortKey) || first.payRank - second.payRank || first.stateName.localeCompare(second.stateName, 'en'),
   )
   return (
     <>
@@ -47,7 +47,7 @@ export function NationalStateTable({ states }: { states: NationalStateRow[] }) {
         </div>
       ) : null}
       <Card size="sm" className="py-0">
-        <Table>
+        <Table containerClassName="**:data-[slot=scroll-area-viewport]:fade-scroll-edges">
           <TableHeader>
             <TableRow>
               {sortable ? <TableHead className="px-4">#</TableHead> : null}

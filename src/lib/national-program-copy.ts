@@ -3,9 +3,13 @@
 // state pages, every figure is a median across programs, and sentences say "the
 // median program pays its graduates" so they don't read as a typical graduate's pay.
 
-import type { NationalProgramPage, NationalStateRow } from '@/data/national-program-page'
+import type { PageQuestion } from '@/components/page-blocks'
+import type { NationalProgramPage, NationalRankedProgram, NationalStateRow } from '@/data/national-program-page'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
-import { joinWords } from '@/lib/school-copy'
+
+// Programs in each list of the lowest-debt section.
+const LOWEST_DEBT_COUNT = 10
+const COUNT_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
 
 // "nursing bachelor's", "cosmetology certificate".
 export function programKind(page: NationalProgramPage) {
@@ -26,8 +30,14 @@ function sharingPay(states: NationalStateRow[]) {
   return states.filter((state) => state.earningsYear1 === states[0].earningsYear1)
 }
 
+// "Ohio", "Ohio and Texas", "Ohio, Texas and Utah".
+function listWords(words: string[]) {
+  if (words.length <= 2) return words.join(' and ')
+  return `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`
+}
+
 function stateNames(states: NationalStateRow[]) {
-  return joinWords(states.map((state) => state.stateName))
+  return listWords(states.map((state) => state.stateName))
 }
 
 export function buildNationalTitle(page: NationalProgramPage) {
@@ -58,20 +68,20 @@ export function buildNationalRankingNotes(page: NationalProgramPage) {
 
   const counts: string[] = []
   const payOnly = page.ranking.filter((program) => program.medianDebt === undefined).length
-  if (payOnly === 1) counts.push('One program reports pay but not debt, so it is ranked only by pay.')
-  else if (payOnly > 1) counts.push(`${formatCount(payOnly)} programs report pay but not debt, so they are ranked only by pay.`)
+  if (payOnly === 1) counts.push('One program is ranked only by pay, because it reports pay but not debt.')
+  else if (payOnly > 1) counts.push(`${formatCount(payOnly)} programs are ranked only by pay, because they report pay but not debt.`)
   const closed = page.ranking.filter((program) => !program.isOpen).length
   if (closed === 1) counts.push('One of these schools has since closed.')
   else if (closed > 1) counts.push(`${formatCount(closed)} of these schools have since closed.`)
   if (counts.length > 0) notes.push(counts.join(' '))
 
-  const withheld = ['College Scorecard withholds pay for programs with too few graduates, to protect their privacy, so those programs can\'t be ranked.']
+  const withheld = ['College Scorecard withholds pay for programs with too few graduates, to protect their privacy.', "Those programs can't be ranked."]
   const withoutSchool = page.withoutSchoolCount
   const combined = page.unlistedCount - withoutSchool
   if (withoutSchool === 1) withheld.push("One more program reports pay but isn't listed, because College Scorecard's school file doesn't name its school.")
   else if (withoutSchool > 1) withheld.push(`${formatCount(withoutSchool)} more programs report pay but aren't listed, because College Scorecard's school file doesn't name their schools.`)
-  if (combined === 1) withheld.push("One more reports one combined figure for campuses in several states, so it isn't listed.")
-  else if (combined > 1) withheld.push(`${formatCount(combined)} more report one combined figure for campuses in several states, so they aren't listed.`)
+  if (combined === 1) withheld.push("One more isn't listed, because it reports one combined figure for campuses in several states.")
+  else if (combined > 1) withheld.push(`${formatCount(combined)} more aren't listed, because they report one combined figure for campuses in several states.`)
   if (page.unlistedCount > 0) withheld.push('The national medians above still count them.')
   notes.push(withheld.join(' '))
   return notes
@@ -83,28 +93,133 @@ function paySentence(page: NationalProgramPage) {
   return `The median ${programKind(page)} program in the US pays its graduates ${formatMoney(national.earningsYear1)} in their first year${year5}.`
 }
 
+// The summary's paragraphs: the national pay and debt first, then the states.
 export function buildNationalSummary(page: NationalProgramPage) {
-  const sentences = [paySentence(page)]
+  const paragraphs = [`${paySentence(page)} The median program leaves its graduates with ${formatMoney(page.national.medianDebt)} in federal debt.`]
   const { states } = page
   if (states.length >= 2) {
     const top = sharingPay(states)
     const bottom = sharingPay([...states].reverse())
-    sentences.push(
-      `${stateNames(top)} ${top.length === 1 ? 'has' : 'have'} the highest state median (${formatMoney(top[0].earningsYear1)}), and ${stateNames(bottom)} the lowest (${formatMoney(bottom[0].earningsYear1)}).`,
+    paragraphs.push(
+      `${stateNames(top)} ${top.length === 1 ? 'has' : 'have'} the highest state median pay (${formatMoney(top[0].earningsYear1)}) and ${stateNames(bottom)} the lowest (${formatMoney(bottom[0].earningsYear1)}).`,
     )
   } else if (states.length === 1) {
-    sentences.push(`${states[0].stateName} is the only state with enough programs to rank, with a median of ${formatMoney(states[0].earningsYear1)}.`)
+    paragraphs.push(`${states[0].stateName} is the only state with enough programs to rank, with a median of ${formatMoney(states[0].earningsYear1)}.`)
   }
-  sentences.push(`The median program leaves its graduates with ${formatMoney(page.national.medianDebt)} in federal debt.`)
-  return sentences.join(' ')
+  return paragraphs
 }
 
-// "Programs in 8 more states and territories report pay, but too few to rank. ..."
+// Plain explanations of the key figures, in the order of the tiles. The
+// definitions follow College Scorecard's field of study documentation.
+export function buildKeyFigureQuestions(page: NationalProgramPage): PageQuestion[] {
+  const { national } = page
+  const kind = programKind(page)
+  const scorecard = "the U.S. Department of Education's public database of colleges and their programs"
+  const pay = [
+    "College Scorecard reports the median pay of each program's graduates one year after they finished.",
+    'It counts only graduates who received federal financial aid, were working and were not enrolled in more school.',
+    `${formatMoney(national.earningsYear1)} is the median of those figures across the ${formatCount(national.earningsYear1Count)} ${kind} programs that report one.`,
+  ]
+  if (national.earningsYear5 !== undefined) {
+    pay.push(`Median pay after 5 years is the same measure for an earlier graduating class, and ${formatCount(national.earningsYear5Count)} programs report it.`)
+  }
+  return [
+    {
+      question: 'What does "median" mean?',
+      // The five salaries are an example, not data: they add up to $400,000.
+      answer: [
+        'An average adds up every value and divides by how many there are. A few very large or very small values can pull it far from what is typical. Imagine five graduates who earn $40,000, $45,000, $50,000, $55,000 and $210,000. Their average is $80,000, but four of the five earn less than that.',
+        'The median is the middle value when the values are put in order: half are higher, and half are lower. For these five graduates it is $50,000, which is much closer to what most of them earn.',
+      ],
+    },
+    {
+      question: 'What is median first-year pay?',
+      answer: [pay.join(' ')],
+      source: { name: 'College Scorecard', text: `${scorecard}, with pay figures drawn from federal tax records.` },
+    },
+    {
+      question: 'What is median federal debt?',
+      answer: [
+        [
+          "College Scorecard reports the median amount each program's graduates borrowed in federal student loans.",
+          'It counts only graduates who took federal loans, and it leaves out interest, Parent PLUS loans and private loans.',
+          `${formatMoney(national.medianDebt)} is the median of those figures across the ${formatCount(national.medianDebtCount)} programs that report one.`,
+        ].join(' '),
+      ],
+      source: { name: 'College Scorecard', text: `${scorecard}, with debt figures drawn from federal student loan records.` },
+    },
+    {
+      question: 'What is debt-to-earnings?',
+      answer: [
+        [
+          "It is a program's median federal debt divided by its graduates' median first-year pay.",
+          'A program whose graduates borrowed $20,000 and earned $50,000 in their first year would be at 40%.',
+          'A lower figure means graduates owe less compared with what they earn.',
+          `${formatShare(national.debtToEarnings)} is the median across the ${formatCount(national.debtToEarningsCount)} ${kind} programs that report both figures.`,
+        ].join(' '),
+      ],
+    },
+  ]
+}
+
+// "165 computer engineering bachelor's programs, ranked by graduate pay".
+export function rankingTitle(page: NationalProgramPage) {
+  return `${formatCount(page.ranking.length)} ${programKind(page)} programs, ranked by graduate pay`
+}
+
+// The programs with the lowest debt and the lowest debt-to-earnings, from every
+// ranked program that reports debt. The order is the ranking table's own when it
+// is sorted the same way, so the lists and the table always agree.
+export function lowestDebtPrograms(page: NationalProgramPage) {
+  const withDebt = page.ranking.filter((program) => program.medianDebt !== undefined)
+  const lowest = (rankOf: (program: NationalRankedProgram) => number) =>
+    [...withDebt]
+      .sort((first, second) => rankOf(first) - rankOf(second) || first.payRank - second.payRank || first.schoolName.localeCompare(second.schoolName, 'en'))
+      .slice(0, LOWEST_DEBT_COUNT)
+  return {
+    byDebt: lowest((program) => program.debtRank!),
+    byDebtToEarnings: lowest((program) => program.ratioRank!),
+  }
+}
+
+export function lowestDebtTitle(page: NationalProgramPage) {
+  return `${capitalizeFirst(programKind(page))} programs with the lowest debt`
+}
+
+// `listed` is the number of programs in each list: ten, or fewer when fewer report debt.
+export function lowestDebtIntro(listed: number) {
+  const explanation = 'Debt-to-earnings is median federal debt divided by first-year pay.'
+  if (listed < LOWEST_DEBT_COUNT) {
+    return `These two lists order the ${COUNT_WORDS[listed]} programs that report debt, first by median federal debt and then by debt-to-earnings. ${explanation}`
+  }
+  return `These two lists show the ten programs with the lowest median federal debt and the ten with the lowest debt-to-earnings. ${explanation}`
+}
+
+export function careersTitle(page: NationalProgramPage) {
+  return `${capitalizeFirst(page.program.sentenceName)} careers`
+}
+
+export function careersIntro(page: NationalProgramPage) {
+  return `These are the largest jobs that the U.S. Department of Education links to ${page.program.sentenceName}, by number of people employed in the US. Pay is the national median for everyone in the job, at all experience levels.`
+}
+
+// The official name of the field, which the page title shortens.
+export function officialFieldSentence(page: NationalProgramPage) {
+  return `This page covers ${page.program.credential.toLowerCase()} programs in the field the U.S. Department of Education calls "${page.program.fullTitle}".`
+}
+
+// "Programs in 8 more states and territories report pay, but there are too few in each to rank. ..."
 export function unrankedNote(page: NationalProgramPage) {
   const count = page.unrankedPlaceCount
   if (count === 0) return undefined
   const places = count === 1 ? 'one more state or territory' : `${formatCount(count)} more states and territories`
-  return `Programs in ${places} report pay, but too few to rank. A state ranking needs at least five programs that report both pay and debt.`
+  const tooFew = count === 1 ? 'there are too few to rank' : 'there are too few in each to rank'
+  return `Programs in ${places} report pay, but ${tooFew}. A state ranking needs at least five programs that report both pay and debt.`
+}
+
+// The line above the pay of a field's one matching job.
+export function matchingJobIntro(pluralName: string) {
+  return `These figures are for all ${pluralName} in the US, at all experience levels. They come from the Bureau of Labor Statistics.`
 }
 
 export function buildNationalFaq(page: NationalProgramPage) {
@@ -123,7 +238,7 @@ export function buildNationalFaq(page: NationalProgramPage) {
     const top = sharingPay(page.states)
     const rest = page.states.filter((state) => !top.includes(state))
     const answer = [
-      `${stateNames(top)}, where the median program pays its graduates ${formatMoney(top[0].earningsYear1)} in their first year, the highest of ${formatCount(page.states.length)} state rankings.`,
+      `${stateNames(top)} ${top.length === 1 ? 'does' : 'do'}. The median program ${top.length === 1 ? 'there' : 'in each'} pays its graduates ${formatMoney(top[0].earningsYear1)} in their first year, the highest of the ${formatCount(page.states.length)} states ranked.`,
     ]
     if (rest.length > 0) {
       const next = sharingPay(rest)
@@ -133,7 +248,7 @@ export function buildNationalFaq(page: NationalProgramPage) {
   }
 
   const top = page.ranking.filter((program) => program.payRank === 1)
-  const topNames = joinWords(top.map((program) => `${program.schoolName} in ${program.stateName}`))
+  const topNames = listWords(top.map((program) => `${program.schoolName} in ${program.stateName}`))
   const topAnswer = [
     top.length === 1
       ? `${topNames} reports the highest first-year pay of the ${formatCount(page.ranking.length)} programs ranked here, ${formatMoney(top[0].earningsYear1)}.`

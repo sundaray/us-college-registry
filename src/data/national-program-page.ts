@@ -2,7 +2,7 @@
 // credential in the US, for example nursing bachelor's programs. Written by
 // scripts/build-data.ts from the files in data/raw.
 
-import type { Benchmark, CredentialLevel, OccupationOutlook, SchoolControl } from '@/data/program-page'
+import type { Benchmark, CredentialLevel, NamedOccupation, OccupationOutlook, SchoolControl } from '@/data/program-page'
 
 // One state's ranking page for the field. Figures are the state medians shown on
 // that page. Ranks follow the site's rule: 1 plus the number of states with
@@ -96,6 +96,14 @@ export type NationalProgramPage = {
   occupations: OccupationOutlook[]
   // National pages for the same field at other credential levels.
   otherCredentials: { href: string; title: string; programCount: number }[]
+}
+
+// The page as the route receives it: the record, with each job's name as it
+// reads inside a sentence. getNationalProgramPage adds the names from the career
+// pages' records.
+export type NationalProgramView = Omit<NationalProgramPage, 'matchingJob' | 'occupations'> & {
+  matchingJob?: NamedOccupation & { pluralName: string }
+  occupations: NamedOccupation[]
 }
 
 export type NationalProgramIndexEntry = {

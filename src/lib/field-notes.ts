@@ -9,7 +9,7 @@ const BACHELORS = 3
 // and working) with programs for new students under the same field and credential.
 export function comparisonNote(cipCode: string, credentialLevel: number) {
   if (cipCode === NURSING_CIP && credentialLevel === BACHELORS) {
-    return "Some nursing bachelor's programs are for nurses who are already licensed and working (RN-to-BSN). College Scorecard counts them with programs for new students, and their graduates' pay reflects years of nursing experience, so high pay at a program here may not mean higher starting pay for a new nurse."
+    return "Some nursing bachelor's programs are for nurses who are already licensed and working (RN-to-BSN). College Scorecard counts them with programs for new students, and their graduates' pay reflects years of nursing experience. High pay at a program here may not mean higher starting pay for a new nurse."
   }
   return undefined
 }
