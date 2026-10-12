@@ -101,7 +101,7 @@ def occupation_model(reference, code):
         programs.append({
             'label': f"{field_name} ({reference.degrees.get((cip, level)) or CREDENTIAL_LABELS[level]})",
             'href': f'/programs/{page_model.slugify(field_name)}-{CREDENTIAL_SLUGS[level]}',
-            'count': benchmark['year1_count'], 'pay': benchmark['year1'], 'debt': benchmark['debt'],
+            'count': benchmark['year1_count'], 'pay': benchmark['year1'], 'debt': benchmark['debt'], 'level': level,
         })
     programs.sort(key=lambda program: -program['pay'])
     return {
@@ -109,6 +109,9 @@ def occupation_model(reference, code):
         'national': national, 'growth': projection.get('growth_percent'), 'openings': projection.get('openings_thousands'),
         'education': projection.get('education'), 'experience': projection.get('experience'),
         'states': states, 'without_pay': without_pay, 'programs': programs,
+        # Everyone in the job in 2025, from the projections. The pay survey's count
+        # (national['employment']) leaves out people who work for themselves.
+        'all_jobs': projection.get('employment'),
     }
 
 
@@ -179,7 +182,11 @@ def expected_sections(page):
     # Each tile's label, value and line of context.
     figures = sections['key-figures'] = Expectation(True)
     figures.add(money(national['median']))
-    figures.tiles = [['Median pay', money(national['median']), 'US, all experience levels']]
+    if national['employment'] is not None:
+        figures.add(count(national['employment']))
+        figures.tiles = [['Median pay', money(national['median']), f"Pay survey covers {count(national['employment'])} jobs"]]
+    else:
+        figures.tiles = [['Median pay', money(national['median']), 'US, all experience levels']]
     if national['p10'] is not None:
         figures.add(money(national['p10']))
         figures.tiles.append(['Bottom 10% earn under', money(national['p10']), 'US'])
@@ -199,8 +206,14 @@ def expected_sections(page):
     # A yearly figure is the hourly figure times 2,080 hours, except for the jobs
     # with yearly pay only, where employers report the yearly figure itself.
     full_time = '' if national['yearly_only'] else r' The yearly figure assumes full-time work all year\.'
-    questions.claim(rf"The Bureau of Labor Statistics asks employers what they pay people in each job\. The median for {re.escape(name)} is {re.escape(money(national['median']))} a year: half of them earn more, and half earn less\. It covers every experience level\. It leaves out people who work on farms, in private households or for themselves\.{full_time} {LABOR_STATISTICS} The figure is from its Occupational Employment and Wage Statistics for May 2025\.")
+    both_counts = national['employment'] is not None and page['all_jobs'] is not None
+    coverage = ''
+    if both_counts:
+        questions.add(count(national['employment']), count(page['all_jobs']))
+        coverage = rf" The pay survey covers {count(national['employment'])} jobs\. The Bureau of Labor Statistics counts {count(page['all_jobs'])} in all, including people who work for themselves\."
+    questions.claim(rf"The Bureau of Labor Statistics asks employers what they pay people in each job\. The median for {re.escape(name)} is {re.escape(money(national['median']))} a year: half of them earn more, and half earn less\. It covers every experience level\. It leaves out people who work on farms, in private households or for themselves\.{coverage}{full_time} {LABOR_STATISTICS} The figure is from its Occupational Employment and Wage Statistics for May 2025\.")
     questions.claim(r'assumes full-time work', not national['yearly_only'])
+    questions.claim(r'The pay survey covers ', both_counts)
     both_ends = national['p10'] is not None and national['p90'] is not None
     if both_ends:
         questions.add(money(national['p10']), money(national['p90']))
@@ -236,6 +249,7 @@ def expected_sections(page):
     not_states = page_model.not_states_note([state['name'] for state in states])
     state_section.claim(re.escape(not_states) if not_states else r'listed for comparison', bool(not_states))
     state_section.claim(r"State names link to the state's college page\.", any(state['linked'] for state in states))
+    state_section.claim(r'Pay and job counts by state leave out people who work on farms, in private households or for themselves\.')
     state_section.pages = -(-len(states) // VISIBLE_ROWS)
     if state_section.pages > 1:
         state_section.add('1', count(state_section.pages))
@@ -243,7 +257,18 @@ def expected_sections(page):
     state_section.sortable = sortable
 
     program_section = sections['programs'] = Expectation(True)
-    program_section.claim(rf"^Programs that lead to this job The U\.S\. Department of Education and the Bureau of Labor Statistics link these programs to {re.escape(name)}\. Each figure is the median across that kind of program in the US\. Program names link to the national ranking\.")
+    match = rf"^Related programs These programs are listed because their subjects are related to the work of {re.escape(name)}, according to the U\.S\. Department of Education and the Bureau of Labor Statistics\. This connection does not mean each program qualifies you for the job\."
+    graduate_scope = "This site lists only certificates, associate's degrees and bachelor's degrees; it does not include graduate programs."
+    usual = ''
+    if page['code'] == '29-1171':
+        usual = re.escape(" According to the Bureau of Labor Statistics, nurse practitioners need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. " + graduate_scope)
+    elif page['education']:
+        usual = rf" The Bureau of Labor Statistics lists {re.escape(EDUCATION_NEEDED[page['education']])} as the typical education for entering this career\."
+        if page['education'] in ("Master's degree", 'Doctoral or professional degree'):
+            usual += re.escape(' ' + graduate_scope)
+    program_section.claim(match + usual + ' Program ')
+    program_section.claim(r"Each figure is the median across that kind of program in the US\. Program names link to the national ranking\. Program figures are first-year pay for new graduates\. The job's median pay covers every experience level\.$")
+    program_section.claim(r'lead to this job|link these programs|not enough|People usually need|below that level|The match is by field', False)
     for program in page['programs']:
         program_section.add(count(program['count']), money(program['pay']), money(program['debt']))
     program_section.pages = -(-len(page['programs']) // VISIBLE_ROWS)
@@ -354,6 +379,7 @@ def check_program_rows(node, page, errors):
 def check_page(html_text, reference, page_path):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(check_program_pages.frame_errors(root))
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':
         errors.append('html lang is not "en"')
@@ -398,8 +424,9 @@ def check_page(html_text, reference, page_path):
     # the data has them, then the one source line. The official title and its
     # code are in "About this data".
     facts = []
-    if page['national']['employment'] is not None:
-        facts.append(f"{count(page['national']['employment'])} jobs in the US")
+    job_count = page['all_jobs'] if page['all_jobs'] is not None else page['national']['employment']
+    if job_count is not None:
+        facts.append(f"{count(job_count)} jobs in the US")
     if page['education']:
         facts.append(f"Typically needs {EDUCATION_NEEDED[page['education']]} to start")
     expected_header = ' '.join(['Home Careers', page['name'], h1, *facts, LABOR_SOURCE_LINE])

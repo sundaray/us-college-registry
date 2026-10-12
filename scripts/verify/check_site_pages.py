@@ -20,7 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
-from check_program_pages import FORBIDDEN_PATTERNS, Expectation, number_tokens, parse_html, visible_text  # noqa: E402
+from check_program_pages import FORBIDDEN_PATTERNS, Expectation, frame_errors, number_tokens, parse_html, visible_text  # noqa: E402
 from page_model import count, money, percent_number  # noqa: E402
 
 CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
@@ -40,6 +40,10 @@ RETIRED_WORDING = [
     r'leave with, and how', r'pay and debt, and lists', r'Every career, ranked',
     # The home page says "field of study", and its hero no longer explains what a program is.
     r'by state, by field or by', r'A program is one degree or certificate',
+    # The schools list title lost this ending, and the page lost its explanation (the user, 2026-10-12).
+    r'With Graduate Pay and Debt', r'This page lists every US school', r'The number after each school',
+    # The programs list lost its introduction (the user, 2026-10-12).
+    r'Each row groups programs', r'Select a subject to compare',
 ]
 
 
@@ -68,7 +72,8 @@ def check_paging(node, name, expectation, marker, errors):
 TITLES = {
     '/': 'Compare US College Programs by Graduate Pay, Debt, and Careers',
     '/programs': 'US College Programs, Ranked by Graduate Pay and Debt',
-    '/schools': 'US Colleges and Trade Schools by State, With Graduate Pay and Debt',
+    # Without "With Graduate Pay and Debt": the page lists names, and the user took the ending off on 2026-10-12.
+    '/schools': 'US Colleges and Trade Schools by State',
     '/careers': 'Careers That US College Programs Lead To, by Pay and Job Growth',
 }
 # The H1 matches the title, except on the home page, whose H1 is the site name
@@ -103,7 +108,8 @@ class Site:
             projection = model.projections.get(code, {})
             self.careers.append({
                 'code': code, 'name': occupation_names.get(code, wage['title']), 'pay': wage['median'],
-                'jobs': wage['employment'], 'growth': projection.get('growth_percent'),
+                # Everyone in the job, as on the career's own page.
+                'jobs': projection.get('employment') or wage['employment'], 'growth': projection.get('growth_percent'),
             })
         for career in self.careers:
             career['href'] = f"/careers/{page_model.slugify(career['name'])}"
@@ -140,10 +146,10 @@ def home_sections(site):
     sections = {}
     counts = site.counts
     header = sections['header'] = Expectation(True)
-    header.add(count(counts['program_pages']), count(counts['school_pages']), count(counts['state_rankings']), count(counts['careers']))
-    # The hero holds the site name, the subtitle and the four counts, and nothing else.
+    header.add(count(counts['program_pages']), count(counts['schools']), count(counts['careers']))
+    # The hero holds the site name, the subtitle and three counts in navbar order.
     # A count and its label are two spans with no space between them in the text.
-    header.claim(rf"^US College Programs Compare programs, graduate salaries, and student debt\. {count(counts['program_pages'])} ?program pages {count(counts['school_pages'])} ?school pages {count(counts['state_rankings'])} ?state rankings {count(counts['careers'])} ?careers$")
+    header.claim(rf"^US College Programs Compare programs, graduate salaries, and student debt\. {count(counts['program_pages'])} ?programs {count(counts['schools'])} ?schools {count(counts['careers'])} ?careers$")
 
     # The introduction sits under the hero.
     intro = sections['intro'] = Expectation(True)
@@ -159,7 +165,8 @@ def home_sections(site):
     for program in common + paying:
         fields.add(count(program['count']), money(program['pay']))
     fields.add(count(counts['nationals']), count(counts['nationals']))
-    fields.claim(NURSING_NOTE, any(program['cip'] == '5138' and program['level'] == 3 for program in common + paying))
+    # The note about nursing is about one row of a list, and the user took it off this page on 2026-10-12.
+    fields.claim(NURSING_NOTE, False)
     fields.rows = [program['href'] for program in common + paying]
 
     largest = sorted(site.careers, key=lambda career: (-(career['jobs'] or -1), career['href']))[:HOME_LIST_COUNT]
@@ -200,8 +207,6 @@ def check_listed_links(node, expected_hrefs, name, errors):
 
 def programs_sections(site):
     sections = {}
-    intro = sections['intro'] = Expectation(True)
-    intro.claim(r'^Each row groups programs in the same subject\. Pay and debt figures are national medians across those programs\. Select a subject to compare individual college programs\.$')
     for level in (3, 2, 1):
         rows = [program for program in site.programs if program['level'] == level]
         for program in rows:
@@ -209,12 +214,14 @@ def programs_sections(site):
         section = sections[f'programs-{level}'] = Expectation(bool(rows))
         # "Bachelor's programs". The page title already says what they are ranked by.
         credential = {3: "Bachelor's", 2: "Associate's", 1: 'Certificate'}[level]
-        section.claim(rf"^{credential} programs ")
+        # Under the heading: the search box of this table, then the sort buttons.
+        section.claim(rf"^{credential} programs Search {credential.lower()} programs Highest first-year pay Lowest debt Most programs # Program ")
+        section.search_label = f'Search {credential.lower()} programs'
         section.claim(r'types of|ranked by graduate pay', False)
         pager_tokens(section, len(rows))
         for program in rows:
             section.add(str(program['rank']), count(program['count']), money(program['pay']), money(program['debt']))
-        section.claim(NURSING_NOTE, level == 3 and any(program['cip'] == '5138' for program in rows))
+        section.claim(NURSING_NOTE, False)
         section.rows = rows
     description = sections['#description'] = Expectation(True)
     description.add(count(site.counts['nationals']))
@@ -240,8 +247,9 @@ def check_program_rows(node, expectation, name, errors):
 
 def schools_sections(site):
     sections = {}
-    intro = sections['intro'] = Expectation(True)
-    intro.claim(r'^This page lists every US school with at least one program page, by state\.')
+    # The search box sits first under the header. In the built page nothing is typed in it.
+    search = sections['search'] = Expectation(True)
+    search.claim(r'^Search schools by name$')
     for state_name in site.state_names:
         schools = site.schools_by_state[state_name]
         section = sections[f'state-{page_model.state_slug(state_name)}'] = Expectation(True)
@@ -253,6 +261,61 @@ def schools_sections(site):
     description = sections['#description'] = Expectation(True)
     description.add(count(site.counts['schools']))
     return sections
+
+
+def check_search_box(box, label_text, name, errors):
+    """A search box as built: a text box with the search role, so no browser draws
+    its own clear button, a search icon before it, the label as its placeholder,
+    and nothing typed. `name` is the section the box is in, for the messages."""
+    inputs = box.find_all(lambda node: node.tag == 'input')
+    wanted = {'type': 'text', 'role': 'searchbox', 'placeholder': label_text, 'value': ''}
+    if len(inputs) != 1 or any(inputs[0].attributes.get(attribute) != value for attribute, value in wanted.items()):
+        errors.append(f'section {name}: expected one empty text box with the search role and the placeholder {label_text!r}, found {[dict(node.attributes) for node in inputs]}')
+    else:
+        label = box.find(lambda node: node.tag == 'label')
+        if label is None or label.attributes.get('for') != inputs[0].attributes.get('id') or visible_text(label) != label_text:
+            errors.append(f'section {name}: the label does not name the search box')
+        if 'text-base' not in (inputs[0].attributes.get('class') or '').split():
+            errors.append(f'section {name}: the search box text is not text-base')
+    icons = [node.attributes.get('class', '') for node in box.find_all(lambda node: node.tag == 'svg')]
+    if len(icons) != 1 or 'lucide-search' not in icons[0].split():
+        errors.append(f'section {name}: expected the search icon alone in the search box, found {icons}')
+    if box.find(lambda node: node.tag == 'button'):
+        errors.append(f'section {name}: the clear button shows with nothing typed')
+    result = box.find(lambda node: node.attributes.get('data-slot') == 'search-result')
+    if result is None or result.attributes.get('role') != 'status' or visible_text(result):
+        errors.append(f'section {name}: the result line should be in the page, marked as a status and empty')
+
+
+def check_program_search(node, expectation, name, errors):
+    """Each table on the programs list has its own search box, between the heading
+    and the sort buttons. In the built page nothing is typed, so no empty state shows."""
+    boxes = node.find_all(lambda child: child.attributes.get('data-slot') == 'search-box')
+    if len(boxes) != 1:
+        errors.append(f'section {name}: expected one search box, found {len(boxes)}')
+        return
+    check_search_box(boxes[0], expectation.search_label, name, errors)
+    parts = [child for child in node.children if not isinstance(child, str)]
+    if len(parts) < 3 or parts[0].tag != 'h2' or parts[1] is not boxes[0] or parts[2].attributes.get('aria-label') != 'Sort programs':
+        errors.append(f'section {name}: the search box should sit between the heading and the sort buttons')
+    if node.find(lambda child: child.attributes.get('data-slot') == 'empty'):
+        errors.append(f'section {name}: the empty state shows with nothing typed')
+
+
+def check_schools_list(main, site, errors):
+    """The search on the schools list: a text box with the search role, so no
+    browser draws its own clear button, a search icon before it, and nothing typed
+    or hidden in the built page. The sections follow in a fixed order."""
+    order = [node.attributes['data-section'] for node in main.find_all(lambda node: 'data-section' in node.attributes)]
+    expected = ['header', 'search', *(f'state-{page_model.state_slug(name)}' for name in site.state_names)]
+    if order != expected:
+        errors.append(f'sections are in the wrong order: {order[:5]}..., expected {expected[:5]}...')
+    box = main.find(lambda node: node.attributes.get('data-section') == 'search')
+    if box is not None:
+        check_search_box(box, 'Search schools by name', 'search', errors)
+    hidden = main.find_all(lambda node: 'hidden' in node.attributes and node.tag in ('li', 'section'))
+    if hidden:
+        errors.append(f'{len(hidden)} schools or states are hidden in the built page')
 
 
 def check_school_rows(node, expectation, name, errors):
@@ -267,8 +330,10 @@ def check_school_rows(node, expectation, name, errors):
         segments = (link.attributes.get('href', '') if link else '').strip('/').split('/')
         if segments[0] != 'schools' or len(segments) != (2 if total >= 2 else 3):
             errors.append(f'section {name}: {unit_id} links to {segments}')
-        if visible_text(item, skip_names=True) != count(total):
-            errors.append(f'section {name}: {unit_id} shows {visible_text(item, skip_names=True)!r} programs, expected {count(total)}')
+        # The count says what it counts: "11 programs", "1 program".
+        wanted = f"{count(total)} {'program' if total == 1 else 'programs'}"
+        if visible_text(item, skip_names=True) != wanted:
+            errors.append(f'section {name}: {unit_id} shows {visible_text(item, skip_names=True)!r}, expected {wanted!r}')
     state_link = node.find(lambda child: child.tag == 'a' and child.attributes.get('href') == f'/states/{page_model.state_slug(expectation.state_name)}')
     if state_link is None:
         errors.append(f'section {name}: no link to the state page')
@@ -322,6 +387,7 @@ def check_career_rows(node, expectation, errors):
 def check_page(html_text, site, page_path):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(frame_errors(root))
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':
         errors.append('html lang is not "en"')
@@ -382,16 +448,23 @@ def check_page(html_text, site, page_path):
                 errors.append(f'section {name}: wording {pattern!r} should {"" if should_match else "not "}appear')
         if page_path == '/' and name in ('fields', 'careers'):
             check_listed_links(node, expectation.rows, name, errors)
-        if page_path == '/programs' and name != 'intro':
+        if page_path == '/programs':
+            check_program_search(node, expectation, name, errors)
             check_program_rows(node, expectation, name, errors)
             check_paging(node, name, expectation, 'data-href', errors)
-        if page_path == '/schools' and name != 'intro':
+        if page_path == '/schools' and name != 'search':
             check_school_rows(node, expectation, name, errors)
         if page_path == '/careers':
             check_career_rows(node, expectation, errors)
             check_paging(node, name, expectation, 'data-soc', errors)
     if page_path == '/':
         check_home(root, main, site, errors)
+    if page_path == '/schools':
+        check_schools_list(main, site, errors)
+    if page_path == '/programs':
+        order = [node.attributes['data-section'] for node in main.find_all(lambda node: 'data-section' in node.attributes)]
+        if order != ['header', 'programs-3', 'programs-2', 'programs-1']:
+            errors.append(f'sections are in the wrong order: {order}')
     if page_path != '/':
         header = present.get('header')
         if header is None or not header.find(lambda node: node.tag == 'a' and node.attributes.get('href') == '/'):

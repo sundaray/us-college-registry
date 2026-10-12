@@ -166,7 +166,7 @@ export function careersTitle(page: NationalProgramPage) {
 }
 
 export function careersIntro(page: NationalProgramPage) {
-  return `These are the largest jobs that the U.S. Department of Education and the Bureau of Labor Statistics link to ${page.program.sentenceName}, by number of people employed in the US. Pay is the national median for everyone in the job, at all experience levels.`
+  return `These are the largest jobs that the U.S. Department of Education and the Bureau of Labor Statistics link to ${page.program.sentenceName}, by number of people employed in the US. Pay is the national median for the job, at all experience levels.`
 }
 
 

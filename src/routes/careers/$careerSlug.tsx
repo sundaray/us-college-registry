@@ -3,7 +3,7 @@ import { OccupationHeader } from '@/components/occupation/occupation-header'
 import { OccupationProgramTable } from '@/components/occupation/occupation-program-table'
 import { OccupationStateTable } from '@/components/occupation/occupation-state-table'
 import { answerText, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { getOccupationPage } from '@/data/get-occupation-page'
 import { payPrivacyNote } from '@/lib/data-notes'
 import {
@@ -14,6 +14,7 @@ import {
   buildOccupationSummary,
   buildOccupationTitle,
   buildStateNotes,
+  relatedProgramsIntro,
 } from '@/lib/occupation-copy'
 import { canonicalLink } from '@/lib/site'
 
@@ -56,12 +57,12 @@ function OccupationPageView() {
   const stateNotes = buildStateNotes(page)
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each career's page its own state. Without it, a link from one
           career page to another keeps the tables' sort and page number and the open
           questions. data-soc lets scripts/verify find the occupation. */}
-      <main key={page.careerSlug} data-soc={page.socCode}>
+      <main className={MAIN_CLASS_NAME} key={page.careerSlug} data-soc={page.socCode}>
         <OccupationHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
           <Summary paragraphs={buildOccupationSummary(page)} />
@@ -83,14 +84,15 @@ function OccupationPageView() {
             </PageSection>
           ) : null}
 
-          <PageSection name="programs" title="Programs that lead to this job">
-            <p>
-              The U.S. Department of Education and the Bureau of Labor Statistics link these programs to{' '}
-              {page.sentenceName}. Each figure is the median across that kind of program in the US. Program names link to
-              the national ranking.
-            </p>
+          <PageSection name="programs" title="Related programs">
+            {relatedProgramsIntro(page).map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
             <OccupationProgramTable programs={page.programs} />
-            <Note>Program figures are first-year pay for new graduates. The job's median pay covers every experience level.</Note>
+            <Note>
+              Each figure is the median across that kind of program in the US. Program names link to the national ranking.
+              Program figures are first-year pay for new graduates. The job's median pay covers every experience level.
+            </Note>
           </PageSection>
 
           <PageSection name="faq" title="Common questions">

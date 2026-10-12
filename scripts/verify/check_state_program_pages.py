@@ -229,7 +229,7 @@ def expected_sections(ranking):
         for occupation in careers:
             job_tokens(career_section, occupation)
         ranking['job_texts'] = [job_text(job, lowercase_words(ranking['occupation_names'].get(job['code'], job['title'])), state_place) for job in careers]
-        career_section.claim(rf" careers in {re.escape(state_place)} These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the {re.escape(state_name)} median for everyone in the job, at all experience levels\.")
+        career_section.claim(rf" careers in {re.escape(state_place)} These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the {re.escape(state_name)} median for the job, at all experience levels\.")
         career_section.claim(rf"Where {re.escape(state_place)} has no figure, the national median is shown\.", any(job['state_median'] is None for job in careers))
     career_section.claim(r'crosswalk|Median pay in |Median pay nationwide|Typical education to start', False)
 
@@ -268,6 +268,7 @@ def expected_sections(ranking):
 def check_page(html_text, model, page_path):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(check_program_pages.frame_errors(root))
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':
         errors.append('html lang is not "en"')

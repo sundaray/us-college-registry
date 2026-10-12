@@ -46,7 +46,7 @@ export function schoolsListCount(page: SchoolsListPage) {
 }
 
 export function buildSchoolsListTitle() {
-  return 'US Colleges and Trade Schools by State, With Graduate Pay and Debt'
+  return 'US Colleges and Trade Schools by State'
 }
 
 export function buildSchoolsListDescription(page: SchoolsListPage) {

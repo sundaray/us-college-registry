@@ -6,7 +6,7 @@ import { RelatedNationalLink } from '@/components/national/national-program-link
 import { answerText, JobRow, KeyFigures, MainColumn, Note, PageColumns, PageSection, payRangeScale, QuestionList, RankedList, RelatedPages, Summary } from '@/components/page-blocks'
 import type { KeyFigureTile, PageQuestion, RankedEntry } from '@/components/page-blocks'
 import { DebtEarningsScatter } from '@/components/program/debt-earnings-scatter'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { getStateProgramPage } from '@/data/get-state-program-page'
@@ -90,13 +90,14 @@ function StateProgramPageView() {
   ]
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each ranking page its own state. Without it, a link from one
           ranking page to another keeps the table's sort and page number and the open
           questions. data-* attributes let scripts/verify find the field, credential,
           and state. */}
       <main
+        className={MAIN_CLASS_NAME}
         key={`${page.stateSlug}/${page.programSlug}`}
         data-cip={page.program.cipCode}
         data-credential-level={page.program.credentialLevel}
@@ -236,7 +237,7 @@ function StateProgramPageView() {
           </MainColumn>
         </PageColumns>
       </main>
-      <SiteFooter wide />
+      <SiteFooter />
     </div>
   )
 }

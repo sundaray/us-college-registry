@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { PAGE_TOP_ID } from '@/components/back-to-top'
 import { SITE_NAME } from '@/lib/site-copy'
-import { cn } from '@/lib/utils'
 
 // The bar at the top of every page. From xl up it has the width of the two-column
 // pages on every page, which keeps the logo in one place as a visitor moves around.
@@ -22,12 +21,20 @@ export function SiteHeader() {
   )
 }
 
-// `wide` is for pages laid out with PageColumns, where the footer spans both columns.
-export function SiteFooter({ wide = false }: { wide?: boolean }) {
+// The band at the bottom of every page. Each page is a column (PAGE_CLASS_NAME)
+// whose main part grows (MAIN_CLASS_NAME), so on a short page the band still
+// sits at the bottom of the window.
+export function SiteFooter() {
   return (
-    <footer className={cn('mx-auto mt-14 max-w-3xl border-t px-5 pt-5 pb-16 text-sm text-muted-foreground', wide && 'xl:max-w-6xl')}>
-      {SITE_NAME.start} {SITE_NAME.end} is an independent site built from public U.S. government data. It is
-      not affiliated with any school or government agency.
+    <footer className="mt-16 border-t bg-card px-5 py-8">
+      <p className="mx-auto max-w-[62ch] text-center text-base text-balance text-muted-foreground">
+        {SITE_NAME.start} {SITE_NAME.end} is an independent site built from public U.S. government data. It is not
+        affiliated with any school or government agency.
+      </p>
     </footer>
   )
 }
+
+// The classes of every page's outer element and of its <main>.
+export const PAGE_CLASS_NAME = 'flex min-h-screen flex-col bg-muted/40 text-pretty'
+export const MAIN_CLASS_NAME = 'flex-1'

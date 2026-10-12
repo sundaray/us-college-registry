@@ -301,7 +301,11 @@ def load_projections():
             experience = row[index['Work experience in a related occupation']]
             growth = row[index[growth_column]]
             openings = row[index[openings_column]]
+            # Everyone in the job in 2025, published in thousands.
+            employment = row[index['Employment, 2025']]
             projections[row[index['2025 National Employment Matrix code']]] = {
+                # The sheet stores 2221.2 as 2221.1999999999998, so round to the nearest job.
+                'employment': round(Fraction(employment) * 1000) if employment else None,
                 'growth_percent': Fraction(growth) if growth else None,
                 'openings_thousands': Fraction(openings) if openings else None,
                 'education': education if education and education != '—' else None,

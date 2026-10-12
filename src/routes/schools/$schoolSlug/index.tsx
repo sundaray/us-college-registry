@@ -3,7 +3,7 @@ import { answerText, KeyFigures, Note, PageSection, QuestionList, RankedList, Su
 import type { RankedEntry } from '@/components/page-blocks'
 import { SchoolHeader } from '@/components/school/school-header'
 import { SchoolProgramTable } from '@/components/school/school-program-table'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { getSchoolPage } from '@/data/get-school-page'
 import type { SchoolLevel, SchoolProgram } from '@/data/school-page'
 import { combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
@@ -71,13 +71,13 @@ function SchoolPageView() {
   const primary = primaryLevel(page)
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each school's page its own state. Without it, a link from one
           school page to another keeps the tables' sort and page number and the open
           questions. data-* attributes let scripts/verify find the school and skip its
           name when reading numbers. */}
-      <main key={page.schoolSlug} data-unit-id={school.unitId} data-school-name={school.shortName}>
+      <main className={MAIN_CLASS_NAME} key={page.schoolSlug} data-unit-id={school.unitId} data-school-name={school.shortName}>
         <SchoolHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
           <Summary paragraphs={buildSchoolSummary(page)} />

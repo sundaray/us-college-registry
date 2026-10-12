@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { NationalProgramLink } from '@/components/national/national-program-link'
-import { Note, PageSection } from '@/components/page-blocks'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { PageSection } from '@/components/page-blocks'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card } from '@/components/ui/card'
 import { getHomePage } from '@/data/get-site-pages'
 import type { ListedCareer, ListedProgram } from '@/data/site-pages'
-import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney } from '@/lib/format'
 import { canonicalLink } from '@/lib/site'
 import { buildHomeDescription, buildHomeSubtitle, buildHomeTitle, SITE_NAME } from '@/lib/site-copy'
@@ -26,16 +25,11 @@ export const Route = createFileRoute('/')({
 function Home() {
   const page = Route.useLoaderData()
   const { counts } = page
-  const notes = [
-    ...new Set(
-      [...page.commonPrograms, ...page.topPayingBachelors].flatMap((program) => comparisonNote(program.cipCode, program.credentialLevel) ?? []),
-    ),
-  ]
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
-      <main>
+      <main className={MAIN_CLASS_NAME}>
         <div data-section="header" className="hero-grid border-b border-primary/12 bg-primary/6">
           <div className="mx-auto flex max-w-3xl flex-col gap-4 px-5 pt-10 pb-9.5">
             <div className="flex flex-col gap-2">
@@ -46,10 +40,9 @@ function Home() {
                 {buildHomeSubtitle()}
               </p>
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border md:grid-cols-4">
-              <Count value={counts.programPages} label="program pages" />
-              <Count value={counts.schoolPages} label="school pages" />
-              <Count value={counts.stateRankings} label="state rankings" />
+            <div className="mt-2 grid grid-cols-3 gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border">
+              <Count value={counts.programPages} label="programs" />
+              <Count value={counts.schools} label="schools" />
               <Count value={counts.careers} label="careers" />
             </div>
           </div>
@@ -90,9 +83,6 @@ function Home() {
                 ))}
               </ListCard>
             </div>
-            {notes.map((note) => (
-              <Note key={note}>{note}</Note>
-            ))}
           </PageSection>
 
           <PageSection name="careers" title="Browse by career">

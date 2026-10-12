@@ -203,11 +203,17 @@ export function occupationKeyFigureQuestions({
   bottomPay,
   topPay,
   yearlyPayOnly,
+  surveyedJobs,
+  allJobs,
   projection,
 }: {
   name: string
   medianPay: string
   yearlyPayOnly: boolean
+  // How many jobs the pay survey covers, and how many there are in all. The two
+  // counts come from two surveys, so the answer gives them as two facts.
+  surveyedJobs?: string
+  allJobs?: string
   bottomPay?: string
   topPay?: string
   projection?: { label: string; expected: string; openings: string }
@@ -217,7 +223,7 @@ export function occupationKeyFigureQuestions({
     {
       question: 'What is median pay?',
       answer: [
-        `The Bureau of Labor Statistics asks employers what they pay people in each job. The median for ${name} is ${medianPay} a year: half of them earn more, and half earn less. It covers every experience level. It leaves out people who work on farms, in private households or for themselves.${yearlyPayOnly ? '' : ' The yearly figure assumes full-time work all year.'}`,
+        `The Bureau of Labor Statistics asks employers what they pay people in each job. The median for ${name} is ${medianPay} a year: half of them earn more, and half earn less. It covers every experience level. It leaves out people who work on farms, in private households or for themselves.${surveyedJobs !== undefined && allJobs !== undefined ? ` The pay survey covers ${surveyedJobs} jobs. The Bureau of Labor Statistics counts ${allJobs} in all, including people who work for themselves.` : ''}${yearlyPayOnly ? '' : ' The yearly figure assumes full-time work all year.'}`,
       ],
       source: { name: 'Bureau of Labor Statistics', text: `${LABOR_STATISTICS}. The figure is from its Occupational Employment and Wage Statistics for May 2025.` },
     },

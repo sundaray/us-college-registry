@@ -62,8 +62,18 @@ export type SchoolsListPage = {
     name: string
     href: string
     // Schools with one program that reports pay link straight to that program's page.
-    schools: { unitId: string; name: string; href: string; programCount: number }[]
+    schools: ListedSchool[]
   }[]
+}
+
+export type ListedSchool = {
+  unitId: string
+  name: string
+  // The school's official name, where it differs from the listed one ("Grand
+  // Canyon University" for "GCU"). The search on the list reads both.
+  officialName?: string
+  href: string
+  programCount: number
 }
 
 // The four pages, in build order, with their URLs.

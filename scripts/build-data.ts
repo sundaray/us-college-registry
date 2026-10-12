@@ -385,33 +385,39 @@ async function loadOccupationWages() {
 }
 
 type Projection = {
+  // Everyone in the job in 2025, including people who work for themselves. The
+  // pay survey's count leaves them out.
+  employment?: number
   growthShare?: number
   openingsPerYear?: number
   typicalEducation?: string
   workExperience?: string
 }
 
-// BLS Employment Projections 2025 to 2035, table 1.2. Openings are published in
-// thousands; growth as a percent.
+// BLS Employment Projections 2025 to 2035, table 1.2. Employment and openings
+// are published in thousands; growth as a percent.
 async function loadProjections() {
+  const employmentColumn = 'Employment, 2025'
   const growthColumn = 'Employment change, percent, 2025–35'
   const openingsColumn = 'Occupational openings, 2025–35 annual average'
   const records = await readSheet(path.join(RAW_DIRECTORY, 'bls-ep-occupation.xlsx'), {
     sheetName: 'Table 1.2',
     headerRow: 2,
     columns: [
-      '2025 National Employment Matrix code', 'Occupation type', growthColumn, openingsColumn,
+      '2025 National Employment Matrix code', 'Occupation type', employmentColumn, growthColumn, openingsColumn,
       'Typical education needed for entry', 'Work experience in a related occupation',
     ],
   })
   const projections = new Map<string, Projection>()
   for (const record of records) {
     if (record['Occupation type'] !== 'Line item') continue
+    const employmentThousands = parseNumber(record[employmentColumn])
     const growthPercent = parseNumber(record[growthColumn])
     const openingsThousands = parseNumber(record[openingsColumn])
     const education = record['Typical education needed for entry']
     const experience = record['Work experience in a related occupation']
     projections.set(record['2025 National Employment Matrix code'], {
+      employment: employmentThousands === undefined ? undefined : Math.round(employmentThousands * 1000),
       growthShare: growthPercent === undefined ? undefined : Number((growthPercent / 100).toFixed(4)),
       openingsPerYear: openingsThousands === undefined ? undefined : Math.round(openingsThousands * 1000),
       typicalEducation: education && education !== '—' ? education : undefined,
@@ -760,7 +766,10 @@ async function main() {
       if (!socCode || candidates.some((candidate) => candidate.socCode === socCode)) continue
       const national = occupationWages.get(`US|${socCode}`)!
       if (/all other/i.test(national.title) || national.employment === undefined) continue
-      candidates.push({ socCode, nationalEmployment: national.employment, title: national.title })
+      // Ordered by everyone in the job (the projections' count), so that the list
+      // agrees with the counts the national pages show. The pay survey's count
+      // stands in for a job the projections don't list.
+      candidates.push({ socCode, nationalEmployment: projections.get(socCode)?.employment ?? national.employment, title: national.title })
     }
     candidates.sort(
       (first, second) => second.nationalEmployment - first.nationalEmployment || first.socCode.localeCompare(second.socCode),
@@ -780,7 +789,8 @@ async function main() {
       title: national.title,
       ...careerSlugFor(socCode),
       stateMedianPay: national.median,
-      stateEmployment: national.employment,
+      // For the whole country the count is everyone in the job.
+      stateEmployment: projection?.employment ?? national.employment,
       stateP10Pay: national.p10,
       stateP90Pay: national.p90,
       nationalMedianPay: national.median,
@@ -1551,6 +1561,7 @@ async function main() {
         national: {
           medianPay: national.median!,
           employment: national.employment,
+          allJobs: projection?.employment,
           p10Pay: national.p10,
           p90Pay: national.p90,
           ...(national.yearlyPayOnly ? { yearlyPayOnly: true as const } : {}),
@@ -1586,7 +1597,8 @@ async function main() {
       name: page.name,
       socCode: page.socCode,
       medianPay: page.national.medianPay,
-      employment: page.national.employment,
+      // Everyone in the job, as on the career's own page.
+      employment: page.national.allJobs ?? page.national.employment,
       growthShare: page.growthShare,
     })
     const byProgramCount = [...nationalProgramPages].sort(
@@ -1595,7 +1607,9 @@ async function main() {
     const byPay = (first: NationalProgramPage, second: NationalProgramPage) =>
       second.national.earningsYear1 - first.national.earningsYear1 || first.programSlug.localeCompare(second.programSlug)
     const byJobs = [...occupationPages].sort(
-      (first, second) => (second.national.employment ?? -1) - (first.national.employment ?? -1) || first.careerSlug.localeCompare(second.careerSlug),
+      (first, second) =>
+        (second.national.allJobs ?? second.national.employment ?? -1) - (first.national.allJobs ?? first.national.employment ?? -1) ||
+        first.careerSlug.localeCompare(second.careerSlug),
     )
     const statesByName = [...statePages].sort((first, second) => first.state.name.localeCompare(second.state.name))
 
@@ -1638,7 +1652,16 @@ async function main() {
       states: statesByName.map((page) => ({
         name: page.state.name,
         href: `/states/${page.stateSlug}`,
-        schools: page.schools.map((school) => ({ unitId: school.unitId, name: school.name, href: school.href, programCount: school.programCount })),
+        schools: page.schools.map((school) => {
+          const officialName = institutions.get(school.unitId)!.name
+          return {
+            unitId: school.unitId,
+            name: school.name,
+            ...(officialName !== school.name ? { officialName } : {}),
+            href: school.href,
+            programCount: school.programCount,
+          }
+        }),
       })),
     }
 
@@ -1761,7 +1784,7 @@ async function main() {
   }
   // Build order for occupation pages: most jobs nationwide first, then by URL.
   const occupationIndex: OccupationIndexEntry[] = occupationPages
-    .map((page) => ({ careerSlug: page.careerSlug, socCode: page.socCode, employment: page.national.employment ?? 0 }))
+    .map((page) => ({ careerSlug: page.careerSlug, socCode: page.socCode, employment: page.national.allJobs ?? page.national.employment ?? 0 }))
     .sort((first, second) => second.employment - first.employment || first.careerSlug.localeCompare(second.careerSlug))
   await writeFile(path.join(OUTPUT_DIRECTORY, 'occupation-index.json'), JSON.stringify(occupationIndex, null, 1))
 

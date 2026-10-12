@@ -48,7 +48,13 @@ export type OccupationPage = {
   sentenceName: string
   national: {
     medianPay: number
+    // The pay survey's count of jobs. It leaves out people who work on farms, in
+    // private households or for themselves, and it is the group the pay figures
+    // describe.
     employment?: number
+    // Everyone in the job in 2025, from the Employment Projections, which is where
+    // growth and openings come from too.
+    allJobs?: number
     p10Pay?: number
     p90Pay?: number
     // Set when BLS publishes only yearly pay for the job (teachers, coaches). For

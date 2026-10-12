@@ -354,6 +354,7 @@ def check_school_rows(node, schools, errors):
 def check_page(html_text, rows, field_names, degrees, page_path):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(check_program_pages.frame_errors(root))
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':
         errors.append('html lang is not "en"')

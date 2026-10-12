@@ -391,7 +391,9 @@ class Model:
             if 'all other' in national['title'].lower() or national['employment'] is None:
                 continue
             seen.add(code)
-            candidates.append((-national['employment'], code))
+            # Ordered by everyone in the job (the projections' count). The pay
+            # survey's count stands in for a job the projections don't list.
+            candidates.append((-(self.projections.get(code, {}).get('employment') or national['employment']), code))
         result = []
         for _, code in sorted(candidates)[:OCCUPATION_LIMIT]:
             state = self.wages.get(('S' + state_fips, code), {})

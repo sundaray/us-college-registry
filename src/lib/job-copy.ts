@@ -59,7 +59,7 @@ export function stateCareersTitle(fieldName: string, stateName: string) {
 export function stateCareersIntro(fieldName: string, stateName: string, everyJobHasStatePay: boolean) {
   const sentences = [
     `These are the largest jobs that the U.S. Department of Education and the Bureau of Labor Statistics link to ${fieldName}, by number of people employed in the US.`,
-    `Pay is the ${stateName} median for everyone in the job, at all experience levels.`,
+    `Pay is the ${stateName} median for the job, at all experience levels.`,
   ]
   if (!everyJobHasStatePay) sentences.push(`Where ${placeInSentence(stateName)} has no figure, the national median is shown.`)
   return sentences.join(' ')

@@ -12,10 +12,10 @@ import { LABOR_SOURCE_LINE } from '@/lib/site-copy'
 // facts that say how large the job is and what it takes to start. The official
 // title and code are in "About this data".
 export function OccupationHeader({ page }: { page: OccupationPage }) {
+  // Everyone in the job. The pay survey's own count is under the median pay figure.
+  const jobCount = page.national.allJobs ?? page.national.employment
   const facts: HeaderFact[] = [
-    ...(page.national.employment !== undefined
-      ? [{ icon: <BriefcaseIcon aria-hidden />, text: `${formatCount(page.national.employment)} jobs in the US` }]
-      : []),
+    ...(jobCount !== undefined ? [{ icon: <BriefcaseIcon aria-hidden />, text: `${formatCount(jobCount)} jobs in the US` }] : []),
     ...(page.typicalEducation
       ? [{ icon: <GraduationCapIcon aria-hidden />, text: `Typically needs ${educationNeeded(page.typicalEducation)} to start` }]
       : []),

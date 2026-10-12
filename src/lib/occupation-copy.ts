@@ -4,7 +4,7 @@
 import type { KeyFigureTile, PageQuestion } from '@/components/page-blocks'
 import type { OccupationPage, OccupationStateRow } from '@/data/occupation-page'
 import { formatCount, formatMoney, listWords, roundedPercent } from '@/lib/format'
-import { neededToStart } from '@/lib/job-copy'
+import { educationNeeded, neededToStart } from '@/lib/job-copy'
 import { occupationKeyFigureQuestions } from '@/lib/key-figure-copy'
 import { isState, notStatesNote, outsideStatesRange, placeInSentence, whatPlaceIs } from '@/lib/place-names'
 import { summaryParagraphs } from '@/lib/summary'
@@ -107,7 +107,10 @@ export function buildOccupationSummary(page: OccupationPage) {
 // National median pay, the bottom and top 10%, and projected growth.
 export function buildOccupationKeyFigures(page: OccupationPage) {
   const { national } = page
-  const figures: KeyFigureTile[] = [{ label: 'Median pay', value: formatMoney(national.medianPay), context: 'US, all experience levels' }]
+  // The count under median pay is the group the pay figure describes. It can be
+  // far smaller than the job count in the header, which is everyone in the job.
+  const payContext = national.employment !== undefined ? `Pay survey covers ${formatCount(national.employment)} jobs` : 'US, all experience levels'
+  const figures: KeyFigureTile[] = [{ label: 'Median pay', value: formatMoney(national.medianPay), context: payContext }]
   if (national.p10Pay !== undefined) figures.push({ label: 'Bottom 10% earn under', value: formatMoney(national.p10Pay), context: 'US' })
   if (national.p90Pay !== undefined) figures.push({ label: 'Top 10% earn over', value: formatMoney(national.p90Pay), context: 'US' })
   if (page.growthShare !== undefined && page.openingsPerYear !== undefined) {
@@ -135,6 +138,8 @@ export function buildKeyFigureQuestions(page: OccupationPage) {
     bottomPay: national.p10Pay !== undefined ? formatMoney(national.p10Pay) : undefined,
     topPay: national.p90Pay !== undefined ? formatMoney(national.p90Pay) : undefined,
     yearlyPayOnly: national.yearlyPayOnly === true,
+    surveyedJobs: national.employment !== undefined ? formatCount(national.employment) : undefined,
+    allJobs: national.allJobs !== undefined ? formatCount(national.allJobs) : undefined,
     projection:
       page.growthShare !== undefined && page.openingsPerYear !== undefined
         ? { label: projectionLabel(page.growthShare), expected: expectedChange(page.growthShare), openings: formatCount(page.openingsPerYear) }
@@ -146,6 +151,7 @@ export function buildKeyFigureQuestions(page: OccupationPage) {
 export function buildStateNotes(page: OccupationPage) {
   const notes: string[] = []
   if (page.states.some((state) => state.stateSlug)) notes.push("State names link to the state's college page.")
+  notes.push('Pay and job counts by state leave out people who work on farms, in private households or for themselves.')
   const unadjusted = page.states.filter((state) => state.adjustedPay === undefined).map((state) => placeInSentence(state.stateName))
   if (unadjusted.length > 0) {
     notes.push(
@@ -162,6 +168,30 @@ export function buildStateNotes(page: OccupationPage) {
   const notStates = notStatesNote(page.states.map((state) => state.stateName))
   if (notStates) notes.push(notStates)
   return notes
+}
+
+// A field-to-occupation link is not proof of an individual program's eligibility
+// or its graduates' job outcomes. Typical entry education is a BLS classification,
+// not a universal minimum. Nurse practitioners' specific requirements are verified
+// against the Occupational Outlook Handbook; see data/raw/SOURCES.md.
+export function relatedProgramsIntro(page: OccupationPage) {
+  const match = `These programs are listed because their subjects are related to the work of ${page.sentenceName}, according to the U.S. Department of Education and the Bureau of Labor Statistics. This connection does not mean each program qualifies you for the job.`
+  const graduateScope = "This site lists only certificates, associate's degrees and bachelor's degrees; it does not include graduate programs."
+  if (page.socCode === '29-1171') {
+    return [
+      match,
+      `According to the Bureau of Labor Statistics, nurse practitioners need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. ${graduateScope}`,
+    ]
+  }
+
+  const education: string[] = []
+  if (page.typicalEducation) {
+    education.push(`The Bureau of Labor Statistics lists ${educationNeeded(page.typicalEducation)} as the typical education for entering this career.`)
+    if (page.typicalEducation === "Master's degree" || page.typicalEducation === 'Doctoral or professional degree') {
+      education.push(graduateScope)
+    }
+  }
+  return education.length > 0 ? [match, education.join(' ')] : [match]
 }
 
 // The common questions. Each answer is one paragraph.

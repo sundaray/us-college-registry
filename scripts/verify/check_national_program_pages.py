@@ -51,7 +51,8 @@ def national_occupation(model, code):
     projection = model.projections.get(code, {})
     return {
         'code': code, 'title': wage['title'],
-        'state_median': wage['median'], 'state_employment': wage['employment'], 'p10': wage['p10'], 'p90': wage['p90'],
+        # For the whole country the count is everyone in the job, from the projections.
+        'state_median': wage['median'], 'state_employment': projection.get('employment') or wage['employment'], 'p10': wage['p10'], 'p90': wage['p90'],
         'national_median': wage['median'], 'growth_percent': projection.get('growth_percent'),
         'openings': projection.get('openings_thousands'), 'education': projection.get('education'),
         'experience': projection.get('experience'),
@@ -308,7 +309,8 @@ def expected_sections(page):
     for occupation in page['occupations'] if page['matching'] is None else []:
         name = lowercase_words(page['occupation_names'].get(occupation['code'], occupation['title']))
         careers.claim(rf"{re.escape(name[0].upper() + name[1:])} earn a median of {re.escape(money(occupation['state_median']))} a year in the US\.")
-    careers.claim(r'These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the national median for everyone in the job, at all experience levels\.', page['matching'] is None)
+    careers.claim(r'These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the national median for the job, at all experience levels\.', page['matching'] is None)
+    careers.claim(r'everyone in the job', False)
     careers.claim(r' careers These are the largest jobs', page['matching'] is None)
     careers.claim(r'crosswalk|Median pay in the US\.|Typical education to start', False)
     if page['matching'] is not None:
@@ -472,6 +474,7 @@ def check_debt_list(label, items, expected, value_of, cip, level, html_dir, link
 def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(check_program_pages.frame_errors(root))
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':
         errors.append('html lang is not "en"')

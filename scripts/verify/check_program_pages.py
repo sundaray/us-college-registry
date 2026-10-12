@@ -124,6 +124,35 @@ def visible_text(node, skip_names=False):
     return ' '.join(''.join(parts).split())
 
 
+FOOTER_TEXT = 'US College Programs is an independent site built from public U.S. government data. It is not affiliated with any school or government agency.'
+
+
+def frame_errors(root):
+    """Every page is a column that fills the window: the site header, a main part
+    that grows and the footer last. That keeps the footer at the bottom of the
+    window on a short page. The footer holds one sentence."""
+    main = root.find(lambda node: node.tag == 'main')
+    if main is None:
+        return ['the page has no <main>']
+
+    def class_names(node):
+        return set((node.attributes.get('class') or '').split())
+
+    errors = []
+    page = main.parent
+    if not {'flex', 'min-h-screen', 'flex-col'} <= class_names(page):
+        errors.append(f"the page is not a column that fills the window: class {page.attributes.get('class')!r}")
+    if 'flex-1' not in class_names(main):
+        errors.append(f"<main> does not grow to push the footer down: class {main.attributes.get('class')!r}")
+    parts = [child.tag for child in page.children if isinstance(child, Node)]
+    if parts != ['header', 'main', 'footer']:
+        errors.append(f'the page should hold the site header, the main part and the footer in that order, found {parts}')
+    footers = root.find_all(lambda node: node.tag == 'footer')
+    if len(footers) != 1 or visible_text(footers[0]) != FOOTER_TEXT:
+        errors.append(f'the footer should hold its one sentence, found {[visible_text(footer) for footer in footers]}')
+    return errors
+
+
 # ---------------------------------------------------------------------------
 # Number tokens
 
@@ -496,7 +525,7 @@ def expected_sections(model_page, cip):
         job_tokens(career_section, occupation)
     # Each job's text, whole and in order.
     career_section.job_texts = [job_text(job, lowercase_words(OCCUPATION_NAMES.get(job['code'], job['title'])), state_place) for job in careers]
-    career_section.claim(rf" careers in {re.escape(state_place)} These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the {re.escape(state_name)} median for everyone in the job, at all experience levels\.")
+    career_section.claim(rf" careers in {re.escape(state_place)} These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the {re.escape(state_name)} median for the job, at all experience levels\.")
     career_section.claim(rf"Where {re.escape(state_place)} has no figure, the national median is shown\.", any(job['state_median'] is None for job in careers))
     career_section.claim(r'crosswalk|Median pay in |Median pay nationwide|Typical education to start|Careers this field leads to', False)
 
@@ -744,6 +773,7 @@ FORBIDDEN_PATTERNS = [r'\bundefined\b', r'\bNaN\b', r'\bnull\b', r'\$0(?![\d,])'
 def check_page(html_text, model, page_path):
     errors, warnings = [], []
     root = parse_html(html_text)
+    errors.extend(frame_errors(root))
 
     html_node = root.find(lambda node: node.tag == 'html')
     if not html_node or html_node.attributes.get('lang') != 'en':

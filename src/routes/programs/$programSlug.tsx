@@ -5,7 +5,7 @@ import { NationalRankingTable } from '@/components/national/national-ranking-tab
 import { NationalStateTable } from '@/components/national/national-state-table'
 import { answerText, JobRow, KeyFigures, Note, PageSection, payRangeScale, QuestionList, RankedList, RelatedPages, Summary } from '@/components/page-blocks'
 import type { KeyFigureTile, PageQuestion, RankedEntry } from '@/components/page-blocks'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card } from '@/components/ui/card'
 import { getNationalProgramPage } from '@/data/get-national-program-page'
 import type { NationalRankedProgram } from '@/data/national-program-page'
@@ -94,13 +94,13 @@ function NationalProgramPageView() {
   ]
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each program's page its own state. Without it, a link from one
           national page to another keeps the table's sort and page number and the open
           questions, and a page number past the new table's end shows no rows.
           data-* attributes let scripts/verify find the field and credential. */}
-      <main key={page.programSlug} data-cip={page.program.cipCode} data-credential-level={page.program.credentialLevel}>
+      <main className={MAIN_CLASS_NAME} key={page.programSlug} data-cip={page.program.cipCode} data-credential-level={page.program.credentialLevel}>
         <NationalProgramHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
           <Summary paragraphs={buildNationalSummary(page)} />

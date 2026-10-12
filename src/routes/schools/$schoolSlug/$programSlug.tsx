@@ -8,7 +8,7 @@ import { EarningsBars } from '@/components/program/earnings-bars'
 import { ProgramHeader } from '@/components/program/program-header'
 import { ProgramLink } from '@/components/program/program-link'
 import { RelatedSchoolLink } from '@/components/school/school-link'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -137,12 +137,13 @@ function ProgramPageView() {
   ]
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each program's page its own state. Without it, a link from one
           program page to another keeps the open questions. data-* attributes let
           scripts/verify find the program and each section. */}
       <main
+        className={MAIN_CLASS_NAME}
         key={`${page.schoolSlug}/${page.programSlug}`}
         data-unit-id={school.unitId}
         data-cip={program.cipCode}
@@ -498,7 +499,7 @@ function ProgramPageView() {
           </MainColumn>
         </PageColumns>
       </main>
-      <SiteFooter wide />
+      <SiteFooter />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { answerText, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
 import type { KeyFigureTile } from '@/components/page-blocks'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { StateFieldTable } from '@/components/state/state-field-table'
 import { StateHeader } from '@/components/state/state-header'
 import { StateSchoolTable } from '@/components/state/state-school-table'
@@ -68,12 +68,12 @@ function StatePageView() {
   const singleProgramSchools = page.schools.filter((school) => school.programName).length
 
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
       {/* The key gives each state's page its own state. Without it, a link from one
           state page to another keeps the tables' sort and page number and the open
           questions. data-state lets scripts/verify find the state. */}
-      <main key={page.stateSlug} data-state={page.state.code}>
+      <main className={MAIN_CLASS_NAME} key={page.stateSlug} data-state={page.state.code}>
         <StateHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
           <Summary paragraphs={buildStateSummary(page)} />

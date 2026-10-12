@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { BriefcaseIcon } from 'lucide-react'
 import { PageSection } from '@/components/page-blocks'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
+import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { CareersTable } from '@/components/site/careers-table'
 import { ListPageHeader } from '@/components/site/list-page-header'
 import { getCareersListPage } from '@/data/get-site-pages'
@@ -25,9 +25,9 @@ export const Route = createFileRoute('/careers/')({
 function CareersListView() {
   const page = Route.useLoaderData()
   return (
-    <div className="min-h-screen bg-muted/40 text-pretty">
+    <div className={PAGE_CLASS_NAME}>
       <SiteHeader />
-      <main>
+      <main className={MAIN_CLASS_NAME}>
         <ListPageHeader
           crumb="Careers"
           title={buildCareersListTitle()}
