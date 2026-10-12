@@ -21,14 +21,14 @@ export const MATCHING_OCCUPATIONS: Record<string, MatchingOccupation> = {
   },
   '1204': {
     socCode: '39-5012',
-    pluralName: 'hairdressers, hairstylists, and cosmetologists',
+    pluralName: 'hairdressers, hairstylists and cosmetologists',
     shortName: 'cosmetologist',
   },
   '5135': { socCode: '31-9011', pluralName: 'massage therapists', shortName: 'massage therapist' },
   '4603': { socCode: '47-2111', pluralName: 'electricians', shortName: 'electrician' },
   '4702': {
     socCode: '49-9021',
-    pluralName: 'heating, air conditioning, and refrigeration mechanics and installers',
+    pluralName: 'heating, air conditioning and refrigeration mechanics and installers',
     shortName: 'HVAC technician',
   },
 }
