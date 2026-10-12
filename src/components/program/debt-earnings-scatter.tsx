@@ -12,7 +12,13 @@ type DebtEarningsScatterProps = {
 
 const width = 680
 const height = 380
-const margin = { top: 14, right: 18, bottom: 46, left: 60 }
+// The left margin leaves room for the pay title to clear the widest pay label by
+// the same gap the debt title has under its labels.
+const margin = { top: 14, right: 18, bottom: 46, left: 72 }
+// Space between an axis's numbers and its title, on both axes.
+const TITLE_GAP = 13
+// The width of one character of an axis label at text-xs with tabular digits.
+const LABEL_CHARACTER_WIDTH = 7.5
 
 function range(start: number, end: number, step: number) {
   const values: number[] = []
@@ -51,6 +57,11 @@ export function DebtEarningsScatter({
   const current = programs.find((program) => program.isCurrent)
   const currentIsLeftHalf = current ? xPosition(current.medianDebt) < margin.left + plotWidth / 2 : false
   const active = activeIndex === null ? null : programs[activeIndex]
+  const payTicks = range(payMin + payStep, payMax, payStep)
+  // The pay title's baseline: left of the widest pay label by the title gap.
+  const widestPayLabel = Math.max(...payTicks.map((pay) => formatThousands(pay).length)) * LABEL_CHARACTER_WIDTH
+  const payTitleX = margin.left - 8 - widestPayLabel - TITLE_GAP
+  const axisTitle = 'fill-muted-foreground text-xs font-semibold'
 
   function handlePointerMove(event: PointerEvent<SVGSVGElement>) {
     const box = event.currentTarget.getBoundingClientRect()
@@ -76,13 +87,13 @@ export function DebtEarningsScatter({
         viewBox={`0 0 ${width} ${height}`}
         className="h-auto w-full"
         role="img"
-        aria-label={`Scatter chart of median debt against first-year earnings for ${programs.length} ${stateName} programs.`}
+        aria-label={`Scatter chart of median federal debt against median first-year pay for ${programs.length} ${stateName} programs.`}
         onPointerMove={handlePointerMove}
         // A tap picks a dot on phones, which have no hover.
         onPointerDown={handlePointerMove}
         onPointerLeave={() => setActiveIndex(null)}
       >
-        {range(payMin + payStep, payMax, payStep).map((pay) => (
+        {payTicks.map((pay) => (
           <g key={pay}>
             <line
               x1={margin.left}
@@ -95,7 +106,7 @@ export function DebtEarningsScatter({
               x={margin.left - 8}
               y={yPosition(pay) + 4}
               textAnchor="end"
-              className="fill-muted-foreground text-[12px] tabular-nums"
+              className="fill-muted-foreground text-xs tabular-nums"
             >
               {formatThousands(pay)}
             </text>
@@ -107,7 +118,7 @@ export function DebtEarningsScatter({
             x={xPosition(debt)}
             y={height - margin.bottom + 18}
             textAnchor="middle"
-            className="fill-muted-foreground text-[12px] tabular-nums"
+            className="fill-muted-foreground text-xs tabular-nums"
           >
             {formatThousands(debt)}
           </text>
@@ -116,18 +127,18 @@ export function DebtEarningsScatter({
           x={margin.left + plotWidth / 2}
           y={height - 6}
           textAnchor="middle"
-          className="fill-muted-foreground text-[12px]"
+          className={axisTitle}
         >
           Median federal debt at graduation
         </text>
         <text
-          x={14}
+          x={payTitleX}
           y={margin.top + plotHeight / 2}
           textAnchor="middle"
-          transform={`rotate(-90 14 ${margin.top + plotHeight / 2})`}
-          className="fill-muted-foreground text-[12px]"
+          transform={`rotate(-90 ${payTitleX} ${margin.top + plotHeight / 2})`}
+          className={axisTitle}
         >
-          First-year earnings
+          Median first-year pay
         </text>
 
         <line
@@ -146,18 +157,6 @@ export function DebtEarningsScatter({
           strokeDasharray="4 4"
           className="stroke-muted-foreground/60"
         />
-        <text x={margin.left + 8} y={margin.top + 14} className="fill-muted-foreground text-[12px]">
-          Less debt, more pay
-        </text>
-        <text
-          x={width - margin.right - 8}
-          y={height - margin.bottom - 8}
-          textAnchor="end"
-          className="fill-muted-foreground text-[12px]"
-        >
-          More debt, less pay
-        </text>
-
         {ordered.map(({ program, index }) => {
           const isActive = index === activeIndex
           const radius = (program.isCurrent ? 7 : 5) + (isActive ? 2 : 0)
@@ -178,7 +177,7 @@ export function DebtEarningsScatter({
             x={xPosition(current.medianDebt) + (currentIsLeftHalf ? 12 : -12)}
             y={yPosition(current.earningsYear1) + 4}
             textAnchor={currentIsLeftHalf ? 'start' : 'end'}
-            className="fill-primary text-[13px] font-semibold"
+            className="fill-primary text-sm font-semibold"
           >
             {current.schoolName}
           </text>

@@ -2,7 +2,7 @@
 // credential in one state, for example nursing bachelor's programs in Texas.
 // Written by scripts/build-data.ts from the files in data/raw.
 
-import type { Benchmark, CredentialLevel, OccupationOutlook, SchoolControl } from '@/data/program-page'
+import type { Benchmark, CredentialLevel, NamedOccupation, OccupationOutlook, SchoolControl } from '@/data/program-page'
 
 // One program in the state that reports first-year pay. Ranks use the same rules
 // as program pages, so a program shows the same rank on both: 1 plus the number
@@ -50,12 +50,22 @@ export type StateProgramPage = {
   // Programs in the state that report debt but not pay. They count toward the
   // debt median but can't be ranked by pay, so they aren't listed.
   debtOnlyCount: number
+  // Programs that report pay but are left out of the state, because more than
+  // half of their graduates studied at campuses in other states.
+  studiedElsewhereCount: number
   // For fields that train for one licensed job: that job's pay in the state.
   matchingJob?: OccupationOutlook & { pluralName: string }
   // Otherwise: the jobs the crosswalk links to the field, as on program pages.
   occupations: OccupationOutlook[]
   // Ranking pages for the same field at other credential levels in the state.
   otherCredentials: { href: string; title: string; programCount: number }[]
+}
+
+// The page as the route receives it: the record, with each job's name as it
+// reads inside a sentence. getStateProgramPage adds the names.
+export type StateProgramView = Omit<StateProgramPage, 'matchingJob' | 'occupations'> & {
+  matchingJob?: NamedOccupation & { pluralName: string }
+  occupations: NamedOccupation[]
 }
 
 export type StateProgramIndexEntry = {

@@ -62,13 +62,17 @@ expectClose('debt lower than share', page.ranks.debtLowerThanShare, 0.899, 3)
 // $25,160. Both are means of two middle values (86,499.5 and 25,160.5); pages
 // round half up, so the debt median displays as $25,161.
 const state = page.benchmarks.state
-expectEqual('Texas programs with first-year pay', state.earningsYear1Count, 48)
-expectEqual('Texas programs with pay and debt', page.ranks.stateProgramsWithBoth, 44)
-expectEqual('Texas first-year median', state.earningsYear1, 76677)
-expectEqual('Texas 5-year median', state.earningsYear5, 86499.5)
-expectEqual('Texas debt median', state.medianDebt, 25160.5)
-expectClose('Texas debt-to-earnings', state.debtToEarnings, 0.337, 3)
-expectEqual('Texas pay rank', page.ranks.stateEarningsRank, 29)
+// The Texas figures changed on 2026-10-12, when programs whose graduates mostly
+// studied in other states were left out of their state (West Coast University
+// here). Before that: 48 and 44 programs, medians 76677, 86499.5 and 25160.5,
+// debt-to-earnings 0.337, pay rank 29.
+expectEqual('Texas programs with first-year pay', state.earningsYear1Count, 47)
+expectEqual('Texas programs with pay and debt', page.ranks.stateProgramsWithBoth, 43)
+expectEqual('Texas first-year median', state.earningsYear1, 76559)
+expectEqual('Texas 5-year median', state.earningsYear5, 86067)
+expectEqual('Texas debt median', state.medianDebt, 25125)
+expectClose('Texas debt-to-earnings', state.debtToEarnings, 0.336, 3)
+expectEqual('Texas pay rank', page.ranks.stateEarningsRank, 28)
 expectEqual('Texas debt rank', page.ranks.stateDebtRank, 4)
 expectEqual('Texas debt-to-earnings rank', page.ranks.stateDebtToEarningsRank, 7)
 
@@ -78,7 +82,7 @@ expectEqual('in-state tuition', school.inStateTuition, 11688)
 expectEqual('out-of-state tuition', school.outOfStateTuition, 44908)
 expectEqual('average net price', school.averageNetPrice, 19857)
 expectEqual('admission rate', school.admissionRate, 0.2664)
-expectEqual('graduation rate', school.graduationRate, { rate: 0.889, basis: 'fourYear' })
+expectEqual('graduation rate', school.graduationRate, { rate: 0.889, basis: 'fourYear', withinSixYears: true })
 expectEqual('undergraduates', school.undergraduates, 42855)
 expectEqual('school rank', page.ranks.schoolEarningsRank, 11)
 expectEqual('school program count', page.ranks.schoolProgramCount, 61)
@@ -89,7 +93,7 @@ expectEqual(
 )
 
 // BEA price levels, 2024
-expectEqual('Austin price level', page.priceLevels?.areaIndex, 98.066)
+expectEqual('Austin price level', page.priceLevels?.area?.index, 98.066)
 expectEqual('Texas price level', page.priceLevels?.stateIndex, 97.057)
 
 // BLS OEWS May 2025 and Employment Projections 2025 to 2035

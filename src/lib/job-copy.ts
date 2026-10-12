@@ -4,6 +4,7 @@
 
 import type { NamedOccupation } from '@/data/program-page'
 import { formatCount, formatMoney, roundedPercent } from '@/lib/format'
+import { placeInSentence } from '@/lib/place-names'
 
 // BLS "typical education needed for entry", as it reads after "people typically need".
 const EDUCATION_NEEDED: Record<string, string> = {
@@ -31,23 +32,48 @@ function lowercaseFirst(text: string) {
   return `${text.charAt(0).toLowerCase()}${text.slice(1)}`
 }
 
+// "a bachelor's degree", as it reads after "people typically need".
+export function educationNeeded(education: string) {
+  return EDUCATION_NEEDED[education] ?? lowercaseFirst(education)
+}
+
+// "a bachelor's degree and at least 5 years of experience in a related job".
+export function neededToStart(education: string, experience: string | undefined) {
+  return `${educationNeeded(education)}${experience ? (EXPERIENCE_NEEDED[experience] ?? '') : ''}`
+}
+
 // "To start in this job, people typically need a bachelor's degree and at least
 // 5 years of experience in a related job."
 function startSentence(education: string, experience: string | undefined) {
-  const needed = EDUCATION_NEEDED[education] ?? lowercaseFirst(education)
-  const experienceNeeded = experience ? (EXPERIENCE_NEEDED[experience] ?? '') : ''
-  return `To start in this job, people typically need ${needed}${experienceNeeded}.`
+  return `To start in this job, people typically need ${neededToStart(education, experience)}.`
+}
+
+// The title of a careers section whose pay figures are for one state: "Nursing
+// careers in Texas". `fieldName` is the field as it reads inside a sentence.
+export function stateCareersTitle(fieldName: string, stateName: string) {
+  return `${capitalizeFirst(fieldName)} careers in ${placeInSentence(stateName)}`
+}
+
+// `everyJobHasStatePay` is false when a listed job has no pay figure for the
+// state and shows the national one.
+export function stateCareersIntro(fieldName: string, stateName: string, everyJobHasStatePay: boolean) {
+  const sentences = [
+    `These are the largest jobs that the U.S. Department of Education and the Bureau of Labor Statistics link to ${fieldName}, by number of people employed in the US.`,
+    `Pay is the ${stateName} median for everyone in the job, at all experience levels.`,
+  ]
+  if (!everyJobHasStatePay) sentences.push(`Where ${placeInSentence(stateName)} has no figure, the national median is shown.`)
+  return sentences.join(' ')
 }
 
 export function jobDetail(job: NamedOccupation, areaName: string) {
   const name = capitalizeFirst(job.sentenceName)
   const parts: string[] = [
     job.stateMedianPay !== undefined
-      ? `${name} earn a median of ${formatMoney(job.stateMedianPay)} a year in ${areaName}.`
+      ? `${name} earn a median of ${formatMoney(job.stateMedianPay)} a year in ${placeInSentence(areaName)}.`
       : `${name} earn a median of ${formatMoney(job.nationalMedianPay!)} a year nationwide.`,
   ]
   if (job.stateEmployment !== undefined) {
-    parts.push(`${formatCount(job.stateEmployment)} people work in this job in ${areaName}.`)
+    parts.push(`${formatCount(job.stateEmployment)} people work in this job in ${placeInSentence(areaName)}.`)
   }
   if (job.growthShare !== undefined && job.openingsPerYear !== undefined) {
     const percent = roundedPercent(Math.abs(job.growthShare))

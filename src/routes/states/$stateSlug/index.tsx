@@ -1,18 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { KeyFigure, keyFigureColumns, Note, Section } from '@/components/page-sections'
+import { answerText, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
+import type { KeyFigureTile } from '@/components/page-blocks'
+import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { StateFieldTable } from '@/components/state/state-field-table'
 import { StateHeader } from '@/components/state/state-header'
 import { StateSchoolTable } from '@/components/state/state-school-table'
-import { SiteFooter, SiteHeader } from '@/components/site-chrome'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getStatePage } from '@/data/get-state-page'
 import type { StatePage } from '@/data/state-page'
+import { combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney } from '@/lib/format'
+import { canonicalLink } from '@/lib/site'
 import {
   bachelors,
+  buildKeyFigureQuestions,
   buildStateDescription,
   buildStateFaq,
   buildStateSummary,
@@ -22,19 +25,17 @@ import {
   priceComparison,
   schoolSectionTitle,
 } from '@/lib/state-copy'
-import { canonicalLink } from '@/lib/site'
-import { cn } from '@/lib/utils'
 
 // The index route matches /states/{state} exactly; ranking pages are its siblings
 // at /states/{state}/{program}.
 export const Route = createFileRoute('/states/$stateSlug/')({
   loader: async ({ params }) => {
     const page = await getStatePage({ data: params })
-    return { page, faq: buildStateFaq(page) }
+    return { page, figureQuestions: buildKeyFigureQuestions(page), faq: buildStateFaq(page) }
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return {}
-    const { page, faq } = loaderData
+    const { page, figureQuestions, faq } = loaderData
     return {
       links: [canonicalLink(`/states/${params.stateSlug}`)],
       meta: [
@@ -44,13 +45,14 @@ export const Route = createFileRoute('/states/$stateSlug/')({
       scripts: [
         {
           type: 'application/ld+json',
+          // One FAQPage for both lists of questions, in the order the page shows them.
           children: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
-            mainEntity: faq.map((item) => ({
+            mainEntity: [...figureQuestions, ...faq].map((item) => ({
               '@type': 'Question',
               name: item.question,
-              acceptedAnswer: { '@type': 'Answer', text: item.answer },
+              acceptedAnswer: { '@type': 'Answer', text: answerText(item) },
             })),
           }),
         },
@@ -61,33 +63,31 @@ export const Route = createFileRoute('/states/$stateSlug/')({
 })
 
 function StatePageView() {
-  const { page, faq } = Route.useLoaderData()
+  const { page, figureQuestions, faq } = Route.useLoaderData()
   const stateName = page.state.name
   const singleProgramSchools = page.schools.filter((school) => school.programName).length
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
-      {/* data-state lets scripts/verify find the state. */}
-      <main data-state={page.state.code}>
+      {/* The key gives each state's page its own state. Without it, a link from one
+          state page to another keeps the tables' sort and page number and the open
+          questions. data-state lets scripts/verify find the state. */}
+      <main key={page.stateSlug} data-state={page.state.code}>
         <StateHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
-          <Card className="mt-7" data-section="summary">
-            <CardContent className="gap-2.5">
-              <p className="text-xs font-bold tracking-widest text-primary uppercase">The short answer</p>
-              <p className="max-w-[64ch] text-lg leading-relaxed">{buildStateSummary(page)}</p>
-            </CardContent>
-          </Card>
+          <Summary paragraphs={buildStateSummary(page)} />
 
-          <StateKeyFigures page={page} />
+          <KeyFigures figures={stateKeyFigures(page)} />
+          <QuestionList name="figures" section="key-figure-questions" questions={figureQuestions} className="mt-3" />
 
-          <Section name="credentials" title="Pay and debt by credential">
+          <PageSection name="credentials" title="Pay and debt by credential">
             <p>
-              Medians across every {stateName} program at each credential that reports the figure, next to the national
-              median.
+              Each row is the median across every {stateName} program at that credential that reports the figure, next
+              to the national median.
             </p>
             <Card size="sm" className="py-0">
-              <Table>
+              <Table containerClassName="**:data-[slot=scroll-area-viewport]:fade-scroll-edges">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="px-4">Credential</TableHead>
@@ -112,12 +112,12 @@ function StatePageView() {
                 </TableBody>
               </Table>
             </Card>
-          </Section>
+          </PageSection>
 
           {page.fieldLevels.map((level) => {
             const notes = [...new Set(level.fields.flatMap((field) => comparisonNote(field.cipCode, level.credentialLevel) ?? []))]
             return (
-              <Section key={level.credentialLevel} name={`fields-${level.credentialLevel}`} title={fieldSectionTitle(level, stateName)}>
+              <PageSection key={level.credentialLevel} name={`fields-${level.credentialLevel}`} title={fieldSectionTitle(level)}>
                 <p>
                   Each row is one field's median across its {stateName} {credentialLower(level.credential)} programs. Field
                   names link to the full ranking of those programs.
@@ -126,39 +126,33 @@ function StatePageView() {
                 {notes.map((note) => (
                   <Note key={note}>{note}</Note>
                 ))}
-              </Section>
+              </PageSection>
             )
           })}
 
-          <Section name="schools" title={schoolSectionTitle(page)}>
+          <PageSection name="schools" title={schoolSectionTitle(page)}>
             <p>
-              Every {stateName} school with at least one program page.
+              This table lists every {stateName} school with at least one program page.
               {page.schools.length > singleProgramSchools ? " School names link to the school's page, which ranks all its programs." : ''}
               {singleProgramSchools > 0 ? ' Schools with one program link straight to that program.' : ''}
             </p>
             <StateSchoolTable schools={page.schools} />
             <Note>"Programs" counts the school's programs that report first-year pay.</Note>
-          </Section>
+          </PageSection>
 
-          <Section name="faq" title="Common questions">
-            <Accordion defaultValue={['faq-0']} hiddenUntilFound className="rounded-xl bg-card px-4 ring-1 ring-foreground/10">
-              {faq.map((item, index) => (
-                <AccordionItem key={item.question} value={`faq-${index}`}>
-                  <AccordionTrigger className="text-[15px] font-semibold">{item.question}</AccordionTrigger>
-                  <AccordionContent className="text-[15px] leading-relaxed text-muted-foreground">
-                    <p>{item.answer}</p>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Section>
+          <PageSection name="faq" title="Common questions">
+            <QuestionList name="faq" questions={faq} openFirst />
+          </PageSection>
 
-          <Section name="about-data" title="About this data">
+          <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
-              <li>Earnings and debt only include students who received federal financial aid, and earnings only count graduates who were working and not enrolled in more school.</li>
+              <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
               <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
-              <li>Medians are across programs, not students: each program counts once, however many graduates it has.</li>
-              <li>Some schools with several campuses report one combined figure for all of them. We count each of those schools once, and leave them out of {stateName} figures when their main campus is in another state.</li>
+              <li>{payPrivacyNote()}</li>
+              <li>Medians are across programs, not students. Each program counts once, however many graduates it has.</li>
+              {combinedCampusesNotes(stateName).map((note) => (
+                <li key={note}>{note}</li>
+              ))}
               {page.priceIndex !== undefined ? <li>Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li> : null}
             </ul>
             <h3 className="text-base font-bold">Sources</h3>
@@ -166,7 +160,7 @@ function StatePageView() {
               <li>U.S. Department of Education, College Scorecard, field of study and institution files, June 2026 release</li>
               {page.priceIndex !== undefined ? <li>Bureau of Economic Analysis, Regional Price Parities, 2024</li> : null}
             </ol>
-          </Section>
+          </PageSection>
         </div>
       </main>
       <SiteFooter />
@@ -174,13 +168,13 @@ function StatePageView() {
   )
 }
 
-// Bachelor's pay and debt next to the national medians, and the state's price level.
-function StateKeyFigures({ page }: { page: StatePage }) {
+// Bachelor's pay and debt next to the national medians, and the state's price
+// level. The program count shows that each figure is a median across programs.
+function stateKeyFigures(page: StatePage): KeyFigureTile[] {
   const { state, national } = bachelors(page)
-  // The program count shows that each figure is a median across programs.
   const context = (programCount: number, nationalValue: number) =>
     `Across ${formatCount(programCount)} programs. National ${formatMoney(nationalValue)}`
-  const figures = [
+  const figures: KeyFigureTile[] = [
     { label: "Median first-year pay, bachelor's", value: formatMoney(state.earningsYear1), context: context(state.earningsYear1Count, national.earningsYear1) },
   ]
   if (state.earningsYear5 !== undefined && national.earningsYear5 !== undefined) {
@@ -189,13 +183,7 @@ function StateKeyFigures({ page }: { page: StatePage }) {
   figures.push({ label: "Median federal debt, bachelor's", value: formatMoney(state.medianDebt), context: context(state.medianDebtCount, national.medianDebt) })
   if (page.priceIndex !== undefined) {
     const price = priceComparison(page.priceIndex)
-    figures.push({ label: 'Prices compared with the US', value: price.label, context: `BEA price level ${price.index}, US average 100` })
+    figures.push({ label: 'Prices compared with the US', value: price.label, context: `Price level ${price.index}, US average 100` })
   }
-  return (
-    <div data-section="key-figures" className={cn('mt-5 grid gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border', keyFigureColumns(figures.length))}>
-      {figures.map((figure) => (
-        <KeyFigure key={figure.label} label={figure.label} value={figure.value} context={figure.context} />
-      ))}
-    </div>
-  )
+  return figures
 }

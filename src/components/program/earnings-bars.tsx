@@ -16,6 +16,7 @@ export function EarningsBars({ bars }: { bars: EarningsBar[] }) {
       {bars.map((bar) => (
         <div
           key={`${bar.label}-${bar.detail ?? ''}`}
+          data-slot="pay-bar"
           className="grid grid-cols-[minmax(0,1fr)_5.5rem] items-center gap-x-3 gap-y-1.5 text-sm sm:grid-cols-[15rem_minmax(0,1fr)_5.5rem]"
         >
           <span className="text-muted-foreground">

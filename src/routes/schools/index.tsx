@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Section } from '@/components/page-sections'
+import { Building2Icon, MapPinIcon } from 'lucide-react'
+import { PageSection } from '@/components/page-blocks'
 import { ProgramLink } from '@/components/program/program-link'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { ListPageHeader } from '@/components/site/list-page-header'
@@ -26,30 +27,32 @@ const LINK_CLASS_NAME = 'text-primary underline underline-offset-3'
 function SchoolsListView() {
   const page = Route.useLoaderData()
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
       <main>
         <ListPageHeader
           crumb="Schools"
           title={buildSchoolsListTitle()}
-          facts={[`${formatCount(schoolsListCount(page))} schools`, `${formatCount(page.states.length)} states and territories`]}
-          source="College Scorecard June 2026 release"
+          facts={[
+            { icon: <Building2Icon aria-hidden />, text: `${formatCount(schoolsListCount(page))} schools` },
+            { icon: <MapPinIcon aria-hidden />, text: `${formatCount(page.states.length)} states and territories` },
+          ]}
         />
         <div className="mx-auto max-w-3xl px-5">
-          <p className="mt-7 max-w-[66ch]">
-            Every US school with at least one program page, by state. School names link to the school's page, and schools
-            with one program link straight to that program. The number after each school counts its programs that report
-            first-year pay.
+          <p data-section="intro" className="mt-9 max-w-[66ch]">
+            This page lists every US school with at least one program page, by state. School names link to the school's
+            page, and schools with one program link straight to that program. The number after each school counts its
+            programs that report first-year pay.
           </p>
           {page.states.map((state) => (
-            <Section key={state.href} name={`state-${state.href.split('/')[2]}`} title={state.name}>
+            <PageSection key={state.href} name={`state-${state.href.split('/')[2]}`} title={state.name}>
               <p className="text-sm text-muted-foreground">
                 {formatCount(state.schools.length)} {state.schools.length === 1 ? 'school' : 'schools'}.{' '}
                 <Link to="/states/$stateSlug" params={{ stateSlug: state.href.split('/')[2] }} className={LINK_CLASS_NAME}>
                   See the {state.name} page
                 </Link>
               </p>
-              <ul className="grid gap-x-6 gap-y-1.5 text-[15px] md:grid-cols-2">
+              <ul className="grid gap-x-6 gap-y-1.5 text-base md:grid-cols-2">
                 {state.schools.map((school) => (
                   // data-unit-id lets scripts/verify check each school against the raw data.
                   <li key={school.unitId} data-unit-id={school.unitId}>
@@ -64,11 +67,11 @@ function SchoolsListView() {
                         </Link>
                       )}
                     </span>{' '}
-                    <span className="text-[13px] text-muted-foreground tabular-nums">{formatCount(school.programCount)}</span>
+                    <span className="text-sm text-muted-foreground tabular-nums">{formatCount(school.programCount)}</span>
                   </li>
                 ))}
               </ul>
-            </Section>
+            </PageSection>
           ))}
         </div>
       </main>

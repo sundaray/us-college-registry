@@ -26,11 +26,48 @@ from page_model import count, money, percent_number  # noqa: E402
 CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
 CREDENTIAL_SLUGS = {1: 'certificate', 2: 'associate', 3: 'bachelors'}
 HOME_LIST_COUNT = 8
-NURSING_NOTE = r'\(RN-to-BSN\)\. College Scorecard counts them with programs for new students'
+NURSING_NOTE = r'are for nurses who are already licensed and working\. College Scorecard counts them with programs for new students'
 SITE_STATIC_PHRASES = ['Economic Analysis, 2024']
+VISIBLE_ROWS = 10
+SOURCE_LINES = {
+    '/programs': "Source: the U.S. Department of Education's College Scorecard, June 2026 release",
+    '/schools': "Source: the U.S. Department of Education's College Scorecard, June 2026 release",
+    '/careers': 'Source: the U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2025',
+}
+# Wording the revised pages no longer use anywhere.
+RETIRED_WORDING = [
+    r', so ', r'—', r'(?i)\bearnings\b', r'\bBLS\b', r'\bBEA\b', r'(?<!College )\bScorecard\b', r'universities, and trade schools', r'by field, or by',
+    r'leave with, and how', r'pay and debt, and lists', r'Every career, ranked',
+    # The home page says "field of study", and its hero no longer explains what a program is.
+    r'by state, by field or by', r'A program is one degree or certificate',
+]
+
+
+def pager_tokens(expectation, row_count):
+    """"Page 1 of N" under a table with more than ten rows."""
+    expectation.pages = -(-row_count // VISIBLE_ROWS)
+    if expectation.pages > 1:
+        expectation.add('1', count(expectation.pages))
+
+
+def check_paging(node, name, expectation, marker, errors):
+    """The first ten rows show, and the pager appears only when there are more."""
+    rows = node.find_all(lambda child: child.tag == 'tr' and marker in child.attributes)
+    hidden = ['hidden' in row.attributes for row in rows]
+    if hidden != [position >= VISIBLE_ROWS for position in range(len(rows))]:
+        errors.append(f'section {name}: {hidden.count(False)} of {len(rows)} rows show, expected the first {VISIBLE_ROWS}')
+    pager = node.find(lambda child: child.attributes.get('data-slot') == 'pager')
+    if (pager is not None) != (expectation.pages > 1):
+        errors.append(f'section {name}: the pager must show only when there is more than one page of rows')
+    elif pager is not None:
+        buttons = pager.find_all(lambda child: child.tag == 'button')
+        labels = [button.attributes.get('aria-label') or visible_text(button) for button in buttons]
+        disabled = ['disabled' in button.attributes for button in buttons]
+        if labels != ['First page', 'Previous', 'Next', 'Last page'] or disabled != [True, True, False, False] or f'Page 1 of {count(expectation.pages)}' not in visible_text(pager):
+            errors.append(f'section {name}: pager reads {visible_text(pager)!r} with buttons {labels} and disabled {disabled}')
 TITLES = {
     '/': 'Compare US College Programs by Graduate Pay, Debt, and Careers',
-    '/programs': 'US College Programs by Field, Ranked by Graduate Pay and Debt',
+    '/programs': 'US College Programs, Ranked by Graduate Pay and Debt',
     '/schools': 'US Colleges and Trade Schools by State, With Graduate Pay and Debt',
     '/careers': 'Careers That US College Programs Lead To, by Pay and Job Growth',
 }
@@ -104,12 +141,21 @@ def home_sections(site):
     counts = site.counts
     header = sections['header'] = Expectation(True)
     header.add(count(counts['program_pages']), count(counts['school_pages']), count(counts['state_rankings']), count(counts['careers']))
+    # The hero holds the site name, the subtitle and the four counts, and nothing else.
+    # A count and its label are two spans with no space between them in the text.
+    header.claim(rf"^US College Programs Compare programs, graduate salaries, and student debt\. {count(counts['program_pages'])} ?program pages {count(counts['school_pages'])} ?school pages {count(counts['state_rankings'])} ?state rankings {count(counts['careers'])} ?careers$")
 
-    sections['states'] = Expectation(True)
+    # The introduction sits under the hero.
+    intro = sections['intro'] = Expectation(True)
+    intro.claim(r'^Look up programs at US colleges, universities and trade schools by state, by field of study or by the career they lead to\. For each one, see what graduates earn one and five years after finishing, how much federal student debt they leave with and how it ranks in its state\. Every figure comes from U\.S\. Department of Education and Bureau of Labor Statistics data\.$')
+
+    states = sections['states'] = Expectation(True)
+    states.claim(r'^Browse by state Each state page ranks its fields by graduate pay and lists every school with a program page\.')
 
     common = sorted(site.programs, key=lambda program: (-program['count'], program['slug']))[:HOME_LIST_COUNT]
     paying = sorted((program for program in site.programs if program['level'] == 3), key=lambda program: (-program['pay'], program['slug']))[:HOME_LIST_COUNT]
     fields = sections['fields'] = Expectation(True)
+    fields.claim(r"^Browse by field of study Each field's page ranks every state by graduate pay and debt and lists the top programs nationwide\.")
     for program in common + paying:
         fields.add(count(program['count']), money(program['pay']))
     fields.add(count(counts['nationals']), count(counts['nationals']))
@@ -118,6 +164,7 @@ def home_sections(site):
 
     largest = sorted(site.careers, key=lambda career: (-(career['jobs'] or -1), career['href']))[:HOME_LIST_COUNT]
     careers = sections['careers'] = Expectation(True)
+    careers.claim(r"^Browse by career Each career's page shows pay in every state, adjusted for prices, and the programs that lead there\.")
     for career in largest:
         careers.add(money(career['pay']))
         if career['jobs'] is not None:
@@ -131,7 +178,13 @@ def home_sections(site):
     return sections
 
 
+HOME_SECTION_ORDER = ['header', 'intro', 'states', 'fields', 'careers', 'sources']
+
+
 def check_home(root, main, site, errors):
+    order = [node.attributes['data-section'] for node in main.find_all(lambda node: 'data-section' in node.attributes)]
+    if order != HOME_SECTION_ORDER:
+        errors.append(f'sections are in the wrong order: {order}, expected {HOME_SECTION_ORDER}')
     states = main.find(lambda node: node.attributes.get('data-section') == 'states')
     links = [anchor.attributes.get('href') for anchor in states.find_all(lambda node: node.tag == 'a')] if states else []
     expected = [f'/states/{page_model.state_slug(name)}' for name in site.state_names]
@@ -147,11 +200,18 @@ def check_listed_links(node, expected_hrefs, name, errors):
 
 def programs_sections(site):
     sections = {}
+    intro = sections['intro'] = Expectation(True)
+    intro.claim(r'^Each row groups programs in the same subject\. Pay and debt figures are national medians across those programs\. Select a subject to compare individual college programs\.$')
     for level in (3, 2, 1):
         rows = [program for program in site.programs if program['level'] == level]
         for program in rows:
             program['rank'] = 1 + sum(1 for other in rows if other['pay'] > program['pay'])
         section = sections[f'programs-{level}'] = Expectation(bool(rows))
+        # "Bachelor's programs". The page title already says what they are ranked by.
+        credential = {3: "Bachelor's", 2: "Associate's", 1: 'Certificate'}[level]
+        section.claim(rf"^{credential} programs ")
+        section.claim(r'types of|ranked by graduate pay', False)
+        pager_tokens(section, len(rows))
         for program in rows:
             section.add(str(program['rank']), count(program['count']), money(program['pay']), money(program['debt']))
         section.claim(NURSING_NOTE, level == 3 and any(program['cip'] == '5138' for program in rows))
@@ -180,6 +240,8 @@ def check_program_rows(node, expectation, name, errors):
 
 def schools_sections(site):
     sections = {}
+    intro = sections['intro'] = Expectation(True)
+    intro.claim(r'^This page lists every US school with at least one program page, by state\.')
     for state_name in site.state_names:
         schools = site.schools_by_state[state_name]
         section = sections[f'state-{page_model.state_slug(state_name)}'] = Expectation(True)
@@ -215,6 +277,10 @@ def check_school_rows(node, expectation, name, errors):
 def careers_sections(site):
     sections = {}
     section = sections['careers'] = Expectation(True)
+    # "230 careers, ranked by pay".
+    section.add(count(len(site.careers)))
+    section.claim(rf"^{count(len(site.careers))} careers, ranked by pay Pay is the US median across all experience levels\.")
+    pager_tokens(section, len(site.careers))
     for career in site.careers:
         section.add(str(career['pay_rank']), money(career['pay']))
         if career['jobs'] is not None:
@@ -316,12 +382,14 @@ def check_page(html_text, site, page_path):
                 errors.append(f'section {name}: wording {pattern!r} should {"" if should_match else "not "}appear')
         if page_path == '/' and name in ('fields', 'careers'):
             check_listed_links(node, expectation.rows, name, errors)
-        if page_path == '/programs':
+        if page_path == '/programs' and name != 'intro':
             check_program_rows(node, expectation, name, errors)
-        if page_path == '/schools':
+            check_paging(node, name, expectation, 'data-href', errors)
+        if page_path == '/schools' and name != 'intro':
             check_school_rows(node, expectation, name, errors)
         if page_path == '/careers':
             check_career_rows(node, expectation, errors)
+            check_paging(node, name, expectation, 'data-soc', errors)
     if page_path == '/':
         check_home(root, main, site, errors)
     if page_path != '/':
@@ -329,14 +397,19 @@ def check_page(html_text, site, page_path):
         if header is None or not header.find(lambda node: node.tag == 'a' and node.attributes.get('href') == '/'):
             errors.append('breadcrumb link to the home page missing')
         facts = {
-            '/programs': [f"{count(site.counts['nationals'])} kinds of programs"],
+            '/programs': [f"{count(site.counts['nationals'])} types of programs"],
             '/schools': [f"{count(site.counts['schools'])} schools", f"{count(len(site.state_names))} states and territories"],
             '/careers': [f"{count(site.counts['careers'])} careers"],
         }[page_path]
+        # After the title: the counts, then the one source line. Nothing else.
         header_text = visible_text(header) if header is not None else ''
-        for fact in facts:
-            if fact not in header_text:
-                errors.append(f'header does not show {fact!r}')
+        expected_end = ' '.join([h1, *facts, SOURCE_LINES[page_path]])
+        if not header_text.endswith(expected_end):
+            errors.append(f'header should end with {expected_end!r}, found {header_text[-len(expected_end) - 20:]!r}')
+    for pattern in RETIRED_WORDING:
+        found = re.search(pattern, visible_text(main, skip_names=True))
+        if found:
+            errors.append(f'retired wording {pattern!r} at {found.start()}')
 
     if tokens(description) != expectations['#description'].tokens:
         errors.append(f"description numbers differ: expected {dict(expectations['#description'].tokens)}, found {dict(tokens(description))}")

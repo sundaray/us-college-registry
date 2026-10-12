@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Section } from '@/components/page-sections'
+import { BriefcaseIcon } from 'lucide-react'
+import { PageSection } from '@/components/page-blocks'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { CareersTable } from '@/components/site/careers-table'
 import { ListPageHeader } from '@/components/site/list-page-header'
 import { getCareersListPage } from '@/data/get-site-pages'
 import { formatCount } from '@/lib/format'
 import { canonicalLink } from '@/lib/site'
-import { buildCareersListDescription, buildCareersListTitle } from '@/lib/site-copy'
+import { buildCareersListDescription, buildCareersListTitle, LABOR_SOURCE_LINE } from '@/lib/site-copy'
 
 // The index route matches /careers exactly; occupation pages are its children.
 export const Route = createFileRoute('/careers/')({
@@ -24,23 +25,23 @@ export const Route = createFileRoute('/careers/')({
 function CareersListView() {
   const page = Route.useLoaderData()
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
       <main>
         <ListPageHeader
           crumb="Careers"
           title={buildCareersListTitle()}
-          facts={[`${formatCount(page.careers.length)} careers`]}
-          source="BLS wages May 2025 · BLS projections 2025 to 2035"
+          facts={[{ icon: <BriefcaseIcon aria-hidden />, text: `${formatCount(page.careers.length)} careers` }]}
+          source={LABOR_SOURCE_LINE}
         />
         <div className="mx-auto max-w-3xl px-5">
-          <Section name="careers" title="Every career, ranked">
+          <PageSection name="careers" title={`${formatCount(page.careers.length)} careers, ranked by pay`}>
             <p>
               Pay is the US median across all experience levels. Growth is the projected change in the number of jobs from
               2025 to 2035. Career names link to pay in every state and the programs that lead there.
             </p>
             <CareersTable careers={page.careers} />
-          </Section>
+          </PageSection>
         </div>
       </main>
       <SiteFooter />

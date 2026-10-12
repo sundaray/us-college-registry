@@ -1,61 +1,31 @@
 import { Link } from '@tanstack/react-router'
-import { DatabaseIcon } from 'lucide-react'
-import { SlashIcon } from '@/components/slash-icon'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb'
+import { BriefcaseIcon, GraduationCapIcon } from 'lucide-react'
+import { PageHeader } from '@/components/page-blocks'
+import type { HeaderFact } from '@/components/page-blocks'
 import type { OccupationPage } from '@/data/occupation-page'
 import { formatCount } from '@/lib/format'
+import { educationNeeded } from '@/lib/job-copy'
 import { buildOccupationTitle } from '@/lib/occupation-copy'
+import { LABOR_SOURCE_LINE } from '@/lib/site-copy'
 
-// The tinted band at the top of an occupation page, matching the other pages.
+// The band at the top of a career page: Home, Careers, then the job, and two
+// facts that say how large the job is and what it takes to start. The official
+// title and code are in "About this data".
 export function OccupationHeader({ page }: { page: OccupationPage }) {
+  const facts: HeaderFact[] = [
+    ...(page.national.employment !== undefined
+      ? [{ icon: <BriefcaseIcon aria-hidden />, text: `${formatCount(page.national.employment)} jobs in the US` }]
+      : []),
+    ...(page.typicalEducation
+      ? [{ icon: <GraduationCapIcon aria-hidden />, text: `Typically needs ${educationNeeded(page.typicalEducation)} to start` }]
+      : []),
+  ]
   return (
-    <div data-section="header" className="border-b border-primary/12 bg-primary/6">
-      <div className="mx-auto flex max-w-3xl flex-col gap-3 px-5 pt-6.5 pb-7.5">
-        <Breadcrumb>
-          <BreadcrumbList className="gap-1 text-[13px] sm:gap-1.5">
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link to="/" />} className="underline underline-offset-3 hover:text-foreground">
-                Home
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator>
-              <SlashIcon />
-            </BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link to="/careers" />} className="underline underline-offset-3 hover:text-foreground">
-                Careers
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator>
-              <SlashIcon />
-            </BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbPage className="text-muted-foreground">{page.name}</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-
-        <h1 className="text-[clamp(28px,5vw,40px)] leading-tight font-extrabold tracking-tight text-balance">{buildOccupationTitle(page)}</h1>
-
-        <ul className="flex flex-wrap gap-x-5.5 gap-y-1.5 text-[15px] text-muted-foreground [&>li]:inline-flex [&>li]:items-center [&>li]:gap-2 [&>li]:before:size-1.5 [&>li]:before:rounded-full [&>li]:before:bg-primary [&>li]:before:content-['']">
-          {page.national.employment !== undefined ? <li className="tabular-nums">{formatCount(page.national.employment)} jobs in the US</li> : null}
-          {page.typicalEducation ? (
-            <li>
-              Typical education to start: {page.typicalEducation.charAt(0).toLowerCase()}
-              {page.typicalEducation.slice(1)}
-            </li>
-          ) : null}
-          {/* data-name: the code and BLS title are labels, not figures. */}
-          <li data-name="">
-            {page.name === page.title ? `Occupation code ${page.socCode}` : `BLS title: ${page.title} (${page.socCode})`}
-          </li>
-        </ul>
-
-        <p className="inline-flex items-center gap-1.5 text-xs text-muted-foreground [&>svg]:size-3.5">
-          <DatabaseIcon aria-hidden />
-          BLS wages May 2025 · BLS projections 2025 to 2035 · BEA price parities 2024
-        </p>
-      </div>
-    </div>
+    <PageHeader
+      trail={[{ label: 'Home', link: <Link to="/" /> }, { label: 'Careers', link: <Link to="/careers" /> }, { label: page.name }]}
+      title={buildOccupationTitle(page)}
+      facts={facts}
+      source={LABOR_SOURCE_LINE}
+    />
   )
 }

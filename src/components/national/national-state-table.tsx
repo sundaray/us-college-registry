@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { NationalStateRow } from '@/data/national-program-page'
 import { formatCount, formatMoney } from '@/lib/format'
+import { rankAmongStates } from '@/lib/place-names'
 
 type SortKey = 'pay' | 'debt' | 'programs'
 
@@ -21,7 +22,8 @@ function rankFor(state: NationalStateRow, sortKey: SortKey) {
 
 // Every state ranking for one field, ranked by the state's median first-year pay
 // in the prerendered HTML. With three or more states, buttons re-sort by debt or
-// by number of programs. Ranks come from the record.
+// by number of programs. The number beside a state is its place among the
+// states only; a place that is not a state has none.
 export function NationalStateTable({ states }: { states: NationalStateRow[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('pay')
   const sortable = states.length >= 3
@@ -61,7 +63,7 @@ export function NationalStateTable({ states }: { states: NationalStateRow[] }) {
             {sorted.map((state) => (
               // data-state lets scripts/verify check each row against the raw data.
               <TableRow key={state.stateCode} data-state={state.stateCode}>
-                {sortable ? <TableCell className="px-4 py-2.5 align-top text-muted-foreground">{rankFor(state, sortKey)}</TableCell> : null}
+                {sortable ? <TableCell className="px-4 py-2.5 align-top text-muted-foreground">{rankAmongStates(states, state, (row) => rankFor(row, sortKey)) ?? ''}</TableCell> : null}
                 <TableCell className="min-w-44 px-4 py-2.5 align-top whitespace-normal">
                   <StateProgramLink href={state.href} className="font-semibold text-primary underline underline-offset-3">
                     {state.stateName}

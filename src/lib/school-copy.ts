@@ -1,9 +1,12 @@
 // Sentences for school hub pages (every program at one school that reports
 // graduate pay). Each claim is checked against the record before it is made.
 
+import type { PageQuestion } from '@/components/page-blocks'
 import type { ProgramPage } from '@/data/program-page'
 import type { SchoolLevel, SchoolPage, SchoolProgram } from '@/data/school-page'
-import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { studiedElsewhereNote } from '@/lib/data-notes'
+import { formatCount, formatMoney, formatShare, listWords } from '@/lib/format'
+import { summaryParagraphs } from '@/lib/summary'
 
 type School = ProgramPage['school']
 
@@ -22,17 +25,11 @@ export function totalPrograms(page: SchoolPage) {
   return page.levels.reduce((total, level) => total + level.programs.length, 0)
 }
 
-// The level with the most programs, which the summary, quick picks, and most
-// questions are about. Ties go to the higher credential (levels are stored
+// The level with the most programs, which the summary, the two short lists and
+// most questions are about. Ties go to the higher credential (levels are stored
 // bachelor's first).
 export function primaryLevel(page: SchoolPage) {
   return page.levels.reduce((best, level) => (level.programs.length > best.programs.length ? level : best))
-}
-
-// "A", "A and B", "A, B, and C".
-export function joinWords(words: string[]) {
-  if (words.length <= 2) return words.join(' and ')
-  return `${words.slice(0, -1).join(', ')}, and ${words[words.length - 1]}`
 }
 
 // "Public university", "Public college", "Private for-profit school", going by the
@@ -69,7 +66,7 @@ function capitalizeFirst(text: string) {
 }
 
 function names(programs: SchoolProgram[]) {
-  return joinWords(programs.map((program) => program.name))
+  return listWords(programs.map((program) => program.name))
 }
 
 export function buildSchoolTitle(page: SchoolPage) {
@@ -82,23 +79,26 @@ export function buildSchoolDescription(page: SchoolPage) {
   const highest = Math.max(...pays)
   const range =
     lowest === highest ? `First-year pay: ${formatMoney(highest)}.` : `First-year pay ranges from ${formatMoney(lowest)} to ${formatMoney(highest)}.`
-  return `Graduate pay and federal debt for ${joinWords(page.levels.map(levelCountPhrase))} at ${page.school.shortName}. ${range}`
+  return `Graduate pay and federal debt for ${listWords(page.levels.map(levelCountPhrase))} at ${page.school.shortName}. ${range}`
 }
 
+// The summary's paragraphs. It has two subjects: the programs at the school's
+// main credential level and what they pay, then what else the school has and
+// what the page leaves out. See summaryParagraphs for when they share a paragraph.
 export function buildSchoolSummary(page: SchoolPage) {
   const { shortName } = page.school
   const level = primaryLevel(page)
   const credential = credentialLower(level)
   const programs = level.programs
-  const sentences: string[] = []
+  const main: string[] = []
   if (programs.length === 1) {
-    sentences.push(
+    main.push(
       `${shortName} has one ${credential} program that reports what graduates earn: ${programs[0].name}, which pays ${formatMoney(programs[0].earningsYear1)} in the first year.`,
     )
   } else if (programs.length === 2) {
     const [first, second] = programs
-    sentences.push(`${shortName} has two ${credential} programs that report what graduates earn.`)
-    sentences.push(
+    main.push(`${shortName} has two ${credential} programs that report what graduates earn.`)
+    main.push(
       first.earningsYear1 === second.earningsYear1
         ? `${first.name} and ${second.name} both pay ${formatMoney(first.earningsYear1)} in the first year.`
         : `${first.name} pays more in the first year (${formatMoney(first.earningsYear1)}) than ${second.name} (${formatMoney(second.earningsYear1)}).`,
@@ -106,18 +106,22 @@ export function buildSchoolSummary(page: SchoolPage) {
   } else {
     const top = sharingFirst(programs, (program) => program.earningsYear1)
     const bottom = sharingFirst([...programs].reverse(), (program) => program.earningsYear1)
-    sentences.push(`${formatCount(programs.length)} ${shortName} ${credential} programs report what graduates earn.`)
-    sentences.push(
-      `${names(top)} ${top.length === 1 ? 'pays' : 'pay'} the most in the first year (${formatMoney(top[0].earningsYear1)}), and ${names(bottom)} the least (${formatMoney(bottom[0].earningsYear1)}).`,
+    main.push(`${formatCount(programs.length)} ${shortName} ${credential} programs report what graduates earn.`)
+    main.push(
+      `${names(top)} ${top.length === 1 ? 'pays' : 'pay'} the most in the first year (${formatMoney(top[0].earningsYear1)}) and ${names(bottom)} ${bottom.length === 1 ? 'pays' : 'pay'} the least (${formatMoney(bottom[0].earningsYear1)}).`,
     )
-    sentences.push(`The median program pays ${formatMoney(medianPay(level))}.`)
+    main.push(`The median program pays ${formatMoney(medianPay(level))}.`)
   }
+  const rest: string[] = []
   const otherLevels = page.levels.filter((other) => other !== level)
   if (otherLevels.length > 0) {
     const otherCount = otherLevels.reduce((total, other) => total + other.programs.length, 0)
-    sentences.push(`${shortName} also has ${joinWords(otherLevels.map(levelCountPhrase))} that ${otherCount === 1 ? 'reports' : 'report'} pay.`)
+    rest.push(`${shortName} also has ${listWords(otherLevels.map(levelCountPhrase))} that ${otherCount === 1 ? 'reports' : 'report'} pay.`)
   }
-  return sentences.join(' ')
+  // The counts above leave these programs out, so the summary says so.
+  const studiedElsewhere = studiedElsewhereNote(page.studiedElsewhereCount)
+  if (studiedElsewhere) rest.push(studiedElsewhere)
+  return summaryParagraphs([main, rest])
 }
 
 export type KeyFigureContent = { label: string; value: string; context: string }
@@ -155,7 +159,9 @@ export function buildSchoolKeyFigures(school: School) {
     figures.push({
       label: 'Graduation rate',
       value: formatShare(school.graduationRate.rate),
-      context: school.graduationRate.basis === 'fourYear' ? 'Within 6 years' : 'Within 1.5 times the normal program length',
+      // The rate counts first-time, full-time students only. Six years is right
+      // only at schools that mainly award bachelor's degrees.
+      context: `First-time, full-time students, within ${school.graduationRate.withinSixYears ? '6 years' : '1.5 times the normal program length'}`,
     })
   }
   if (school.admissionRate !== undefined) {
@@ -164,18 +170,21 @@ export function buildSchoolKeyFigures(school: School) {
   return figures
 }
 
-// "All 61 bachelor's programs, ranked", "Both associate's programs", "One certificate program".
-export function levelSectionTitle(level: SchoolLevel) {
+// "61 UT Austin bachelor's programs, ranked by graduate pay", "Two UT Austin
+// associate's programs", "One UT Austin certificate program".
+export function levelSectionTitle(level: SchoolLevel, shortName: string) {
   const count = level.programs.length
-  if (count === 1) return `One ${credentialLower(level)} program`
-  if (count === 2) return `Both ${credentialLower(level)} programs`
-  return `All ${formatCount(count)} ${credentialLower(level)} programs, ranked`
+  if (count === 1) return `One ${shortName} ${credentialLower(level)} program`
+  if (count === 2) return `Two ${shortName} ${credentialLower(level)} programs`
+  return `${formatCount(count)} ${shortName} ${credentialLower(level)} programs, ranked by graduate pay`
 }
 
 export function debtOnlyNote(level: SchoolLevel) {
   const credential = credentialLower(level)
-  if (level.debtOnlyCount === 1) return `One more ${credential} program reports debt but not pay, so it isn't listed.`
-  if (level.debtOnlyCount > 1) return `${formatCount(level.debtOnlyCount)} more ${credential} programs report debt but not pay, so they aren't listed.`
+  if (level.debtOnlyCount === 1) return `One more ${credential} program is not listed, because it reports debt but not pay.`
+  if (level.debtOnlyCount > 1) {
+    return `${formatCount(level.debtOnlyCount)} more ${credential} programs are not listed, because they report debt but not pay.`
+  }
   return undefined
 }
 
@@ -196,7 +205,7 @@ function costAnswer(school: School) {
     const local = school.hasDistrictTuition ? 'In-district' : 'In-state'
     parts.push(
       school.outOfStateTuition !== undefined
-        ? `${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year, and ${formatMoney(school.outOfStateTuition)} for out-of-state students.`
+        ? `${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year and ${formatMoney(school.outOfStateTuition)} for out-of-state students.`
         : `${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year.`,
     )
   } else if (school.outOfStateTuition !== undefined) {
@@ -208,7 +217,8 @@ function costAnswer(school: School) {
   return parts.join(' ')
 }
 
-export function buildSchoolFaq(page: SchoolPage) {
+// The common questions. Each answer is one paragraph.
+export function buildSchoolFaq(page: SchoolPage): PageQuestion[] {
   const { school } = page
   const { shortName } = school
   const level = primaryLevel(page)
@@ -245,30 +255,52 @@ export function buildSchoolFaq(page: SchoolPage) {
 
   const total = totalPrograms(page)
   const totalWithDebt = page.levels.reduce((sum, other) => sum + programsWithDebt(other).length, 0)
-  const counts = joinWords(page.levels.map(levelCountPhrase))
+  const counts = listWords(page.levels.map(levelCountPhrase))
+  const studiedElsewhere = studiedElsewhereNote(page.studiedElsewhereCount)
   // School pages exist only for schools with at least two programs.
   faq.push({
     question: `How many ${shortName} programs report graduate pay?`,
-    answer:
+    answer: [
       totalWithDebt === total
         ? `${capitalizeFirst(counts)} at ${shortName} report first-year pay, and all of them also report federal debt.`
         : `${capitalizeFirst(counts)} at ${shortName} report first-year pay, and ${formatCount(totalWithDebt)} of them also report federal debt.`,
+      ...(studiedElsewhere ? [studiedElsewhere] : []),
+    ].join(' '),
   })
-  return faq
+  return faq.map((item) => ({ question: item.question, answer: [item.answer] }))
 }
 
-// Quick picks need enough programs to pick from.
-export const QUICK_PICK_MINIMUM = 6
-export const QUICK_PICK_COUNT = 5
+// The two short lists need enough programs to pick from.
+export const SHORT_LIST_MINIMUM = 6
+export const SHORT_LIST_COUNT = 5
 
-export function quickPicks(level: SchoolLevel) {
-  const byPay = level.programs.slice(0, QUICK_PICK_COUNT)
+// The programs with the lowest debt and with the most graduates, up to five of
+// each. There is no list of the highest pay: it would repeat the first rows of
+// the table above it.
+export function shortLists(level: SchoolLevel) {
   const byDebt = [...programsWithDebt(level)]
     .sort((first, second) => first.medianDebt! - second.medianDebt! || second.earningsYear1 - first.earningsYear1)
-    .slice(0, QUICK_PICK_COUNT)
+    .slice(0, SHORT_LIST_COUNT)
   const bySize = level.programs
     .filter((program) => program.graduatesPerYear !== undefined)
     .sort((first, second) => second.graduatesPerYear! - first.graduatesPerYear! || second.earningsYear1 - first.earningsYear1)
-    .slice(0, QUICK_PICK_COUNT)
-  return { byPay, byDebt, bySize }
+    .slice(0, SHORT_LIST_COUNT)
+  return { byDebt, bySize }
+}
+
+// The title and introduction of the section with the short lists. Either list
+// can be empty when no program reports the figure.
+export function shortListsTitle(level: SchoolLevel, shortName: string, lists: ReturnType<typeof shortLists>) {
+  const subject = `${shortName} ${credentialLower(level)} programs with`
+  if (lists.byDebt.length > 0 && lists.bySize.length > 0) return `${subject} the lowest debt and the most graduates`
+  return lists.byDebt.length > 0 ? `${subject} the lowest debt` : `${subject} the most graduates`
+}
+
+export function shortListsIntro(lists: ReturnType<typeof shortLists>) {
+  if (lists.byDebt.length > 0 && lists.bySize.length > 0) {
+    return 'The first list orders the programs by median federal debt, lowest first. The second orders them by graduates a year, most first. Each list shows up to five programs.'
+  }
+  return lists.byDebt.length > 0
+    ? 'This list orders the programs by median federal debt, lowest first, and shows up to five.'
+    : 'This list orders the programs by graduates a year, most first, and shows up to five.'
 }

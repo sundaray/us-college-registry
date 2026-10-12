@@ -23,18 +23,31 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
-from check_program_pages import FORBIDDEN_PATTERNS, STATE_NAMES, Expectation, number_tokens, parse_html, visible_text  # noqa: E402
+import check_program_pages  # noqa: E402
+from check_program_pages import (  # noqa: E402
+    CAMPUS_RULE, FORBIDDEN_PATTERNS, MEDIAN_EXAMPLE_TOKENS, ONE_PARAGRAPH_LIMIT, SOURCE_LINE, STATE_NAMES, Expectation,
+    number_tokens, parse_html, tile_lines, visible_text,
+)
 from page_model import count, money, ordinal, percent  # noqa: E402
 
 CREDENTIALS = {3: "bachelor's", 2: "associate's", 1: 'certificate'}
 CONTROLS = {'1': 'Public', '2': 'Private nonprofit', '3': 'Private for-profit'}
 # Schools with fewer programs that report pay have no school page.
 MINIMUM_SCHOOL_PAGE_PROGRAMS = 2
-QUICK_PICK_MINIMUM = 6
-QUICK_PICK_COUNT = 5
+SHORT_LIST_MINIMUM = 6
+SHORT_LIST_COUNT = 5
+VISIBLE_ROWS = 10
 NURSING_CIP = '5138'
 # Fixed phrases on school pages that contain digits but no data.
-SCHOOL_STATIC_PHRASES = ['Within 6 years', 'Within 1.5 times the normal program length', 'IPEDS tuition and fees, 2023-24']
+SCHOOL_STATIC_PHRASES = ['within 6 years', 'within 1.5 times the normal program length', 'IPEDS tuition and fees, 2023-24']
+# Sections in the order the page shows them. A school has a ranking for each
+# credential level it has programs at, bachelor's first.
+SECTION_ORDER = ['header', 'summary', 'key-figures', 'key-figure-questions', 'ranking-3', 'ranking-2', 'ranking-1', 'short-lists', 'faq', 'about-data']
+# Wording the revised pages no longer use anywhere.
+RETIRED_WORDING = [
+    r', so ', r'—', r'(?i)\bearnings\b', r'The short answer', r'Quick picks', r'\bBLS\b', r'(?<!College )\bScorecard\b',
+    r', and (?:[A-Z][a-z]+ )?(?:one|\d+) (?:certificate|associate|bachelor)', r'isn\'t listed|aren\'t listed',
+]
 
 
 def positive(value):
@@ -79,10 +92,16 @@ def school_model(model, unit_id):
     control = institution['CONTROL']
     return {
         'institution': institution,
+        'state_name': STATE_NAMES[state],
+        # The school's programs that report pay but are left out of the state,
+        # because most of their graduates studied at campuses in other states.
+        'studied_elsewhere': model.studied_elsewhere_school.get(unit_id, 0),
         'levels': levels,
         'primary': primary,
         'control': CONTROLS[control],
         'four_year': institution['ICLEVEL'] == '1',
+        # "Within 6 years" is true only at schools that mainly award bachelor's degrees.
+        'within_six_years': institution['ICLEVEL'] == '1' and institution['PREDDEG'] == 3,
         'in_state_tuition': positive(institution['TUITIONFEE_IN']),
         'out_of_state_tuition': positive(institution['TUITIONFEE_OUT']),
         'program_tuition': positive(institution['TUITIONFEE_PROG']),
@@ -101,6 +120,17 @@ def median_pay(programs):
 
 def tied_first(programs, value):
     return [program for program in programs if value(program) == value(programs[0])]
+
+
+def studied_elsewhere(expectation, school):
+    """The sentence that says some of the school's programs are not listed,
+    wherever the page counts its programs."""
+    left_out = school['studied_elsewhere']
+    if left_out > 1:
+        expectation.add(count(left_out))
+    expectation.claim(r'One program is not listed, because most of its graduates studied at campuses in other states\.', left_out == 1)
+    expectation.claim(rf'{count(left_out)} programs are not listed, because most of their graduates studied at campuses in other states\.', left_out > 1)
+    expectation.claim(r'graduates studied at campuses in other states', left_out > 0)
 
 
 def expected_sections(school, field_names):
@@ -131,64 +161,78 @@ def expected_sections(school, field_names):
         summary.add(count(len(programs)), money(top[0]['year1']), money(bottom[0]['year1']), money(median_pay(programs)))
         summary.claim(rf"{credential} programs report what graduates earn\.")
         if len(top) == 1:
-            summary.claim(rf"{re.escape(name(top[0]))} pays the most in the first year")
+            summary.claim(rf"{re.escape(name(top[0]))} pays the most in the first year \({re.escape(money(top[0]['year1']))}\) and ")
+        else:
+            summary.claim(rf" pay the most in the first year \({re.escape(money(top[0]['year1']))}\) and ")
         if len(bottom) == 1:
-            summary.claim(rf"and {re.escape(name(bottom[0]))} the least")
-        summary.claim(r'The median program pays')
+            summary.claim(rf" and {re.escape(name(bottom[0]))} pays the least \({re.escape(money(bottom[0]['year1']))}\)\.")
+        else:
+            summary.claim(rf" pay the least \({re.escape(money(bottom[0]['year1']))}\)\.")
+        summary.claim(rf"The median program pays {re.escape(money(median_pay(programs)))}\.")
     others = [level for level in levels if level is not primary]
     for level in others:
         if len(level['programs']) > 1:
             summary.add(count(len(level['programs'])))
     summary.claim(r'also has .* pay\.', bool(others))
+    summary.claim(r', and .* the least', False)
+    studied_elsewhere(summary, school)
+    # The second subject of the summary: the school's other levels, and the
+    # programs the page leaves out. A long summary breaks before it.
+    summary.has_second_subject = bool(others) or school['studied_elsewhere'] > 0
 
-    figures_present = False
-    figures = Expectation(False)
+    # The key figures are the school's cost and rates: each tile's label, value
+    # and line of context.
+    tiles = []
     if school['reports_by_program']:
         if school['program_tuition'] is not None:
-            figures.add(money(school['program_tuition']))
-            figures.claim(r'Tuition for the largest program')
-            figures_present = True
+            tiles.append(['Tuition for the largest program', money(school['program_tuition']), 'Tuition and fees for the whole program'])
         if school['net_price'] is not None:
-            figures.add(money(school['net_price']))
-            figures.claim(r'Net price, largest program')
-            figures_present = True
+            tiles.append(['Net price, largest program', money(school['net_price']), 'After aid, for the whole program'])
     else:
         in_state, out_of_state = school['in_state_tuition'], school['out_of_state_tuition']
         if in_state is not None and in_state == out_of_state:
-            figures.add(money(in_state))
-            figures.claim(r'Per year, for all students')
-            figures_present = True
+            tiles.append(['Tuition and fees', money(in_state), 'Per year, for all students'])
         elif in_state is not None:
-            figures.add(money(in_state))
-            figures.claim(r'In-district tuition and fees' if school['district_tuition'] else r'In-state tuition and fees')
-            if out_of_state is not None:
-                figures.add(money(out_of_state))
-            figures_present = True
+            tiles.append([
+                'In-district tuition and fees' if school['district_tuition'] else 'In-state tuition and fees', money(in_state),
+                f'Per year. Out-of-state {money(out_of_state)}' if out_of_state is not None else 'Per year',
+            ])
         elif out_of_state is not None:
-            figures.add(money(out_of_state))
-            figures.claim(r'Out-of-state tuition and fees')
-            figures_present = True
+            tiles.append(['Out-of-state tuition and fees', money(out_of_state), 'Per year'])
         if school['net_price'] is not None:
-            figures.add(money(school['net_price']))
-            figures.claim(r'Average net price after aid')
-            figures_present = True
+            tiles.append(['Average net price after aid', money(school['net_price']), 'Per year'])
     if school['graduation_rate'] is not None:
-        figures.add(percent(school['graduation_rate']))
-        figures.claim(r'Within 6 years' if school['four_year'] else r'Within 1\.5 times the normal program length')
-        figures_present = True
+        tiles.append(['Graduation rate', percent(school['graduation_rate']), f"First-time, full-time students, within {'6 years' if school['within_six_years'] else '1.5 times the normal program length'}"])
     if school['admission_rate'] is not None:
-        figures.add(percent(school['admission_rate']))
-        figures.claim(r'Admission rate')
-        figures_present = True
-    figures.present = figures_present
-    sections['key-figures'] = figures
+        tiles.append(['Admission rate', percent(school['admission_rate']), 'Of applicants'])
+    figures = sections['key-figures'] = Expectation(bool(tiles))
+    figures.tiles = tiles
+    for _, value, context in tiles:
+        figures.add(value, *re.findall(r'\$[\d,]+', context))
+
+    # Three questions under the key figures. The tiles show cost and rates, so the
+    # questions explain the pay and debt figures in the tables, by column name.
+    questions = sections['key-figure-questions'] = Expectation(True)
+    questions.add(*MEDIAN_EXAMPLE_TOKENS)
+    questions.claim(r'What does "median" mean\? An average adds up every value and divides by how many there are\.')
+    questions.claim(r'were not enrolled in more school\. The "Year 1 pay" column on this page shows that figure for each program\. The "Year 5 pay" column is the same measure for an earlier graduating class\. College Scorecard: ')
+    questions.claim(r'Parent PLUS loans and private loans\. The "Debt" column on this page shows that figure for each program\. College Scorecard: ')
+    questions.claim(r'debt-to-earnings|would be at 40%', False)
 
     for level in levels:
         level_programs = level['programs']
         section = sections[f"ranking-{level['level']}"] = Expectation(True)
         sortable = len(level_programs) >= 3
+        level_credential = CREDENTIALS[level['level']]
         if sortable:
             section.add(count(len(level_programs)))
+            section.claim(rf"^{count(len(level_programs))} .* {level_credential} programs, ranked by graduate pay Each figure is the median")
+        else:
+            section.claim(rf"^{'One' if len(level_programs) == 1 else 'Two'} .* {level_credential} programs? Each figure is the median")
+        # "Page 1 of N" under a table with more than ten programs.
+        section.pages = -(-len(level_programs) // VISIBLE_ROWS)
+        if section.pages > 1:
+            section.add('1', count(section.pages))
         for program in level_programs:
             if sortable:
                 section.add(str(program['pay_rank']))
@@ -205,24 +249,30 @@ def expected_sections(school, field_names):
         section.claim(r'A program gets its own page', any_page and not all(program['has_page'] for program in level_programs))
         if level['debt_only'] > 1:
             section.add(count(level['debt_only']))
-        section.claim(r'\d+ more .* programs report debt but not pay', level['debt_only'] > 1)
-        section.claim(r'One more .* program reports debt but not pay', level['debt_only'] == 1)
+        section.claim(rf"{count(level['debt_only'])} more {level_credential} programs are not listed, because they report debt but not pay\.", level['debt_only'] > 1)
+        section.claim(rf'One more {level_credential} program is not listed, because it reports debt but not pay\.', level['debt_only'] == 1)
         has_nursing = level['level'] == 3 and any(program['cip'] == NURSING_CIP for program in level_programs)
-        section.claim(r'\(RN-to-BSN\)\. College Scorecard counts them with programs for new students', has_nursing)
+        section.claim(r'are for nurses who are already licensed and working\. College Scorecard counts them with programs for new students', has_nursing)
         section.rows = level_programs
         section.sortable = sortable
 
-    picks = sections['quick-picks'] = Expectation(len(programs) >= QUICK_PICK_MINIMUM)
+    # Two short lists of up to five programs: the lowest debt, then the most
+    # graduates. A list with nothing to show is left out, and so is the section.
+    with_debt = sorted((program for program in programs if program['debt'] is not None), key=lambda program: (program['debt'], -program['year1']))
+    with_graduates = sorted((program for program in programs if program['graduates'] is not None), key=lambda program: (-program['graduates'], -program['year1']))
+    lowest_debt = [money(program['debt']) for program in with_debt[:SHORT_LIST_COUNT]]
+    most_graduates = [f"About {count(program['graduates'])} graduates a year" for program in with_graduates[:SHORT_LIST_COUNT]]
+    picks = sections['short-lists'] = Expectation(len(programs) >= SHORT_LIST_MINIMUM and bool(lowest_debt or most_graduates))
     if picks.present:
-        for program in programs[:QUICK_PICK_COUNT]:
-            picks.add(money(program['year1']))
-        with_debt = sorted((program for program in programs if program['debt'] is not None), key=lambda program: (program['debt'], -program['year1']))
-        for program in with_debt[:QUICK_PICK_COUNT]:
-            picks.add(money(program['debt']))
-        with_graduates = sorted((program for program in programs if program['graduates'] is not None), key=lambda program: (-program['graduates'], -program['year1']))
-        for program in with_graduates[:QUICK_PICK_COUNT]:
-            picks.add(count(program['graduates']))
-        picks.claim(rf'Quick picks: {credential} programs', len(levels) > 1)
+        picks.add(*lowest_debt, *[count(program['graduates']) for program in with_graduates[:SHORT_LIST_COUNT]])
+        picks.lists = [(heading, values) for heading, values in (('Lowest debt', lowest_debt), ('Most graduates', most_graduates)) if values]
+        if lowest_debt and most_graduates:
+            picks.claim(rf" {credential} programs with the lowest debt and the most graduates The first list orders the programs by median federal debt, lowest first\. The second orders them by graduates a year, most first\. Each list shows up to five programs\.")
+        elif lowest_debt:
+            picks.claim(rf" {credential} programs with the lowest debt This list orders the programs by median federal debt, lowest first, and shows up to five\.")
+        else:
+            picks.claim(rf" {credential} programs with the most graduates This list orders the programs by graduates a year, most first, and shows up to five\.")
+        picks.claim(r'Highest first-year pay|Largest programs', False)
 
     faq = sections['faq'] = Expectation(True)
     program_word = 'major' if len(levels) == 1 and primary['level'] == 3 else f'{credential} program'
@@ -258,6 +308,7 @@ def expected_sections(school, field_names):
             cost_tokens.append(money(school['net_price']))
         if in_state is not None and out_of_state != in_state:
             faq.claim(r'In-district tuition and fees are' if school['district_tuition'] else r'In-state tuition and fees are')
+        faq.claim(r' a year, and \$', False)
     faq.add(*cost_tokens)
     if cost_tokens:
         faq.question_patterns.append(r'^How much does .* cost\?$')
@@ -269,8 +320,14 @@ def expected_sections(school, field_names):
     if total_with_debt != total:
         faq.add(count(total_with_debt))
     faq.question_patterns.append(r'^How many .* programs report graduate pay\?$')
+    studied_elsewhere(faq, school)
 
-    sections['about-data'] = Expectation(True)
+    about = sections['about-data'] = Expectation(True)
+    about.claim(check_program_pages.PAY_PRIVACY_NOTE.format(figures='each pay figure'))
+    about.claim(r'^About this data Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school\.')
+    about.claim(r'Tuition, net price, graduation rate and admission rate are for the whole school, not one program\.')
+    about.claim(r'College Scorecard figures describe graduating classes from several years ago\.')
+    about.claim(CAMPUS_RULE.format(state=re.escape(school['state_name']), place=re.escape(page_model.place_in_sentence(school['state_name']))))
 
     description = sections['#description'] = Expectation(True)
     for level in levels:
@@ -375,6 +432,7 @@ def check_page(html_text, model, field_names, page_path):
         errors.append(f'title does not use the school name: {title!r}')
 
     main_text = visible_text(main)
+    errors.extend(page_model.bare_place_errors(title, description, main_text))
     for pattern in FORBIDDEN_PATTERNS:
         for place, text in (('title', title), ('description', description), ('page', main_text)):
             if re.search(pattern, text):
@@ -384,15 +442,18 @@ def check_page(html_text, model, field_names, page_path):
     institution = school['institution']
     header = root.find(lambda node: node.attributes.get('data-section') == 'header')
     header_text = visible_text(header) if header else ''
-    # The official name is in the facts list, or in the H1 when it is also the short name.
-    expected_facts = [institution['INSTNM'], institution_kind(school), f"{institution['CITY']}, {institution['STABBR']}"]
+    # After the title: the official name when the title uses a shorter one, the
+    # kind of school, its city, its undergraduates when the data has them, then
+    # the one source line. Nothing else.
+    official_name = ' '.join(institution['INSTNM'].split())
+    facts = [institution_kind(school), f"{institution['CITY']}, {institution['STABBR']}"]
+    if official_name != short_name:
+        facts.insert(0, official_name)
     if school['undergraduates'] is not None:
-        expected_facts.append(f"{count(school['undergraduates'])} undergraduates")
-    for fact in expected_facts:
-        if fact not in header_text:
-            errors.append(f'header does not show {fact!r}')
-    if school['undergraduates'] is None and 'undergraduates' in header_text:
-        errors.append('header shows undergraduates but the data has none')
+        facts.append(f"{count(school['undergraduates'])} undergraduates")
+    expected_end = ' '.join([h1, *facts, SOURCE_LINE])
+    if not header_text.endswith(expected_end):
+        errors.append(f'header should end with {expected_end!r}, found {header_text[-len(expected_end) - 30:]!r}')
 
     # The breadcrumb links to the state page.
     state_href = '/states/' + page_model.state_slug(STATE_NAMES[institution['STABBR']])
@@ -409,6 +470,14 @@ def check_page(html_text, model, field_names, page_path):
     unexpected = set(present) - set(expectations) - {'header'}
     if unexpected:
         errors.append(f'unexpected sections {sorted(unexpected)}')
+    if list(present) != [name for name in SECTION_ORDER if name in present]:
+        errors.append(f'sections are in the wrong order: {list(present)}')
+    # The school's own name and its programs' names are not our wording.
+    our_text = visible_text(main, skip_names=True).replace(short_name, ' ').replace(official_name, ' ')
+    for pattern in RETIRED_WORDING:
+        found = re.search(pattern, our_text)
+        if found:
+            errors.append(f'retired wording {pattern!r}: ...{our_text[max(0, found.start() - 40):found.end() + 40]}...')
     for name, expectation in expectations.items():
         if name.startswith('#'):
             continue
@@ -428,8 +497,39 @@ def check_page(html_text, model, field_names, page_path):
         for pattern, should_match in expectation.claims:
             if bool(re.search(pattern, visible_text(node))) != should_match:
                 errors.append(f'section {name}: wording {pattern!r} should {"" if should_match else "not "}appear')
+        if name == 'summary':
+            # One paragraph when the summary is short or has one subject. Otherwise
+            # the second paragraph starts where the second subject does.
+            paragraphs = [visible_text(paragraph) for paragraph in node.find_all(lambda child: child.tag == 'p')]
+            heading = node.find(lambda child: child.tag == 'h2')
+            wanted = 2 if expectation.has_second_subject and len(' '.join(paragraphs)) > ONE_PARAGRAPH_LIMIT else 1
+            if heading is None or visible_text(heading) != 'Summary' or len(paragraphs) != wanted:
+                errors.append(f'section summary: expected the heading "Summary" and {wanted} paragraphs, found {len(paragraphs)}')
+            elif wanted == 2 and not re.match(rf'{re.escape(short_name)} also has |One program is not listed|[\d,]+ programs are not listed', paragraphs[1]):
+                errors.append(f'section summary: the second paragraph starts in the wrong place: {paragraphs[1][:80]!r}')
+        if name == 'key-figures' and tile_lines(node) != expectation.tiles:
+            errors.append(f'section key-figures: tiles read {tile_lines(node)}, expected {expectation.tiles}')
+        if name == 'short-lists':
+            headings = [visible_text(heading) for heading in node.find_all(lambda child: child.tag == 'h3')]
+            shown = [[visible_text(item.children[-1]) for item in items.find_all(lambda child: child.tag == 'li')] for items in node.find_all(lambda child: child.tag == 'ol')]
+            if list(zip(headings, shown)) != expectation.lists:
+                errors.append(f'section short-lists: lists read {list(zip(headings, shown))}, expected {expectation.lists}')
         if name.startswith('ranking-'):
             check_rows(node, expectation, field_names, school_slug, errors, name)
+            # The first ten rows show, and the pager appears only when there are more.
+            rows = node.find_all(lambda child: child.tag == 'tr' and 'data-cip' in child.attributes)
+            hidden = ['hidden' in row.attributes for row in rows]
+            if hidden != [position >= VISIBLE_ROWS for position in range(len(rows))]:
+                errors.append(f'section {name}: {hidden.count(False)} of {len(rows)} rows show, expected the first {VISIBLE_ROWS}')
+            pager = node.find(lambda child: child.attributes.get('data-slot') == 'pager')
+            if (pager is not None) != (expectation.pages > 1):
+                errors.append(f'section {name}: the pager must show only when there is more than one page of rows')
+            elif pager is not None:
+                buttons = pager.find_all(lambda child: child.tag == 'button')
+                labels = [button.attributes.get('aria-label') or visible_text(button) for button in buttons]
+                disabled = ['disabled' in button.attributes for button in buttons]
+                if labels != ['First page', 'Previous', 'Next', 'Last page'] or disabled != [True, True, False, False] or f'Page 1 of {count(expectation.pages)}' not in visible_text(pager):
+                    errors.append(f'section {name}: pager reads {visible_text(pager)!r} with buttons {labels} and disabled {disabled}')
 
     description_expectation = expectations['#description']
     if tokens(description) != description_expectation.tokens:
@@ -438,16 +538,25 @@ def check_page(html_text, model, field_names, page_path):
         if bool(re.search(pattern, description)) != should_match:
             errors.append(f'description wording {pattern!r}')
 
-    faq_node = present.get('faq')
-    visible_faq = []
-    if faq_node is not None:
-        for item in faq_node.find_all(lambda child: child.attributes.get('data-slot') == 'accordion-item'):
+    # Both lists of questions, in page order: the three under the key figures,
+    # then the common questions. An answer is every paragraph of its panel.
+    def questions_in(section_name):
+        node = present.get(section_name)
+        items = node.find_all(lambda child: child.attributes.get('data-slot') == 'accordion-item') if node is not None else []
+        pairs = []
+        for item in items:
             question = item.find(lambda child: child.tag == 'button')
-            answer = item.find(lambda child: child.tag == 'p')
-            visible_faq.append((visible_text(question) if question else '', visible_text(answer) if answer else ''))
+            answer = item.find(lambda child: child.attributes.get('data-slot') == 'accordion-content')
+            pairs.append((visible_text(question) if question else '', visible_text(answer) if answer else ''))
+        return pairs
+
+    figure_questions, common_questions = questions_in('key-figure-questions'), questions_in('faq')
+    if [question for question, _ in figure_questions] != ['What does "median" mean?', 'What is median first-year pay?', 'What is median federal debt?']:
+        errors.append(f'questions under the key figures differ: {[question for question, _ in figure_questions]}')
     patterns = expectations['faq'].question_patterns
-    if len(visible_faq) != len(patterns) or any(not re.search(pattern, question) for pattern, (question, _) in zip(patterns, visible_faq)):
-        errors.append(f'FAQ questions differ: {[question for question, _ in visible_faq]}')
+    if len(common_questions) != len(patterns) or any(not re.search(pattern, question) for pattern, (question, _) in zip(patterns, common_questions)):
+        errors.append(f'FAQ questions differ: {[question for question, _ in common_questions]}')
+    visible_faq = figure_questions + common_questions
     json_ld = root.find_all(lambda node: node.tag == 'script' and node.attributes.get('type') == 'application/ld+json')
     try:
         structured = json.loads(json_ld[0].raw_text()) if json_ld else None

@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { NationalProgramLink } from '@/components/national/national-program-link'
-import { Note, Section } from '@/components/page-sections'
-import { ProgramLink } from '@/components/program/program-link'
+import { Note, PageSection } from '@/components/page-blocks'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card } from '@/components/ui/card'
 import { getHomePage } from '@/data/get-site-pages'
@@ -11,9 +10,6 @@ import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney } from '@/lib/format'
 import { canonicalLink } from '@/lib/site'
 import { buildHomeDescription, buildHomeSubtitle, buildHomeTitle, SITE_NAME } from '@/lib/site-copy'
-
-// The approved reference program page, used as the example of what a program is.
-const EXAMPLE_PROGRAM_HREF = '/schools/university-of-texas-at-austin/nursing-bachelors'
 
 export const Route = createFileRoute('/')({
   loader: () => getHomePage(),
@@ -37,32 +33,19 @@ function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
       <main>
-        <div data-section="header" className="border-b border-primary/12 bg-primary/6">
+        <div data-section="header" className="hero-grid border-b border-primary/12 bg-primary/6">
           <div className="mx-auto flex max-w-3xl flex-col gap-4 px-5 pt-10 pb-9.5">
             <div className="flex flex-col gap-2">
-              <h1 className="text-[clamp(32px,6vw,48px)] leading-tight font-extrabold tracking-tight text-balance">
+              <h1 className="text-4xl leading-tight font-extrabold tracking-tight text-balance md:text-5xl">
                 {SITE_NAME.start} {SITE_NAME.end}
               </h1>
-              <p className="text-[clamp(19px,3vw,22px)] leading-snug font-semibold text-balance text-foreground/75">
+              <p className="text-xl leading-snug font-semibold text-balance text-foreground/75 md:text-2xl">
                 {buildHomeSubtitle()}
               </p>
             </div>
-            <p className="max-w-[60ch] text-lg leading-relaxed">
-              Look up programs at US colleges, universities, and trade schools by state, by field, or by the career they
-              lead to. For each one, see what graduates earn one and five years after finishing, how much federal student
-              debt they leave with, and how it ranks in its state. Every figure comes from U.S. Department of Education
-              and Bureau of Labor Statistics data.
-            </p>
-            <p className="max-w-[60ch] text-[15px] text-muted-foreground">
-              A program is one degree or certificate at one school, for example the{' '}
-              <ProgramLink href={EXAMPLE_PROGRAM_HREF} className="font-semibold text-primary underline underline-offset-3">
-                nursing bachelor's degree at UT Austin
-              </ProgramLink>
-              .
-            </p>
             <div className="mt-2 grid grid-cols-2 gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border md:grid-cols-4">
               <Count value={counts.programPages} label="program pages" />
               <Count value={counts.schoolPages} label="school pages" />
@@ -73,21 +56,28 @@ function Home() {
         </div>
 
         <div className="mx-auto max-w-3xl px-5">
-          <Section name="states" title="Browse by state">
+          <p data-section="intro" className="mt-9 max-w-[64ch] text-lg leading-relaxed">
+            Look up programs at US colleges, universities and trade schools by state, by field of study or by the career
+            they lead to. For each one, see what graduates earn one and five years after finishing, how much federal
+            student debt they leave with and how it ranks in its state. Every figure comes from U.S. Department of
+            Education and Bureau of Labor Statistics data.
+          </p>
+
+          <PageSection name="states" title="Browse by state">
             <p>Each state page ranks its fields by graduate pay and lists every school with a program page.</p>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 md:grid-cols-4">
               {page.states.map((state) => (
                 <li key={state.href}>
-                  <Link to="/states/$stateSlug" params={{ stateSlug: state.href.split('/')[2] }} className="text-[15px] text-primary underline underline-offset-3">
+                  <Link to="/states/$stateSlug" params={{ stateSlug: state.href.split('/')[2] }} className="text-base text-primary underline underline-offset-3">
                     {state.name}
                   </Link>
                 </li>
               ))}
             </ul>
-          </Section>
+          </PageSection>
 
-          <Section name="fields" title="Browse by field">
-            <p>Each field's page ranks every state by graduate pay and debt, and lists the top programs nationwide.</p>
+          <PageSection name="fields" title="Browse by field of study">
+            <p>Each field's page ranks every state by graduate pay and debt and lists the top programs nationwide.</p>
             <div className="grid gap-3.5 md:grid-cols-2">
               <ListCard title="Most common programs" subtitle="Median first-year pay across US programs" more={<AllProgramsLink count={counts.nationalPrograms} />}>
                 {page.commonPrograms.map((program) => (
@@ -103,9 +93,9 @@ function Home() {
             {notes.map((note) => (
               <Note key={note}>{note}</Note>
             ))}
-          </Section>
+          </PageSection>
 
-          <Section name="careers" title="Browse by career">
+          <PageSection name="careers" title="Browse by career">
             <p>Each career's page shows pay in every state, adjusted for prices, and the programs that lead there.</p>
             <ListCard
               title="Careers with the most jobs"
@@ -120,16 +110,16 @@ function Home() {
                 <CareerRow key={career.href} career={career} />
               ))}
             </ListCard>
-          </Section>
+          </PageSection>
 
-          <Section name="sources" title="Where the numbers come from">
+          <PageSection name="sources" title="Where the numbers come from">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
               <li>Graduate pay and debt: U.S. Department of Education, College Scorecard, June 2026 release.</li>
               <li>Job pay and job counts: Bureau of Labor Statistics, May 2025. Job growth: Bureau of Labor Statistics projections for 2025 to 2035.</li>
               <li>Price levels by state: Bureau of Economic Analysis, 2024.</li>
               <li>Every number on the site is computed from these files, and a separate program checks each page against them before it is published.</li>
             </ul>
-          </Section>
+          </PageSection>
         </div>
       </main>
       <SiteFooter />
@@ -141,7 +131,7 @@ function Count({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col gap-0.5 bg-card px-4 py-3.5">
       <span className="text-2xl font-extrabold tracking-tight tabular-nums">{formatCount(value)}</span>
-      <span className="text-[13px] text-muted-foreground">{label}</span>
+      <span className="text-sm text-muted-foreground">{label}</span>
     </div>
   )
 }
@@ -150,7 +140,7 @@ function ListCard({ title, subtitle, more, children }: { title: string; subtitle
   return (
     <Card size="sm" className="gap-0 px-4 py-1">
       <h3 className="mt-3 text-base font-bold">{title}</h3>
-      <p className="mb-1.5 text-[13px] text-muted-foreground">{subtitle}</p>
+      <p className="mb-1.5 text-sm text-muted-foreground">{subtitle}</p>
       <ol>{children}</ol>
       <div className="my-3">{more}</div>
     </Card>
@@ -167,10 +157,10 @@ function AllProgramsLink({ count }: { count: number }) {
 
 function ListRow({ name, detail, value }: { name: ReactNode; detail: string; value: string }) {
   return (
-    <li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-t py-2.5 text-[15px]">
+    <li className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 border-t py-2.5 text-base">
       <span data-name="">{name}</span>
       <span className="row-span-2 self-center font-bold tabular-nums">{value}</span>
-      <span className="text-[13px] text-muted-foreground tabular-nums">{detail}</span>
+      <span className="text-sm text-muted-foreground tabular-nums">{detail}</span>
     </li>
   )
 }

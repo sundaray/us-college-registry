@@ -1,28 +1,30 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { NationalProgramLink } from '@/components/national/national-program-link'
 import { OccupationHeader } from '@/components/occupation/occupation-header'
+import { OccupationProgramTable } from '@/components/occupation/occupation-program-table'
 import { OccupationStateTable } from '@/components/occupation/occupation-state-table'
-import { KeyFigure, keyFigureColumns, Note, Section } from '@/components/page-sections'
+import { answerText, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Card, CardContent } from '@/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getOccupationPage } from '@/data/get-occupation-page'
-import type { OccupationPage } from '@/data/occupation-page'
-import { formatCount, formatMoney, roundedPercent } from '@/lib/format'
-import { buildOccupationDescription, buildOccupationFaq, buildOccupationSummary, buildOccupationTitle } from '@/lib/occupation-copy'
-import { joinWords } from '@/lib/school-copy'
+import { payPrivacyNote } from '@/lib/data-notes'
+import {
+  buildKeyFigureQuestions,
+  buildOccupationDescription,
+  buildOccupationFaq,
+  buildOccupationKeyFigures,
+  buildOccupationSummary,
+  buildOccupationTitle,
+  buildStateNotes,
+} from '@/lib/occupation-copy'
 import { canonicalLink } from '@/lib/site'
-import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/careers/$careerSlug')({
   loader: async ({ params }) => {
     const page = await getOccupationPage({ data: params })
-    return { page, faq: buildOccupationFaq(page) }
+    return { page, figureQuestions: buildKeyFigureQuestions(page), faq: buildOccupationFaq(page) }
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) return {}
-    const { page, faq } = loaderData
+    const { page, figureQuestions, faq } = loaderData
     return {
       links: [canonicalLink(`/careers/${params.careerSlug}`)],
       meta: [
@@ -32,13 +34,14 @@ export const Route = createFileRoute('/careers/$careerSlug')({
       scripts: [
         {
           type: 'application/ld+json',
+          // One FAQPage for both lists of questions, in the order the page shows them.
           children: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'FAQPage',
-            mainEntity: faq.map((item) => ({
+            mainEntity: [...figureQuestions, ...faq].map((item) => ({
               '@type': 'Question',
               name: item.question,
-              acceptedAnswer: { '@type': 'Answer', text: item.answer },
+              acceptedAnswer: { '@type': 'Answer', text: answerText(item) },
             })),
           }),
         },
@@ -49,104 +52,62 @@ export const Route = createFileRoute('/careers/$careerSlug')({
 })
 
 function OccupationPageView() {
-  const { page, faq } = Route.useLoaderData()
-  const linkedStates = page.states.some((state) => state.stateSlug)
-  const unadjusted = page.states.filter((state) => state.adjustedPay === undefined).map((state) => state.stateName)
+  const { page, figureQuestions, faq } = Route.useLoaderData()
+  const stateNotes = buildStateNotes(page)
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
-      {/* data-soc lets scripts/verify find the occupation. */}
-      <main data-soc={page.socCode}>
+      {/* The key gives each career's page its own state. Without it, a link from one
+          career page to another keeps the tables' sort and page number and the open
+          questions. data-soc lets scripts/verify find the occupation. */}
+      <main key={page.careerSlug} data-soc={page.socCode}>
         <OccupationHeader page={page} />
         <div className="mx-auto max-w-3xl px-5">
-          <Card className="mt-7" data-section="summary">
-            <CardContent className="gap-2.5">
-              <p className="text-xs font-bold tracking-widest text-primary uppercase">The short answer</p>
-              <p className="max-w-[64ch] text-lg leading-relaxed">{buildOccupationSummary(page)}</p>
-            </CardContent>
-          </Card>
+          <Summary paragraphs={buildOccupationSummary(page)} />
 
-          <OccupationKeyFigures page={page} />
+          <KeyFigures figures={buildOccupationKeyFigures(page)} />
+          <QuestionList name="figures" section="key-figure-questions" questions={figureQuestions} className="mt-3" />
 
           {page.states.length > 0 ? (
-            <Section name="states" title={`Pay for ${page.sentenceName} by state`}>
+            <PageSection name="states" title={`Pay for ${page.sentenceName} by state`}>
               <p>
-                Median pay across all experience levels. "After prices" divides it by the state's price level (US average =
-                100), so states can be compared by what the pay buys.
+                Each figure is the median pay for {page.sentenceName} in that state, across all experience levels. "After
+                prices" divides it by the state's price level, where the US average is 100. That shows what the pay buys
+                in each state.
               </p>
               <OccupationStateTable states={page.states} />
-              <Note>
-                {[
-                  linkedStates ? "State names link to the state's college page." : '',
-                  unadjusted.length > 0 ? `${joinWords(unadjusted)} ${unadjusted.length === 1 ? 'has' : 'have'} no BEA price level, so ${unadjusted.length === 1 ? 'its' : 'their'} pay is not adjusted.` : '',
-                  page.statesWithoutPay.length > 5
-                    ? `BLS publishes no median pay for ${page.sentenceName} in ${formatCount(page.statesWithoutPay.length)} other states and territories.`
-                    : page.statesWithoutPay.length > 0
-                      ? `BLS publishes no median pay for ${page.sentenceName} in ${joinWords(page.statesWithoutPay)}.`
-                      : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-              </Note>
-            </Section>
+              {stateNotes.map((note) => (
+                <Note key={note}>{note}</Note>
+              ))}
+            </PageSection>
           ) : null}
 
-          <Section name="programs" title="Programs that lead to this job">
+          <PageSection name="programs" title="Programs that lead to this job">
             <p>
-              The federal crosswalk from fields of study to jobs links these programs to {page.sentenceName}. Figures are
-              medians across each program type's US programs. Program names link to the national ranking.
+              The U.S. Department of Education and the Bureau of Labor Statistics link these programs to{' '}
+              {page.sentenceName}. Each figure is the median across that kind of program in the US. Program names link to
+              the national ranking.
             </p>
-            <Card size="sm" className="py-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="px-4">Program</TableHead>
-                    <TableHead className="px-4 text-right">Programs</TableHead>
-                    <TableHead className="px-4 text-right">Year 1 pay</TableHead>
-                    <TableHead className="px-4 text-right">Debt</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="tabular-nums">
-                  {page.programs.map((program) => (
-                    <TableRow key={program.href} data-href={program.href}>
-                      <TableCell className="min-w-48 px-4 py-2.5 align-top whitespace-normal">
-                        <span data-name="">
-                          <NationalProgramLink href={program.href} className="font-semibold text-primary underline underline-offset-3">
-                            {program.label}
-                          </NationalProgramLink>
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-2.5 text-right align-top">{formatCount(program.programCount)}</TableCell>
-                      <TableCell className="px-4 py-2.5 text-right align-top font-bold">{formatMoney(program.earningsYear1)}</TableCell>
-                      <TableCell className="px-4 py-2.5 text-right align-top">{formatMoney(program.medianDebt)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
+            <OccupationProgramTable programs={page.programs} />
             <Note>Program figures are first-year pay for new graduates. The job's median pay covers every experience level.</Note>
-          </Section>
+          </PageSection>
 
-          <Section name="faq" title="Common questions">
-            <Accordion defaultValue={['faq-0']} hiddenUntilFound className="rounded-xl bg-card px-4 ring-1 ring-foreground/10">
-              {faq.map((item, index) => (
-                <AccordionItem key={item.question} value={`faq-${index}`}>
-                  <AccordionTrigger className="text-[15px] font-semibold">{item.question}</AccordionTrigger>
-                  <AccordionContent className="text-[15px] leading-relaxed text-muted-foreground">
-                    <p>{item.answer}</p>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </Section>
+          <PageSection name="faq" title="Common questions">
+            <QuestionList name="faq" questions={faq} openFirst />
+          </PageSection>
 
-          <Section name="about-data" title="About this data">
+          <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
-              <li>Pay is from the Bureau of Labor Statistics Occupational Employment and Wage Statistics for May 2025. It covers all experience levels and all industries, and leaves out self-employed workers.</li>
+              {/* data-name: the official title and its code are labels, not figures. */}
+              <li data-name="">
+                This page covers the job the Bureau of Labor Statistics calls "{page.title}" (occupation code {page.socCode}).
+              </li>
+              <li>Pay is from the Bureau of Labor Statistics Occupational Employment and Wage Statistics for May 2025. It covers all experience levels. It leaves out people who work on farms, in private households or for themselves.</li>
               <li>Projections are the Bureau of Labor Statistics Employment Projections for 2025 to 2035, for the whole US.</li>
               <li>Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
-              <li>Program figures are College Scorecard medians across programs, and only include students who received federal financial aid.</li>
+              <li>Program figures are College Scorecard medians across programs, and they only include students who received federal financial aid.</li>
+              <li>{payPrivacyNote("each program's pay figure")}</li>
             </ul>
             <h3 className="text-base font-bold">Sources</h3>
             <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">
@@ -156,34 +117,10 @@ function OccupationPageView() {
               <li>NCES, CIP 2020 to SOC 2018 crosswalk</li>
               <li>U.S. Department of Education, College Scorecard, field of study files, June 2026 release</li>
             </ol>
-          </Section>
+          </PageSection>
         </div>
       </main>
       <SiteFooter />
-    </div>
-  )
-}
-
-// National median pay, the bottom and top 10%, and projected growth.
-function OccupationKeyFigures({ page }: { page: OccupationPage }) {
-  const { national } = page
-  const figures = [{ label: 'Median pay', value: formatMoney(national.medianPay), context: 'US, all experience levels' }]
-  if (national.p10Pay !== undefined) figures.push({ label: 'Bottom 10% earn under', value: formatMoney(national.p10Pay), context: 'US' })
-  if (national.p90Pay !== undefined) figures.push({ label: 'Top 10% earn over', value: formatMoney(national.p90Pay), context: 'US' })
-  if (page.growthShare !== undefined && page.openingsPerYear !== undefined) {
-    // "Projected job growth 6%", "Projected job decline 3%", or "Projected job change About the same".
-    const percent = roundedPercent(Math.abs(page.growthShare))
-    figures.push({
-      label: percent === 0 ? 'Projected job change' : page.growthShare > 0 ? 'Projected job growth' : 'Projected job decline',
-      value: percent === 0 ? 'About the same' : `${percent}%`,
-      context: `2025 to 2035, about ${formatCount(page.openingsPerYear)} openings a year`,
-    })
-  }
-  return (
-    <div data-section="key-figures" className={cn('mt-5 grid gap-px overflow-hidden rounded-xl bg-border ring-1 ring-border', keyFigureColumns(figures.length))}>
-      {figures.map((figure) => (
-        <KeyFigure key={figure.label} label={figure.label} value={figure.value} context={figure.context} />
-      ))}
     </div>
   )
 }

@@ -3,16 +3,16 @@ import { NationalProgramHeader } from '@/components/national/national-program-he
 import { RelatedNationalLink } from '@/components/national/national-program-link'
 import { NationalRankingTable } from '@/components/national/national-ranking-table'
 import { NationalStateTable } from '@/components/national/national-state-table'
-import { answerText, JobRow, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
-import type { KeyFigureTile, PageQuestion } from '@/components/page-blocks'
-import { payRangeScale } from '@/components/page-sections'
-import { ProgramLink } from '@/components/program/program-link'
+import { answerText, JobRow, KeyFigures, Note, PageSection, payRangeScale, QuestionList, RankedList, RelatedPages, Summary } from '@/components/page-blocks'
+import type { KeyFigureTile, PageQuestion, RankedEntry } from '@/components/page-blocks'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card } from '@/components/ui/card'
 import { getNationalProgramPage } from '@/data/get-national-program-page'
 import type { NationalRankedProgram } from '@/data/national-program-page'
+import { payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { officialFieldSentence } from '@/lib/key-figure-copy'
 import {
   buildKeyFigureQuestions,
   buildNationalDescription,
@@ -26,12 +26,12 @@ import {
   lowestDebtPrograms,
   lowestDebtTitle,
   matchingJobIntro,
-  officialFieldSentence,
   programKind,
   programLabel,
   rankingTitle,
   unrankedNote,
 } from '@/lib/national-program-copy'
+import { notStatesNote } from '@/lib/place-names'
 import { canonicalLink } from '@/lib/site'
 
 // BLS figures on this page are for the whole US; the shared JobRow names the
@@ -79,6 +79,7 @@ function NationalProgramPageView() {
   const { national } = page
   const kind = programKind(page)
   const unranked = unrankedNote(page)
+  const notStates = notStatesNote(page.states.map((state) => state.stateName))
   const fieldNote = comparisonNote(page.program.cipCode, page.program.credentialLevel)
   const jobs = page.occupations.filter((occupation) => occupation.stateMedianPay !== undefined)
   const lowestDebt = lowestDebtPrograms(page)
@@ -126,6 +127,7 @@ function NationalProgramPageView() {
               state's programs.
             </p>
             <NationalStateTable states={page.states} />
+            {notStates ? <Note>{notStates}</Note> : null}
             {unranked ? <Note>{unranked}</Note> : null}
           </PageSection>
 
@@ -133,11 +135,10 @@ function NationalProgramPageView() {
             <PageSection name="lowest-debt" title={lowestDebtTitle(page)}>
               <p>{lowestDebtIntro(lowestDebt.byDebt.length)}</p>
               <div className="grid gap-3 md:grid-cols-2">
-                <DebtList title="Lowest debt" programs={lowestDebt.byDebt} value={(program) => formatMoney(program.medianDebt!)} />
-                <DebtList
+                <RankedList title="Lowest debt" entries={lowestDebt.byDebt.map((program) => debtEntry(program, formatMoney(program.medianDebt!)))} />
+                <RankedList
                   title="Lowest debt-to-earnings"
-                  programs={lowestDebt.byDebtToEarnings}
-                  value={(program) => formatShare(program.medianDebt! / program.earningsYear1)}
+                  entries={lowestDebt.byDebtToEarnings.map((program) => debtEntry(program, formatShare(program.medianDebt! / program.earningsYear1)))}
                 />
               </div>
             </PageSection>
@@ -165,32 +166,35 @@ function NationalProgramPageView() {
             <QuestionList name="faq" questions={faq} openFirst />
           </PageSection>
 
-          {page.otherCredentials.length > 0 ? (
-            <PageSection name="related" title="Related pages">
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                {page.otherCredentials.map((other) => (
-                  <RelatedNationalLink
-                    key={other.href}
-                    href={other.href}
-                    title={other.title}
-                    detail={`${formatCount(other.programCount)} programs by pay and debt`}
-                    className="text-base"
-                    detailClassName="text-sm"
-                  />
-                ))}
-              </div>
-            </PageSection>
-          ) : null}
+        </div>
 
+        {/* The links stay a band on every screen. The ranking table is wider than
+            the page column on large screens, which leaves no room for a column of
+            links beside it. The band runs the full width, outside the page column. */}
+        {page.otherCredentials.length > 0 ? (
+          <RelatedPages>
+            {page.otherCredentials.map((other) => (
+              <RelatedNationalLink
+                key={other.href}
+                href={other.href}
+                title={other.title}
+                detail={`${formatCount(other.programCount)} programs by pay and debt`}
+              />
+            ))}
+          </RelatedPages>
+        ) : null}
+
+        <div className="mx-auto max-w-3xl px-5">
           <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
-              <li>{officialFieldSentence(page)}</li>
-              <li>Earnings and debt only include students who received federal financial aid, and earnings only count graduates who were working and not enrolled in more school.</li>
+              <li>{officialFieldSentence(page.program)}</li>
+              <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
               <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
-              <li>Medians are across programs, not students: each program counts once, however many graduates it has.</li>
+              <li>{payPrivacyNote()}</li>
+              <li>Medians are across programs, not students. Each program counts once, however many graduates it has.</li>
               <li>National medians include every program in the 50 states, DC and US territories, including schools that have since closed. Schools with several campuses that report one combined figure are counted once.</li>
               <li>Programs are ranked by College Scorecard median pay one year after graduation. Pay after cost of living uses the price level of the school's state.</li>
-              <li>Scorecard figures describe graduating classes from several years ago. BLS wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
+              <li>College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
             </ul>
             <h3 className="text-base font-bold">Sources</h3>
             <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">
@@ -208,30 +212,7 @@ function NationalProgramPageView() {
   )
 }
 
-// One of the two lists of programs with the least debt. A program with its own
-// page is a link; one without is a plain name, as in the ranking table. Each
-// item carries the school's unit ID so scripts/verify can check it.
-function DebtList({ title, programs, value }: { title: string; programs: NationalRankedProgram[]; value: (program: NationalRankedProgram) => string }) {
-  return (
-    <Card size="sm" className="gap-2.5 px-4">
-      <h3 className="text-base font-bold">{title}</h3>
-      <ol className="flex list-decimal flex-col gap-1.5 pl-5 text-sm">
-        {programs.map((program) => (
-          <li key={program.unitId} data-unit={program.unitId}>
-            <span data-name="" className="block">
-              {program.href ? (
-                <ProgramLink href={program.href} className="text-primary underline underline-offset-3">
-                  {program.schoolName}
-                </ProgramLink>
-              ) : (
-                program.schoolName
-              )}
-              <span className="text-muted-foreground">, {program.stateCode}</span>
-            </span>
-            <span className="block text-sm text-muted-foreground tabular-nums">{value(program)}</span>
-          </li>
-        ))}
-      </ol>
-    </Card>
-  )
+// A ranked program as an entry of one of the two lowest-debt lists.
+function debtEntry(program: NationalRankedProgram, value: string): RankedEntry {
+  return { key: program.unitId, unit: program.unitId, name: program.schoolName, href: program.href, place: program.stateCode, value }
 }

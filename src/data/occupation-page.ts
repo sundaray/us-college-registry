@@ -51,6 +51,9 @@ export type OccupationPage = {
     employment?: number
     p10Pay?: number
     p90Pay?: number
+    // Set when BLS publishes only yearly pay for the job (teachers, coaches). For
+    // every other job the yearly figure is the hourly figure times 2,080 hours.
+    yearlyPayOnly?: true
   }
   // 0.056 means 5.6% growth from 2025 to 2035.
   growthShare?: number

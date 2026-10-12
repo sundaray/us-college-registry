@@ -2,8 +2,13 @@
 // Wording changes with the data so that pages with different results read
 // differently, and every claim in a sentence is checked against the record first.
 
+import type { PageQuestion } from '@/components/page-blocks'
 import type { ProgramPage } from '@/data/program-page'
-import { formatCount, formatMoney, formatShare, formatShareRange, roundedPercent } from '@/lib/format'
+import { formatCount, formatMoney, formatShare, roundedPercent } from '@/lib/format'
+import { stateCareersIntro, stateCareersTitle } from '@/lib/job-copy'
+import { programKeyFigureQuestions } from '@/lib/key-figure-copy'
+import { placeInSentence } from '@/lib/place-names'
+import { summaryParagraphs } from '@/lib/summary'
 
 export type ProgramMetrics = ReturnType<typeof computeMetrics>
 
@@ -15,14 +20,17 @@ export function computeMetrics(page: ProgramPage) {
     year5Growth: hasYear5 ? earnings.year5! / earnings.year1 - 1 : undefined,
     paymentShareOfPay:
       debt.monthlyPayment !== undefined ? debt.monthlyPayment / (earnings.year1 / 12) : undefined,
-    adjustedYear1: priceLevels ? earnings.year1 / (priceLevels.areaIndex / 100) : undefined,
-    areaPriceGap: priceLevels ? 1 - priceLevels.areaIndex / 100 : undefined,
+    adjustedYear1: priceLevels?.area ? earnings.year1 / (priceLevels.area.index / 100) : undefined,
+    areaPriceGap: priceLevels?.area ? 1 - priceLevels.area.index / 100 : undefined,
     adjustedStateOccupationPay:
       matchingOccupation && priceLevels
         ? matchingOccupation.stateMedianPay / (priceLevels.stateIndex / 100)
         : undefined,
+    // The share of working graduates who work in the school's state. The federal
+    // counts carry a little random noise to protect privacy, and the in-state
+    // count can come out above the total. No share is given then.
     inStateShare:
-      earnings.workingCount && earnings.workingInStateCount !== undefined
+      earnings.workingCount && earnings.workingInStateCount !== undefined && earnings.workingInStateCount <= earnings.workingCount
         ? earnings.workingInStateCount / earnings.workingCount
         : undefined,
     year5GapToState:
@@ -54,6 +62,14 @@ export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
+// "an accounting", "a nursing": a phrase with the article it takes. The choice
+// goes by the first letter, which is right for every field name on the site. A
+// name that starts with a vowel letter and a consonant sound ("European") would
+// need a rule of its own.
+export function withArticle(phrase: string) {
+  return `${/^[aeiou]/i.test(phrase) ? 'an' : 'a'} ${phrase}`
+}
+
 export function ordinal(position: number) {
   const lastTwo = position % 100
   if (lastTwo >= 11 && lastTwo <= 13) return `${position}th`
@@ -66,14 +82,14 @@ export function rankLowest(rank: number, total: number) {
   return rank === 1 ? `the lowest of ${total}` : `${ordinal(rank)} lowest of ${total}`
 }
 
-// Context line under first-year earnings. The percentile is the share of programs
-// nationally with lower pay, rounded to a whole number.
-export function nationalPercentileLabel(page: ProgramPage) {
+// Context line under first-year pay: the share of programs nationally with lower
+// pay, rounded to a whole number.
+export function nationalPayStandingLabel(page: ProgramPage) {
   const { nationalEarningsPercentile } = page.ranks
   const count = formatCount(page.benchmarks.national.earningsYear1Count)
   if (nationalEarningsPercentile < 1) return `Bottom 1% of ${count} programs nationally`
   if (nationalEarningsPercentile >= 100) return `Top 1% of ${count} programs nationally`
-  return `${ordinal(nationalEarningsPercentile)} percentile of ${count} programs nationally`
+  return `Higher than ${nationalEarningsPercentile}% of ${count} programs nationally`
 }
 
 // "90%", or "more than 99%" when the share rounds to 100% but isn't all of them.
@@ -87,61 +103,96 @@ export function year5ChangeLabel(year5Growth: number) {
   return year5Growth > 0 ? `${percent}% more than year one` : `${percent}% less than year one`
 }
 
+// A figure within this many percent of a median is "about the same" as it. The
+// limit is wider for pay: to protect privacy the Department of Education changes
+// each pay figure slightly before publishing it (94% of first-year figures by
+// less than 5%), so a smaller gap in pay may not be real. Debt figures are not
+// changed. The five-year pay sentence uses the pay limit too.
+const PAY_ABOUT_THE_SAME_PERCENT = 5
+const DEBT_ABOUT_THE_SAME_PERCENT = 3
+
+// How a figure compares with the national median, with the median named: "about
+// the same as the national median of $74,438", or "$1,963 less than the national
+// median of $20,576". The gap is taken from the median as the page shows it, so
+// the three numbers in the sentence always add up.
+function comparedWithNationalMedian(amount: number, nationalMedian: number, aboutTheSamePercent: number) {
+  const median = formatMoney(nationalMedian)
+  // Whole-number arithmetic, so a gap of exactly the limit is not lost to floating point.
+  if (Math.abs(amount - nationalMedian) * 100 < nationalMedian * aboutTheSamePercent) return `about the same as the national median of ${median}`
+  const gap = amount - Math.round(nationalMedian)
+  return `${formatMoney(Math.abs(gap))} ${gap > 0 ? 'more' : 'less'} than the national median of ${median}`
+}
+
+// The summary's paragraphs. It has two subjects: what graduates earn, then what
+// they owe. A program in the top or bottom quarter nationally is compared with
+// most programs; any other is compared with the national median in dollars. The
+// closing remark goes with the subject it is about. See summaryParagraphs for
+// when the two subjects share one paragraph.
 export function buildSummary(page: ProgramPage) {
   const { school, earnings, debt, ranks, benchmarks } = page
   const program = programLabel(page)
-  const sentences: string[] = []
-
-  if (ranks.nationalEarningsPercentile >= 75) {
-    sentences.push(
-      `${school.shortName} ${program} graduates earn more than graduates of most ${program} programs nationally, ${formatMoney(earnings.year1)} in their first year.`,
-    )
-  } else if (ranks.nationalEarningsPercentile <= 25) {
-    sentences.push(
-      `${school.shortName} ${program} graduates earn less than graduates of most ${program} programs nationally, ${formatMoney(earnings.year1)} in their first year.`,
-    )
-  } else {
-    sentences.push(
-      `${school.shortName} ${program} graduates earn about what ${program} graduates earn nationally, ${formatMoney(earnings.year1)} in their first year.`,
-    )
-  }
+  const earned = `${school.shortName} ${program} graduates earn a median of ${formatMoney(earnings.year1)} in their first year`
+  const pay = [
+    ranks.nationalEarningsPercentile >= 75
+      ? `${earned}, more than graduates of most ${program} programs nationally.`
+      : ranks.nationalEarningsPercentile <= 25
+        ? `${earned}, less than graduates of most ${program} programs nationally.`
+        : `${earned}, ${comparedWithNationalMedian(earnings.year1, benchmarks.national.earningsYear1, PAY_ABOUT_THE_SAME_PERCENT)}.`,
+  ]
 
   const lowDebt = ranks.debtLowerThanShare >= 0.75
-  if (lowDebt) {
-    sentences.push(
-      `Where this program stands out is debt. The typical graduate leaves with ${formatMoney(debt.median)} in federal loans, less than at ${shareOfPrograms(ranks.debtLowerThanShare)} of ${program} programs in the country.`,
-    )
-  } else if (ranks.debtHigherThanShare >= 0.75) {
-    sentences.push(
-      `Debt is high. The typical graduate leaves with ${formatMoney(debt.median)} in federal loans, more than at ${shareOfPrograms(ranks.debtHigherThanShare)} of ${program} programs in the country.`,
-    )
-  } else {
-    sentences.push(
-      `The typical graduate leaves with ${formatMoney(debt.median)} in federal loans, close to the national median of ${formatMoney(benchmarks.national.medianDebt)}.`,
-    )
-  }
+  const borrowed = `The typical graduate leaves with ${formatMoney(debt.median)} in federal loans`
+  const owed = lowDebt
+    ? ['Where this program stands out is debt.', `${borrowed}, less than at ${shareOfPrograms(ranks.debtLowerThanShare)} of ${program} programs in the country.`]
+    : ranks.debtHigherThanShare >= 0.75
+      ? ['Debt is high.', `${borrowed}, more than at ${shareOfPrograms(ranks.debtHigherThanShare)} of ${program} programs in the country.`]
+      : [`${borrowed}, ${comparedWithNationalMedian(debt.median, benchmarks.national.medianDebt, DEBT_ABOUT_THE_SAME_PERCENT)}.`]
 
   const higherPayingInState = ranks.stateEarningsRank - 1
   const topQuarterInState = ranks.stateEarningsRank <= benchmarks.state.earningsYear1Count / 4
   if (topQuarterInState) {
-    sentences.push(`It is one of the higher-paying ${program} ${degreeWord(page)} in ${school.stateName}.`)
+    pay.push(`This is one of the higher-paying ${program} ${degreeWord(page)} in ${placeInSentence(school.stateName)}.`)
   } else if (lowDebt && ranks.nationalEarningsPercentile <= 25 && earnings.year1 < benchmarks.state.earningsYear1) {
-    sentences.push(
-      `Debt is low, but pay is also below the ${school.stateName} median of ${formatMoney(benchmarks.state.earningsYear1)}.`,
-    )
-  } else if (lowDebt) {
-    sentences.push(
-      `Strong value, but not one of the highest-paying ${program} ${degreeWord(page)} in ${school.stateName}.`,
-    )
+    owed.push(`Debt is low, but pay is also below the ${school.stateName} median of ${formatMoney(benchmarks.state.earningsYear1)}.`)
   } else if (higherPayingInState >= 3) {
-    sentences.push(`Several ${school.stateName} programs report higher pay.`)
+    pay.push(`Several ${school.stateName} programs report higher pay.`)
   } else if (higherPayingInState === 2) {
-    sentences.push(`Two other ${school.stateName} programs report higher pay.`)
+    pay.push(`Two other ${school.stateName} programs report higher pay.`)
   } else if (higherPayingInState === 1) {
-    sentences.push(`One other ${school.stateName} program reports higher pay.`)
+    pay.push(`One other ${school.stateName} program reports higher pay.`)
   }
 
-  return sentences.join(' ')
+  return summaryParagraphs([pay, owed])
+}
+
+// The questions under the key figures, about this program's own graduates.
+export function buildKeyFigureQuestions(page: ProgramPage) {
+  const { school, program, earnings, debt, benchmarks } = page
+  return programKeyFigureQuestions({
+    graduates: `${school.shortName} ${program.sentenceName} graduates`,
+    programs: `${program.sentenceName} ${program.credential.toLowerCase()}`,
+    stateName: school.stateName,
+    earningsYear1: earnings.year1,
+    earningsYear5: earnings.year5,
+    medianDebt: debt.median,
+    stateDebtToEarnings: benchmarks.state.debtToEarnings,
+    nationalDebtToEarnings: benchmarks.national.debtToEarnings,
+  })
+}
+
+// "How this program compares with other nursing programs".
+export function compareTitle(page: ProgramPage) {
+  return `How this program compares with other ${programLabel(page)} programs`
+}
+
+export function careersTitle(page: ProgramPage) {
+  return stateCareersTitle(programLabel(page), page.school.stateName)
+}
+
+// `everyJobHasStatePay` is false when a listed job has no pay figure for the
+// state and shows the national one.
+export function careersIntro(page: ProgramPage, everyJobHasStatePay: boolean) {
+  return stateCareersIntro(programLabel(page), page.school.stateName, everyJobHasStatePay)
 }
 
 // State programs with more debt than this one that also report higher five-year pay.
@@ -168,17 +219,18 @@ export function buildFiveYearSentence(page: ProgramPage, metrics: ProgramMetrics
   ) {
     return undefined
   }
-  const nationalGapShare = metrics.year5GapToNational / benchmarks.national.earningsYear5
-  const nationalDirection = Math.abs(nationalGapShare) < 0.03 ? 'same' : nationalGapShare > 0 ? 'more' : 'less'
+  // Whole-number arithmetic, as in comparedWithNationalMedian.
+  const nationalLimit = benchmarks.national.earningsYear5 * PAY_ABOUT_THE_SAME_PERCENT
+  const stateLimit = benchmarks.state.earningsYear5 * PAY_ABOUT_THE_SAME_PERCENT
+  const nationalDirection = Math.abs(metrics.year5GapToNational) * 100 < nationalLimit ? 'same' : metrics.year5GapToNational > 0 ? 'more' : 'less'
   const nationalPhrase =
     nationalDirection === 'same'
-      ? 'about the national figure'
+      ? 'about the national median'
       : nationalDirection === 'more'
-        ? 'more than the national figure'
-        : 'less than the national figure'
-  const stateGapShare = metrics.year5GapToState / benchmarks.state.earningsYear5
+        ? 'more than the national median'
+        : 'less than the national median'
 
-  if (stateGapShare <= -0.03) {
+  if (metrics.year5GapToState * 100 <= -stateLimit) {
     const connector = nationalDirection === 'less' ? 'and' : 'but'
     const higherDebtPrograms = higherDebtHigherYear5Count(page)
     const followUp =
@@ -187,7 +239,7 @@ export function buildFiveYearSentence(page: ProgramPage, metrics: ProgramMetrics
         : ''
     return `Five years out, ${school.shortName} graduates earn ${nationalPhrase} ${connector} about ${formatMoney(Math.abs(metrics.year5GapToState))} less than the ${school.stateName} median.${followUp}`
   }
-  if (stateGapShare >= 0.03) {
+  if (metrics.year5GapToState * 100 >= stateLimit) {
     const connector = nationalDirection === 'less' ? 'but' : 'and'
     return `Five years out, ${school.shortName} graduates earn ${nationalPhrase} ${connector} about ${formatMoney(metrics.year5GapToState)} more than the ${school.stateName} median.`
   }
@@ -216,9 +268,9 @@ export function buildFamilyIncomeSentence(page: ProgramPage) {
         ? 'earned slightly more in their first year than other graduates'
         : 'earned about the same in their first year as other graduates'
   if (borrowedMore) {
-    return `${lead} ${payPhrase}, but borrowed more: a median of ${formatMoney(debt.pellMedian!)} against ${formatMoney(debt.otherMedian!)}.`
+    return `${lead} ${payPhrase}, but they borrowed more: a median of ${formatMoney(debt.pellMedian!)} against ${formatMoney(debt.otherMedian!)}.`
   }
-  return `${lead} ${payPhrase}.${borrowedLess ? ' They also borrowed less.' : ''} At this program, the outcome does not look worse for students with less money.`
+  return `${lead} ${payPhrase}.${borrowedLess ? ' They also borrowed less.' : ''}`
 }
 
 // "Pay rises about 10% between the first and fifth year." Needs 5-year earnings.
@@ -233,7 +285,7 @@ export function buildGrowthSentence(page: ProgramPage, metrics: ProgramMetrics) 
         : `Pay falls about ${percent}% between the first and fifth year.`
   const matching = page.matchingOccupation
   if (matching) {
-    const occupationPay = `${capitalize(matching.pluralName)} in ${page.school.stateName} earn a median of ${formatMoney(matching.stateMedianPay)} across all experience levels`
+    const occupationPay = `${capitalize(matching.pluralName)} in ${placeInSentence(page.school.stateName)} earn a median of ${formatMoney(matching.stateMedianPay)} across all experience levels`
     sentence +=
       matching.stateMedianPay > page.earnings.year5!
         ? ` ${occupationPay}, which shows how much room there is to grow after the first few years.`
@@ -242,23 +294,22 @@ export function buildGrowthSentence(page: ProgramPage, metrics: ProgramMetrics) 
   return sentence
 }
 
-// The price sentence for "Where graduates work". Needs price levels.
+// The price sentence for "Where graduates work". Needs the price level of the
+// school's own area, which a school without a trusted location doesn't have.
 export function buildPriceSentence(page: ProgramPage, metrics: ProgramMetrics) {
-  const { priceLevels, earnings } = page
-  if (!priceLevels || metrics.areaPriceGap === undefined || metrics.adjustedYear1 === undefined) {
+  const { earnings } = page
+  const area = page.priceLevels?.area
+  if (!area || metrics.areaPriceGap === undefined || metrics.adjustedYear1 === undefined) {
     return undefined
   }
-  const place =
-    priceLevels.areaKind === 'metro'
-      ? `the ${priceLevels.areaName}`
-      : `the parts of ${priceLevels.areaName} outside metro areas`
+  const place = area.kind === 'metro' ? `the ${area.name}` : `the parts of ${area.name} outside metro areas`
   const percent = roundedPercent(Math.abs(metrics.areaPriceGap))
   if (percent === 0) {
     return { lead: `Prices in ${place} are about the same as the national average.` }
   }
   const direction = metrics.areaPriceGap > 0 ? 'below' : 'above'
   return {
-    lead: `Prices in ${place} are about ${percent}% ${direction} the national average, so a ${formatMoney(earnings.year1)} salary here buys what about `,
+    lead: `Prices in ${place} are about ${percent}% ${direction} the national average. A salary of ${formatMoney(earnings.year1)} here buys what about `,
     adjustedPay: formatMoney(metrics.adjustedYear1),
     tail: ' buys in a typical US city.',
   }
@@ -277,29 +328,29 @@ export function buildOccupationPriceSentence(page: ProgramPage, metrics: Program
   const nationalSide = (percentChange: number) => matching.nationalMedianPay * (100 + percentChange) * indexThousandths
   const comparison =
     adjustedSide > nationalSide(5)
-      ? `, which puts ${stateName} ahead.`
+      ? `, which puts ${placeInSentence(stateName)} ahead.`
       : adjustedSide > nationalSide(0)
-        ? `, which puts ${stateName} slightly ahead.`
+        ? `, which puts ${placeInSentence(stateName)} slightly ahead.`
         : adjustedSide < nationalSide(-5)
-          ? `, which puts ${stateName} behind.`
+          ? `, which puts ${placeInSentence(stateName)} behind.`
           : adjustedSide < nationalSide(0)
-            ? `, which puts ${stateName} slightly behind.`
+            ? `, which puts ${placeInSentence(stateName)} slightly behind.`
             : '.'
   return {
-    lead: `The median ${stateName} ${matching.shortName} earns ${formatMoney(matching.stateMedianPay)}, compared with a national median of ${formatMoney(matching.nationalMedianPay)}. After adjusting for ${stateName} prices, that pay is worth about `,
+    lead: `The median ${matching.shortName} in ${placeInSentence(stateName)} earns ${formatMoney(matching.stateMedianPay)}, compared with a national median of ${formatMoney(matching.nationalMedianPay)}. After adjusting for ${stateName} prices, that pay is worth about `,
     adjustedPay: formatMoney(metrics.adjustedStateOccupationPay),
     tail: comparison,
   }
 }
 
-// "Nursing ranks 11th of 61 bachelor's programs at UT Austin by first-year earnings."
+// "Nursing ranks 11th of 61 bachelor's programs at UT Austin by first-year pay."
 export function buildSchoolRankSentence(page: ProgramPage) {
   const { ranks, program, school } = page
   const credential = program.credential.toLowerCase()
   if (ranks.schoolProgramCount === 1) {
-    return `${program.name} is the only ${credential} program at ${school.shortName} that reports first-year earnings.`
+    return `${program.name} is the only ${credential} program at ${school.shortName} that reports first-year pay.`
   }
-  return `${program.name} ranks ${ordinal(ranks.schoolEarningsRank)} of ${ranks.schoolProgramCount} ${credential} programs at ${school.shortName} by first-year earnings.`
+  return `${program.name} ranks ${ordinal(ranks.schoolEarningsRank)} of ${ranks.schoolProgramCount} ${credential} programs at ${school.shortName} by first-year pay.`
 }
 
 // With four or more programs, name the top three. With two or three, name the
@@ -312,19 +363,70 @@ export function schoolProgramsToList(page: ProgramPage) {
   return { lead: others.length === 1 ? 'The other is' : 'The others are', programs: others }
 }
 
-// State programs that pay more in the first year, and how many of them carry more debt.
-function higherPayingStatePrograms(page: ProgramPage) {
-  const higherPaying = page.stateComparison.filter(
-    (other) => !other.isCurrent && other.earningsYear1 > page.earnings.year1,
-  )
-  const withMoreDebt = higherPaying.filter((other) => other.medianDebt > page.debt.median)
-  return { count: higherPaying.length, withMoreDebtCount: withMoreDebt.length }
+// "3.3%": the monthly loan payment as a share of first-year monthly pay.
+export function paymentShareLabel(paymentShareOfPay: number) {
+  return `${(paymentShareOfPay * 100).toFixed(1)}%`
 }
 
-export function buildFaq(page: ProgramPage, metrics: ProgramMetrics) {
-  const { school, earnings, debt, ranks, benchmarks, repayment } = page
+// The school's graduation rate as a sentence. It is the whole school's rate, and
+// it counts first-time, full-time students who finish within 150% of the normal
+// time. That is six years only where the school mostly awards bachelor's degrees.
+function graduationSentence(page: ProgramPage) {
+  const graduationRate = page.school.graduationRate
+  if (!graduationRate) return undefined
+  const finish = graduationRate.withinSixYears ? 'graduate within six years' : 'finish within one and a half times the normal length of their program'
+  return `Across ${page.school.shortName}, ${formatShare(graduationRate.rate)} of first-time, full-time students ${finish}.`
+}
+
+// The answer to "Is it worth it?", in three paragraphs: what we cannot know, how
+// past graduates did, and what those figures leave out. It gives no verdict. The
+// user decided on 2026-10-12 that a page states the figures and leaves the
+// judgment to the reader.
+function worthAnswer(page: ProgramPage, metrics: ProgramMetrics) {
+  const { school, earnings, debt, ranks, benchmarks } = page
+  const programs = programKindPlural(page)
+  const percentile = ranks.nationalEarningsPercentile
+  const payStanding =
+    percentile < 1
+      ? `which is in the bottom 1% of ${programs} nationally`
+      : percentile >= 100
+        ? `which is in the top 1% of ${programs} nationally`
+        : `more than graduates of ${percentile}% of ${programs} nationally`
+  // The summary's rule: a program in the top or bottom quarter for debt is
+  // compared with most programs, and any other with the national median in
+  // dollars. Many programs report exactly the same debt and count on neither
+  // side, so a smaller share would read as if the rest were on the other side.
+  const debtStanding =
+    ranks.debtLowerThanShare >= 0.75
+      ? `less than at ${shareOfPrograms(ranks.debtLowerThanShare)} of those programs`
+      : ranks.debtHigherThanShare >= 0.75
+        ? `more than at ${shareOfPrograms(ranks.debtHigherThanShare)} of those programs`
+        : comparedWithNationalMedian(debt.median, benchmarks.national.medianDebt, DEBT_ABOUT_THE_SAME_PERCENT)
+  const figures = [
+    `${school.shortName} ${programLabel(page)} graduates earn a median of ${formatMoney(earnings.year1)} in their first year, ${payStanding}.`,
+    `They leave with a median of ${formatMoney(debt.median)} in federal loans, ${debtStanding}.`,
+  ]
+  if (debt.monthlyPayment !== undefined && metrics.paymentShareOfPay !== undefined) {
+    figures.push(
+      `On a standard 10-year plan that is about ${formatMoney(debt.monthlyPayment)} a month, or ${paymentShareLabel(metrics.paymentShareOfPay)} of first-year pay.`,
+    )
+  }
+  const limits = ['These figures count only students who finished, and we have no completion rate for this program alone.']
+  const graduation = graduationSentence(page)
+  if (graduation) limits.push(graduation)
+  return [
+    'That depends on things we cannot know: what you would pay after grants and scholarships, how much you would borrow and what work you want. What this page shows is how past graduates did.',
+    figures.join(' '),
+    limits.join(' '),
+  ]
+}
+
+// The common questions. Each answer is one paragraph, except the one about
+// whether the program is worth it.
+export function buildFaq(page: ProgramPage, metrics: ProgramMetrics): PageQuestion[] {
+  const { school, earnings, debt, ranks, benchmarks } = page
   const program = programLabel(page)
-  const items: { question: string; answer: string }[] = []
+  const items: PageQuestion[] = []
 
   const payParts = [
     earnings.year5 !== undefined
@@ -338,48 +440,38 @@ export function buildFaq(page: ProgramPage, metrics: ProgramMetrics) {
     )
   } else if (matching) {
     payParts.push(
-      `${capitalize(matching.pluralName)} in ${school.stateName} earn a median of ${formatMoney(matching.stateMedianPay)} across all experience levels.`,
+      `${capitalize(matching.pluralName)} in ${placeInSentence(school.stateName)} earn a median of ${formatMoney(matching.stateMedianPay)} across all experience levels.`,
     )
   } else {
     payParts.push(
-      `The median across ${programKindPlural(page)} in ${school.stateName} is ${formatMoney(benchmarks.state.earningsYear1)}.`,
+      `The median across ${programKindPlural(page)} in ${placeInSentence(school.stateName)} is ${formatMoney(benchmarks.state.earningsYear1)}.`,
     )
   }
-  items.push({ question: `How much do ${school.shortName} ${program} graduates make?`, answer: payParts.join(' ') })
+  items.push({ question: `How much do ${school.shortName} ${program} graduates make?`, answer: [payParts.join(' ')] })
 
   const debtParts = [
-    `The median federal loan balance is ${formatMoney(debt.median)}, which ranks ${rankLowest(ranks.stateDebtRank, ranks.stateProgramsWithBoth)} ${programKindPlural(page)} in ${school.stateName}.`,
+    `The median federal loan balance is ${formatMoney(debt.median)}, which ranks ${rankLowest(ranks.stateDebtRank, ranks.stateProgramsWithBoth)} ${programKindPlural(page)} in ${placeInSentence(school.stateName)}.`,
   ]
   if (debt.monthlyPayment !== undefined) {
     debtParts.push(`That works out to about ${formatMoney(debt.monthlyPayment)} a month over 10 years.`)
   }
-  items.push({ question: `How much debt do ${school.shortName} ${program} graduates have?`, answer: debtParts.join(' ') })
+  items.push({ question: `How much debt do ${school.shortName} ${program} graduates have?`, answer: [debtParts.join(' ')] })
 
-  const defaultRow = repayment?.rows.find((row) => row.status === 'default')
-  const lowDebtRatio = metrics.debtToEarnings < benchmarks.national.debtToEarnings
-  let worthAnswer: string
-  if (lowDebtRatio) {
-    worthAnswer = `On the numbers, yes for most students. Debt equals ${formatShare(metrics.debtToEarnings)} of first-year earnings, against a national median of ${formatShare(benchmarks.national.debtToEarnings)}${defaultRow ? `, and the share of borrowers in default two years into repayment is ${formatShareRange(defaultRow.share)}` : ''}.`
-    const higherPaying = higherPayingStatePrograms(page)
-    if (higherPaying.count >= 3) {
-      const usuallyMoreDebt = higherPaying.withMoreDebtCount * 2 > higherPaying.count ? ', usually with more debt' : ''
-      worthAnswer += ` If the highest possible early salary is the main goal, several ${school.stateName} programs report higher pay${usuallyMoreDebt}.`
-    }
-  } else {
-    worthAnswer = `It depends on your other options. Debt equals ${formatShare(metrics.debtToEarnings)} of first-year earnings, against a national median of ${formatShare(benchmarks.national.debtToEarnings)}. Compare the cost with other ${school.stateName} programs before deciding.`
-  }
+  // A field name that starts with "other" goes after the noun: "an other health
+  // professions degree" reads badly, and "a degree in other health professions"
+  // does not.
+  const degreeQuestion = program.startsWith('other ')
+    ? `Is a degree in ${program} from ${school.shortName} worth it?`
+    : `Is ${withArticle(program)} degree from ${school.shortName} worth it?`
   items.push({
-    question:
-      page.program.credentialLevel === 1
-        ? `Is the ${program} program at ${school.shortName} worth it?`
-        : `Is a ${program} degree from ${school.shortName} worth it?`,
-    answer: worthAnswer,
+    question: page.program.credentialLevel === 1 ? `Is the ${program} program at ${school.shortName} worth it?` : degreeQuestion,
+    answer: worthAnswer(page, metrics),
   })
 
   if (metrics.inStateShare !== undefined) {
     items.push({
-      question: `Do ${school.shortName} ${program} graduates stay in ${school.stateName}?`,
-      answer: `${metrics.inStateShare >= 0.5 ? 'Most do.' : 'Many leave.'} ${formatShare(metrics.inStateShare)} (${formatCount(earnings.workingInStateCount!)} of ${formatCount(earnings.workingCount!)}) were working in ${school.stateName} one year after graduating.`,
+      question: `Do ${school.shortName} ${program} graduates stay in ${placeInSentence(school.stateName)}?`,
+      answer: [`${metrics.inStateShare >= 0.5 ? 'Most do.' : 'Many leave.'} ${formatShare(metrics.inStateShare)} (${formatCount(earnings.workingInStateCount!)} of ${formatCount(earnings.workingCount!)}) were working in ${placeInSentence(school.stateName)} one year after graduating.`],
     })
   }
   return items
@@ -410,5 +502,7 @@ export function buildMetaDescription(page: ProgramPage) {
   if (ranks.debtHigherThanShare >= 0.75) {
     return `${opening} Median federal debt: ${formatMoney(debt.median)}, higher than at ${shareOfPrograms(ranks.debtHigherThanShare)} of similar programs.`
   }
-  return `${opening} Median federal debt: ${formatMoney(debt.median)}, near the national median of ${formatMoney(benchmarks.national.medianDebt)}.`
+  // Between the two quarters the description gives both figures and no verdict:
+  // such a program's debt can be a third below the national median or half above it.
+  return `${opening} Median federal debt: ${formatMoney(debt.median)}. National median: ${formatMoney(benchmarks.national.medianDebt)}.`
 }

@@ -25,31 +25,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
-from check_occupation_pages import lowercase_words  # noqa: E402
-from check_program_pages import FORBIDDEN_PATTERNS, TOKEN_PATTERN, Expectation, check_career_links, number_tokens, parse_html, visible_text  # noqa: E402
-from page_model import count, money, percent, percent_number  # noqa: E402
+import check_program_pages  # noqa: E402
+from job_rows import job_text, job_tokens, lowercase_words, matching_job_names, start_sentence  # noqa: E402
+from check_program_pages import FORBIDDEN_PATTERNS, Expectation, check_career_links, number_tokens, parse_html, visible_text  # noqa: E402
+from page_model import count, money, percent  # noqa: E402
 
 CREDENTIALS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
 PICK_COUNT = 10
 # Ranking rows on one page of the table; the rest are in the HTML, hidden.
 VISIBLE_ROWS = 10
 SOURCE_LINE = "Source: the U.S. Department of Education's College Scorecard, June 2026 release"
-# BLS "typical education needed for entry" and "work experience in a related
-# occupation", as the careers section words them.
-EDUCATION_NEEDED = {
-    "Bachelor's degree": "a bachelor's degree",
-    "Master's degree": "a master's degree",
-    "Associate's degree": "an associate's degree",
-    'Doctoral or professional degree': 'a doctoral or professional degree',
-    'High school diploma or equivalent': 'a high school diploma or equivalent',
-    'Postsecondary nondegree award': 'a certificate from a program after high school',
-    'Some college, no degree': 'some college but no degree',
-    'No formal educational credential': 'no diploma or degree',
-}
-EXPERIENCE_NEEDED = {
-    '5 years or more': ' and at least 5 years of experience in a related job',
-    'Less than 5 years': ' and some experience in a related job (less than 5 years)',
-}
 # Figures in the answers that explain the key figures: examples, not data.
 EXAMPLE_TOKENS = ['$40,000', '$45,000', '$50,000', '$55,000', '$210,000', '$80,000', '$50,000', '$20,000', '$50,000', '40%']
 CONTROL_NAMES = {'1': 'public', '2': 'private nonprofit', '3': 'private for-profit'}
@@ -88,7 +73,8 @@ def national_model(model, state_names, cip, level):
         elif any(row['EARN_MDN_1YR'] is not None for row in rows):
             unranked += 1
     for state in states:
-        state['rank'] = 1 + sum(1 for other in states if other['pay'] > state['pay'])
+        # The number beside a state is its place among the states only. A place that is not a state has none.
+        state['rank'] = 1 + sum(1 for other in states if page_model.is_state(other['name']) and other['pay'] > state['pay']) if page_model.is_state(state['name']) else None
     states.sort(key=lambda state: -state['pay'])
 
     def ratio(row):
@@ -183,50 +169,6 @@ def tied(states):
     return [state for state in states if state['pay'] == states[0]['pay']]
 
 
-def job_tokens(expectation, occupation):
-    """Numbers a job row shows: pay (as the large figure and again in its
-    sentence), employment, growth, openings, experience, and the pay range."""
-    expectation.add(money(occupation['state_median']), money(occupation['state_median']))
-    if occupation.get('state_employment') is not None:
-        expectation.add(count(occupation['state_employment']))
-    if occupation.get('growth_percent') is not None and occupation.get('openings') is not None:
-        growth = percent_number(abs(occupation['growth_percent'] / 100))
-        if growth != 0:
-            expectation.add(f'{growth}%')
-        expectation.add(count(page_model.round_half_up(occupation['openings'] * 1000)))
-    if occupation.get('education') and occupation.get('experience'):
-        expectation.add(*TOKEN_PATTERN.findall(occupation['experience']))
-    if occupation.get('p10') is not None and occupation.get('p90') is not None:
-        expectation.add(money(occupation['p10']), money(occupation['p90']))
-
-
-def start_sentence(occupation):
-    """What people typically need to start in the job, as the page words it."""
-    experience = EXPERIENCE_NEEDED.get(occupation.get('experience') or '', '')
-    return f"To start in this job, people typically need {EDUCATION_NEEDED[occupation['education']]}{experience}."
-
-
-def matching_job_names():
-    """CIP code to the plural name of its one matching job, from
-    scripts/reference/matching-occupations.ts ("registered nurses")."""
-    text = (page_model.REFERENCE / 'matching-occupations.ts').read_text()
-    return dict(re.findall(r"'(\d{4})': \{\s*socCode: '\d{2}-\d{4}',\s*pluralName: '([^']+)'", text))
-
-
-def job_text(occupation, name):
-    """The whole text of one job row, sentence by sentence."""
-    parts = [f"{name[0].upper()}{name[1:]} earn a median of {money(occupation['state_median'])} a year in the US."]
-    if occupation.get('state_employment') is not None:
-        parts.append(f"{count(occupation['state_employment'])} people work in this job in the US.")
-    if occupation.get('growth_percent') is not None and occupation.get('openings') is not None:
-        growth = percent_number(abs(occupation['growth_percent'] / 100))
-        change = 'projected to stay about the same in number' if growth == 0 else f"projected to {'grow' if occupation['growth_percent'] > 0 else 'shrink'} {growth}%"
-        parts.append(f"Nationally, jobs are {change} from 2025 to 2035, with about {count(page_model.round_half_up(occupation['openings'] * 1000))} openings a year.")
-    if occupation.get('education'):
-        parts.append(start_sentence(occupation))
-    return ' '.join(parts)
-
-
 def expected_sections(page):
     national, states = page['national'], page['states']
     sections = {}
@@ -235,16 +177,29 @@ def expected_sections(page):
     summary.add(money(national['year1']), money(national['debt']))
     if national['year5'] is not None:
         summary.add(money(national['year5']))
-    if len(states) >= 2:
-        top, bottom = tied(states), tied(states[::-1])
+    # Only states are compared with each other. A place that is not a state is
+    # mentioned after them when its median falls outside their range.
+    ranked = [state for state in states if page_model.is_state(state['name'])]
+    if len(ranked) >= 2:
+        top, bottom = tied(ranked), tied(ranked[::-1])
         summary.add(money(top[0]['pay']), money(bottom[0]['pay']))
         if len(top) == 1:
             summary.claim(rf"{re.escape(top[0]['name'])} has the highest state median pay \(")
         if len(bottom) == 1:
             summary.claim(rf"\) and {re.escape(bottom[0]['name'])} the lowest \(")
-    else:
-        summary.add(money(states[0]['pay']))
-        summary.claim(rf"{re.escape(states[0]['name'])} is the only state with enough programs to rank")
+    elif len(ranked) == 1:
+        summary.add(money(ranked[0]['pay']))
+        summary.claim(rf"{re.escape(ranked[0]['name'])} is the only state with enough programs to rank")
+    beyond, beyond_amounts = (None, [])
+    if ranked:
+        beyond, beyond_amounts = page_model.outside_states_range([(state['name'], state['pay']) for state in states], ranked[0]['pay'], ranked[-1]['pay'])
+    summary.add(*beyond_amounts)
+    summary.claim(r'The median is (?:higher|lower) in ', beyond is not None)
+    if beyond is not None:
+        summary.claim(rf'the lowest \(\$[\d,]+\)\. The median is {re.escape(beyond)}\.$' if len(ranked) >= 2 else rf'The median is {re.escape(beyond)}\.$')
+    for state in states:
+        if not page_model.is_state(state['name']):
+            summary.claim(rf"{re.escape(state['name'])} (?:has|have) the highest state median pay|and {re.escape(page_model.place_in_sentence(state['name']))} the lowest \(|{re.escape(state['name'])} is the only state", False)
     summary.claim(r'^Summary The median .* program in the US pays its graduates')
     # The national debt sentence closes the first paragraph, before any state.
     summary.claim(r'The median program leaves its graduates with \$[\d,]+ in federal debt\. \w')
@@ -276,13 +231,17 @@ def expected_sections(page):
     state_section = sections['states'] = Expectation(True)
     sortable = len(states) >= 3
     for state in states:
-        if sortable:
+        if sortable and state['rank'] is not None:
             state_section.add(str(state['rank']))
         state_section.add(count(state['count']), money(state['pay']), money(state['debt']))
     if page['unranked'] > 1:
         state_section.add(count(page['unranked']))
     state_section.claim(r'report pay, but there are too few to rank\. A state ranking needs at least five programs', page['unranked'] == 1)
     state_section.claim(r'report pay, but there are too few in each to rank\. A state ranking needs at least five programs', page['unranked'] > 1)
+    not_states = page_model.not_states_note([state['name'] for state in states])
+    state_section.claim(r'listed for comparison', not_states is not None)
+    if not_states is not None:
+        state_section.claim(re.escape(not_states))
     state_section.rows = states
     state_section.sortable = sortable
 
@@ -326,7 +285,7 @@ def expected_sections(page):
     table.claim(r"One more isn't listed, because it reports one combined figure for campuses in several states\.", combined == 1)
     table.claim(rf"{count(combined)} more aren't listed, because they report one combined figure for campuses in several states\.", combined > 1)
     table.claim(r'The national medians above still count them', page['unlisted'] > 0)
-    table.claim(r"\(RN-to-BSN\)\. College Scorecard counts them with programs for new students, and their graduates' pay reflects years of nursing experience\. High pay at a program here", page['nursing_bachelors'])
+    table.claim(r"are for nurses who are already licensed and working\. College Scorecard counts them with programs for new students, and their graduates' pay reflects years of nursing experience\. High pay at a program here", page['nursing_bachelors'])
 
     picks = sections['lowest-debt'] = Expectation(bool(page['picks']['debt']))
     for program in page['picks']['debt']:
@@ -349,7 +308,7 @@ def expected_sections(page):
     for occupation in page['occupations'] if page['matching'] is None else []:
         name = lowercase_words(page['occupation_names'].get(occupation['code'], occupation['title']))
         careers.claim(rf"{re.escape(name[0].upper() + name[1:])} earn a median of {re.escape(money(occupation['state_median']))} a year in the US\.")
-    careers.claim(r'These are the largest jobs that the U\.S\. Department of Education links to .*, by number of people employed in the US\. Pay is the national median for everyone in the job, at all experience levels\.', page['matching'] is None)
+    careers.claim(r'These are the largest jobs that the U\.S\. Department of Education and the Bureau of Labor Statistics link to .*, by number of people employed in the US\. Pay is the national median for everyone in the job, at all experience levels\.', page['matching'] is None)
     careers.claim(r' careers These are the largest jobs', page['matching'] is None)
     careers.claim(r'crosswalk|Median pay in the US\.|Typical education to start', False)
     if page['matching'] is not None:
@@ -361,16 +320,25 @@ def expected_sections(page):
         faq.add(money(national['year5']))
     if page['matching'] is not None:
         faq.add(money(page['matching']['state_median']))
-    if len(states) >= 2:
-        top = tied(states)
-        rest = [state for state in states if state not in top]
-        faq.add(money(top[0]['pay']), count(len(states)))
+    # The answer names a state. A place that is not a state and pays more is
+    # mentioned after it.
+    ranked = [state for state in states if page_model.is_state(state['name'])]
+    higher_places = []
+    if len(ranked) >= 2:
+        top = tied(ranked)
+        rest = [state for state in ranked if state not in top]
+        faq.add(money(top[0]['pay']), count(len(ranked)))
         if len(top) == 1:
-            faq.claim(rf"{re.escape(top[0]['name'])} does\. The median program there pays its graduates {re.escape(money(top[0]['pay']))} in their first year, the highest of the {count(len(states))} states ranked\.")
+            faq.claim(rf"{re.escape(top[0]['name'])} does\. The median program there pays its graduates {re.escape(money(top[0]['pay']))} in their first year, the highest of the {count(len(ranked))} states ranked\.")
         else:
-            faq.claim(rf" do\. The median program in each pays its graduates {re.escape(money(top[0]['pay']))} in their first year, the highest of the {count(len(states))} states ranked\.")
+            faq.claim(rf" do\. The median program in each pays its graduates {re.escape(money(top[0]['pay']))} in their first year, the highest of the {count(len(ranked))} states ranked\.")
         if rest:
             faq.add(money(rest[0]['pay']))
+        higher_places = [state for state in states if not page_model.is_state(state['name']) and int(page_model.round_half_up(state['pay'])) > int(page_model.round_half_up(top[0]['pay']))]
+        for place in higher_places:
+            faq.add(money(place['pay']))
+            faq.claim(rf"{re.escape(page_model.place_starting_sentence(place['name']))} is higher, at {re.escape(money(place['pay']))}, but it is {re.escape(page_model.NOT_STATES[place['name']])} and not a state\.")
+    faq.claim(r'and not a state', bool(higher_places))
     top_programs = [program for program in ranking if program['pay_rank'] == 1]
     faq.add(money(top_programs[0]['year1']), count(len(ranking)))
     if len(top_programs) == 1 and top_programs[0]['debt'] is not None:
@@ -381,7 +349,11 @@ def expected_sections(page):
         related.add(count(other))
 
     about = sections['about-data'] = Expectation(True)
+    about.claim(check_program_pages.PAY_PRIVACY_NOTE.format(figures='each pay figure'))
+    about.claim(r'College Scorecard figures describe graduating classes from several years ago\. Bureau of Labor Statistics wages are from May 2025\.')
+    about.claim(r'RN-to-BSN|\bBLS\b|(?<!College )Scorecard figures', False)
     about.claim(r'every program in the 50 states, DC and US territories, including schools that have since closed')
+    about.claim(r'Medians are across programs, not students\. Each program counts once, however many graduates it has\.')
     about.claim(rf"This page covers {CREDENTIALS[page['level']].lower()} programs in the field the U\.S\. Department of Education calls \"{re.escape(page['official'])}\"\.")
 
     description = sections['#description'] = Expectation(True)
@@ -401,7 +373,7 @@ def check_state_rows(node, expectation, errors):
         cells = row.find_all(lambda child: child.tag == 'td')
         if expectation.sortable:
             rank_cell, cells = cells[0], cells[1:]
-            if visible_text(rank_cell) != str(state['rank']):
+            if visible_text(rank_cell) != ('' if state['rank'] is None else str(state['rank'])):
                 errors.append(f"section states: {state['code']} rank {visible_text(rank_cell)!r}, expected {state['rank']}")
         shown = [visible_text(cell) for cell in cells]
         wanted = [state['name'], count(state['count']), money(state['pay']), money(state['debt'])]
@@ -531,6 +503,7 @@ def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
         return {'page': page_path, 'errors': errors + [str(error)], 'warnings': warnings, 'links': []}
 
     main_text = visible_text(main)
+    errors.extend(page_model.bare_place_errors(title, description, main_text))
     for pattern in FORBIDDEN_PATTERNS:
         for place, text in (('title', title), ('description', description), ('page', main_text)):
             if re.search(pattern, text):
@@ -599,9 +572,9 @@ def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
         if name == 'careers':
             # Each job's text, whole and in order, so one job can't carry another's sentences.
             if page['matching'] is not None:
-                wanted = [job_text(page['matching'], page['matching_name'])]
+                wanted = [job_text(page['matching'], page['matching_name'], 'the US')]
             else:
-                wanted = [job_text(job, lowercase_words(page['occupation_names'].get(job['code'], job['title']))) for job in page['occupations']]
+                wanted = [job_text(job, lowercase_words(page['occupation_names'].get(job['code'], job['title'])), 'the US') for job in page['occupations']]
             rows = [heading.parent for heading in node.find_all(lambda child: child.tag == 'h3')]
             shown = [visible_text(row.find(lambda child: child.tag == 'p')) for row in rows]
             if shown != wanted:

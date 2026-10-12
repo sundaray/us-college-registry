@@ -9,6 +9,13 @@ import { formatCount } from '@/lib/format'
 // browser tab title.
 export const SITE_NAME = { start: 'US College', end: 'Programs' }
 
+// The source line on career pages, whose figures are the Bureau of Labor Statistics'.
+export const LABOR_SOURCE_LINE = 'Source: the U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics, May 2025'
+
+// The line under a page title on the other pages. Every figure in the top half
+// of those pages comes from College Scorecard; careers sections name their own source.
+export const SCORECARD_SOURCE_LINE = "Source: the U.S. Department of Education's College Scorecard, June 2026 release"
+
 export function buildHomeTitle() {
   return 'Compare US College Programs by Graduate Pay, Debt, and Careers'
 }
@@ -27,7 +34,7 @@ export function programsListCount(page: ProgramsListPage) {
 }
 
 export function buildProgramsListTitle() {
-  return 'US College Programs by Field, Ranked by Graduate Pay and Debt'
+  return 'US College Programs, Ranked by Graduate Pay and Debt'
 }
 
 export function buildProgramsListDescription(page: ProgramsListPage) {

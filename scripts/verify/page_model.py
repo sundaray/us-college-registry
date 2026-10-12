@@ -44,6 +44,89 @@ def state_slug(name):
     return re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
 
 
+# A place's name as it reads when it stands alone in a sentence: "in Texas", "in
+# the District of Columbia". Before a noun the plain name is right ("District of
+# Columbia programs"), and so it is in a table cell or a breadcrumb.
+NAMES_WITH_THE = {'District of Columbia'}
+
+
+def place_in_sentence(name):
+    return f'the {name}' if name in NAMES_WITH_THE else name
+
+
+def place_starting_sentence(name):
+    return f'The {name}' if name in NAMES_WITH_THE else name
+
+
+# Places the federal data lists beside the states that are not states, and what
+# each one is. Sentences that compare states leave these places out and mention
+# them afterwards. A table that lists one says so in a note.
+NOT_STATES = {'District of Columbia': 'a single city', 'Puerto Rico': 'a U.S. territory'}
+
+
+def is_state(name):
+    return name not in NOT_STATES
+
+
+def join_places(parts):
+    if len(parts) <= 2:
+        return ' and '.join(parts)
+    return f"{', '.join(parts[:-1])} and {parts[-1]}"
+
+
+def not_states_note(names):
+    """The note under a table of states that also lists places that are not
+    states, or None when it lists none."""
+    listed = [name for name in NOT_STATES if name in names]
+    if not listed:
+        return None
+    opening = join_places([f'{place_in_sentence(name)} is {NOT_STATES[name]}' for name in listed])
+    opening = opening[0].upper() + opening[1:]
+    if len(listed) == 1:
+        return f'{opening}, not a state. It is listed for comparison.'
+    return f"{opening}. {'Neither is a state' if len(listed) == 2 else 'None of them is a state'}. They are listed for comparison."
+
+
+def outside_states_range(places, highest_state, lowest_state):
+    """How places that are not states compare with the states' range: "higher in
+    the District of Columbia ($111,530) and lower in Puerto Rico ($43,530)", or
+    None. `places` holds (name, amount) pairs. Amounts are compared as the page
+    shows them. Returns the words and the amounts they show."""
+    shown = lambda amount: int(round_half_up(amount))
+    others = [(name, amount) for name, amount in places if not is_state(name)]
+    higher = [(name, amount) for name, amount in others if shown(amount) > shown(highest_state)]
+    lower = [(name, amount) for name, amount in others if shown(amount) < shown(lowest_state)]
+    named = lambda pairs: join_places([f'{place_in_sentence(name)} ({money(amount)})' for name, amount in pairs])
+    parts = []
+    if higher:
+        parts.append(f'higher in {named(higher)}')
+    if lower:
+        parts.append(f'lower in {named(lower)}')
+    if not parts:
+        return None, []
+    return ' and '.join(parts), [money(amount) for _, amount in higher + lower]
+
+
+# A place name that takes "the" must have it wherever it stands alone: in the
+# title, the description and the page text.
+BARE_PLACE_PATTERNS = [
+    r'\b(?:[Ii]n|outside|puts|Where) District of Columbia\b',
+    r'\bacross District of Columbia[.,]',
+    r'(?<![Tt]he )District of Columbia,? (?:is|are|has|have|does|do|lowest|the lowest|at a median)\b',
+]
+
+
+def bare_place_errors(title, description, main_text):
+    """An error for each place name that stands alone without its "the"."""
+    errors = []
+    for place, text in (('title', title), ('description', description), ('page', main_text)):
+        for pattern in BARE_PLACE_PATTERNS:
+            found = re.search(pattern, text)
+            if found:
+                errors.append(f'place name without "the" in {place}: ...{text[max(0, found.start() - 40):found.end() + 40]}...')
+    return errors
+
+
 def load_field_names():
     """CIP code to plain field name, from scripts/reference/field-names.ts."""
     text = (REFERENCE / 'field-names.ts').read_text()
@@ -176,10 +259,23 @@ class Model:
             if institution['MAIN'] == '1':
                 main_state[institution['OPEID6']] = institution['STABBR']
 
+        # Where each program's graduates studied: the file gives every campus its
+        # own count, though pay and debt are one combined figure. A campus that
+        # is not in the institution file can't be placed in a state.
+        self.graduates_by_state = defaultdict(lambda: defaultdict(int))
+        for row in self.programs:
+            campus = self.institutions.get(row['UNITID']) if row['UNITID'] else None
+            if campus and row['IPEDSCOUNT2']:
+                self.graduates_by_state[(row['OPEID6'], row['CIPCODE'], row['CREDLEV'])][campus['STABBR']] += row['IPEDSCOUNT2']
+
         self.national = defaultdict(list)
         self.state = defaultdict(list)
         self.school = defaultdict(list)
         self.school_debt_only = defaultdict(int)
+        # Programs that report pay but are left out of their state, because more
+        # than half of their graduates studied at campuses in other states.
+        self.studied_elsewhere_state = defaultdict(int)
+        self.studied_elsewhere_school = defaultdict(int)
         self.in_state_pool = set()
         for row in self.kept:
             if row['CONTROL'] != 'Foreign':
@@ -191,6 +287,12 @@ class Model:
                 continue
             home = main_state.get(row['OPEID6'])
             if home and home != institution['STABBR']:
+                continue
+            share = self.share_studied_in(row, institution['STABBR'])
+            if share is not None and share < Fraction(1, 2):
+                if row['EARN_MDN_1YR'] is not None:
+                    self.studied_elsewhere_state[(row['CIPCODE'], row['CREDLEV'], institution['STABBR'])] += 1
+                    self.studied_elsewhere_school[row['UNITID']] += 1
                 continue
             self.state[(row['CIPCODE'], row['CREDLEV'], institution['STABBR'])].append(row)
             self.in_state_pool.add(id(row))
@@ -217,6 +319,23 @@ class Model:
         self.page_rows_by_field = defaultdict(list)
         for row in self.page_rows:
             self.page_rows_by_field[(row['CIPCODE'], row['CREDLEV'])].append(row)
+
+    def share_studied_in(self, row, state):
+        """The share of a program's graduates who studied at campuses in one
+        state, or None when no campus reports a count."""
+        by_state = self.graduates_by_state.get((row['OPEID6'], row['CIPCODE'], row['CREDLEV']), {})
+        total = sum(by_state.values())
+        return Fraction(by_state.get(state, 0), total) if total else None
+
+    def has_trusted_location(self, unit_id):
+        """False when the school's metro area lies in another state than its
+        address. Its row then contradicts itself about where the school is, and
+        a page shows nothing that depends on its location."""
+        metro_price = self.prices['metros'].get(self.metro_codes.get(unit_id))
+        if not metro_price:
+            return True
+        states = re.search(r', ([A-Z]{2}(?:-[A-Z]{2})*)', metro_price[0])
+        return states is None or self.institutions[unit_id]['STABBR'] in states.group(1).split('-')
 
     @staticmethod
     def benchmark(rows):
@@ -323,8 +442,13 @@ class Model:
                     repayment.append((status, share_range(row[column])))
 
         here = (float(institution['LATITUDE']), float(institution['LONGITUDE']))
+        trusted = self.has_trusted_location(unit_id)
         nearby = []
         for other in self.page_rows_by_field[(cip, credential_level)]:
+            # A school without a trusted location has no nearby programs and is
+            # not a nearby program of any other school.
+            if other is not row and not (trusted and self.has_trusted_location(other['UNITID'])):
+                continue
             other_institution = self.institutions[other['UNITID']]
             distance = miles_between(here, (float(other_institution['LATITUDE']), float(other_institution['LONGITUDE'])))
             if other is not row and distance > NEARBY_MILES:
@@ -343,7 +467,10 @@ class Model:
         metro_code = self.metro_codes.get(unit_id)
         metro_price = self.prices['metros'].get(metro_code) if metro_code else None
         portion_price = self.prices['portions'].get(f'{state_fips}999')
-        if state_price and metro_code and metro_price:
+        if not trusted:
+            # Only the state's price level, which depends on the address alone.
+            price = {'kind': None, 'index': None, 'state_index': state_price[1]} if state_price else None
+        elif state_price and metro_code and metro_price:
             price = {'kind': 'metro', 'index': metro_price[1], 'state_index': state_price[1]}
         elif state_price and not metro_code and portion_price:
             price = {'kind': 'nonmetro', 'index': portion_price[1], 'state_index': state_price[1]}
@@ -353,7 +480,7 @@ class Model:
         if matching_code:
             state_wage = self.wages.get(('S' + state_fips, matching_code), {})
             national_wage = self.wages.get(('US', matching_code), {})
-            metro_wage = self.wages.get(('M' + metro_code, matching_code), {}) if metro_code else {}
+            metro_wage = self.wages.get(('M' + metro_code, matching_code), {}) if metro_code and trusted else {}
             if state_wage.get('median') is not None and national_wage.get('median') is not None:
                 matching = {
                     'state_median': state_wage['median'],
@@ -404,10 +531,15 @@ class Model:
             'top_programs': [(other['CIPCODE'], other['EARN_MDN_1YR']) for other in top],
             'nearby': nearby,
             'price': price,
+            'trusted_location': trusted,
+            # Set when some graduates studied at campuses in other states.
+            'in_state_share': self.share_studied_in(row, state) if len(self.graduates_by_state.get((row['OPEID6'], cip, credential_level), {})) > 1 else None,
             'occupations': self.occupations(cip, state_fips),
             'matching': matching,
             'public': control == '1',
             'four_year': level == '1',
+            # "Within six years" is true only where the school mostly awards bachelor's degrees.
+            'within_six_years': level == '1' and institution['PREDDEG'] == 3,
             'in_state_tuition': positive(institution['TUITIONFEE_IN']),
             'out_of_state_tuition': positive(institution['TUITIONFEE_OUT']),
             'program_tuition': positive(institution['TUITIONFEE_PROG']),

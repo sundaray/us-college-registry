@@ -78,3 +78,21 @@ Checksums:
 - `bls-oesm25all.zip`: `86ffcbbeb27a96b7aa84d01801de71ee94ee9027452152caabebfdec9d764fde`
 - `bls/all_data_M_2025.xlsx`: `bf8e6ff5072a5b37e053d1d47220a73164168d2ed2a5fd22336abfd4761fa429`
 - `bls-ep-occupation.xlsx`: `a7d060f0576f7d4f5b829b9a0bb4a6c11a12766d159ebb0e07aab5bd2e7583c5`
+
+## Agency documents behind our explanations
+
+Pages explain in plain words how each agency measures pay, jobs and prices. Each
+explanation below was checked against the agency's own document, and against the
+files in this folder where they can show it. Check them again when a new data
+release is loaded. A new explanation goes on a page only after it has a row here.
+
+| What the pages say | Document | Checked |
+|---|---|---|
+| The Bureau of Labor Statistics asks employers what they pay people in each job. The figures leave out people who work on farms, in private households or for themselves. | Occupational Employment and Wage Statistics: overview (https://www.bls.gov/oes/oes_emp.htm), questions and answers (https://www.bls.gov/oes/oes_ques.htm) and technical notes (https://www.bls.gov/oes/current/oes_tec.htm). The survey covers "wage and salary workers in nonfarm establishments" and "does not include the self-employed, owners and partners in unincorporated firms, household workers, or unpaid family workers". Crop production and animal production are not surveyed. | 2026-10-12 |
+| The yearly pay figure assumes full-time work all year. | The same questions and answers ("a full-time, year-round schedule of 2,080 hours") and technical notes. On `bls/all_data_M_2025.xlsx`: for all 767 national jobs with both figures, the yearly median is the hourly median times 2,080, within what rounding allows. | 2026-10-12 |
+| Eight career pages leave that sentence out. | "Field Descriptions" sheet of `bls/all_data_M_2025.xlsx`, column `ANNUAL`: only yearly pay is released for some jobs that typically work fewer than 2,080 hours a year but are paid by the year, such as teachers. 58 national jobs have it, 8 of them with a career page. | 2026-10-12 |
+| Half of the workers earn less than the median. One in ten earns less than the bottom 10% figure, and one in ten earns more than the top 10% figure. | Questions and answers, as above: "A percentile wage is a boundary", and the median "is the boundary between the highest paid 50 percent and the lowest paid 50 percent of workers in that occupation". The pages we read have no separate sentence for the 10th and 90th percentiles; the "Field Descriptions" sheet of `bls/all_data_M_2025.xlsx` names those columns "Annual 10th percentile wage" and "Annual 90th percentile wage". | 2026-10-12 |
+| Openings a year come from the change in the number of jobs and from people who leave the occupation, either to stop working or to move to a different kind of job. | Employment Projections, occupational separations and openings (https://www.bls.gov/emp/documentation/separations.htm): "Projections of separations are combined with projections of employment change to determine occupational openings", and separations are "workers exiting the labor force, due to retirement or other reasons" and "workers transferring to different occupations". On `bls-ep-occupation.xlsx`: openings equal separations plus the yearly change in jobs for all 1,112 occupations, the shrinking ones included. | 2026-10-12 |
+| A price level of 100 is the US average, and dividing pay by a state's price level shows what the pay buys there. | Bureau of Economic Analysis, Regional Price Parities by State and Metro Area (https://www.bea.gov/data/prices-inflation/regional-price-parities-state-and-metro-area), and the definition file inside the zips listed above. | 2026-10-12 |
+| The U.S. Department of Education and the Bureau of Labor Statistics link programs to jobs. | NCES, CIP to SOC crosswalk (https://nces.ed.gov/ipeds/cipcode/post3.aspx?y=56): "a joint effort by the Bureau of Labor Statistics and the National Center for Education Statistics". NCES is part of the Department of Education. | 2026-10-12 |
+| The Department of Education changes each pay figure slightly before publishing it, and debt figures are not changed. | `docs/FieldOfStudyDataDocumentation.pdf`, page 7, listed above. | 2026-10-12 |

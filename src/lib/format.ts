@@ -45,6 +45,12 @@ export function formatShareRange(share: ShareRange) {
   }
 }
 
+// "A", "A and B", "A, B and C": no comma before "and", by the site's writing guide.
+export function listWords(words: string[]) {
+  if (words.length <= 2) return words.join(' and ')
+  return `${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}`
+}
+
 export function formatMiles(miles: number) {
   return miles < 1 ? 'Under 1 mi' : `${Math.round(miles)} mi`
 }

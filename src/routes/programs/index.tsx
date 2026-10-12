@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Note, Section } from '@/components/page-sections'
+import { ListIcon } from 'lucide-react'
+import { Note, PageSection } from '@/components/page-blocks'
 import { SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { ListedProgramTable } from '@/components/site/listed-program-table'
 import { ListPageHeader } from '@/components/site/list-page-header'
@@ -26,29 +27,32 @@ export const Route = createFileRoute('/programs/')({
 function ProgramsListView() {
   const page = Route.useLoaderData()
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-muted/40 text-pretty">
       <SiteHeader />
       <main>
         <ListPageHeader
           crumb="Programs"
           title={buildProgramsListTitle()}
-          facts={[`${formatCount(programsListCount(page))} kinds of programs`, "Bachelor's degrees, associate's degrees, and certificates"]}
-          source="College Scorecard June 2026 release"
+          facts={[{ icon: <ListIcon aria-hidden />, text: `${formatCount(programsListCount(page))} types of programs` }]}
         />
         <div className="mx-auto max-w-3xl px-5">
-          <p className="mt-7 max-w-[66ch]">
-            Each row is one field and credential. Figures are medians across that field's programs in the US. Names link
-            to the field's national ranking, which links on to every state.
+          <p data-section="intro" className="mt-9 max-w-[66ch]">
+            Each row groups programs in the same subject. Pay and debt figures are national medians across those
+            programs. Select a subject to compare individual college programs.
           </p>
           {page.levels.map((level) => {
             const notes = [...new Set(level.programs.flatMap((program) => comparisonNote(program.cipCode, program.credentialLevel) ?? []))]
             return (
-              <Section key={level.credentialLevel} name={`programs-${level.credentialLevel}`} title={`${level.credential} programs`}>
+              <PageSection
+                key={level.credentialLevel}
+                name={`programs-${level.credentialLevel}`}
+                title={`${level.credential} programs`}
+              >
                 <ListedProgramTable programs={level.programs} />
                 {notes.map((note) => (
                   <Note key={note}>{note}</Note>
                 ))}
-              </Section>
+              </PageSection>
             )
           })}
         </div>

@@ -40,6 +40,7 @@ import type {
 import { hasSchoolPage, type SchoolIndexEntry, type SchoolLevel, type SchoolPage, type SchoolProgram } from '../src/data/school-page'
 import type { StateField, StateFieldLevel, StateIndexEntry, StatePage, StateSchool } from '../src/data/state-page'
 import type { RankedProgram, StateProgramIndexEntry, StateProgramPage } from '../src/data/state-program-page'
+import { placeInSentence } from '../src/lib/place-names'
 import { parseNumber, readCsv } from './lib/csv'
 import { slugify } from './lib/slug'
 import { countWhere, median, milesBetween } from './lib/stats'
@@ -219,15 +220,18 @@ async function loadInstitutions() {
     columns: [
       'UNITID', 'OPEID6', 'INSTNM', 'CITY', 'STABBR', 'MAIN', 'CURROPER', 'CONTROL', 'ICLEVEL',
       'LATITUDE', 'LONGITUDE', 'TUITIONFEE_IN', 'TUITIONFEE_OUT', 'TUITIONFEE_PROG', 'NPT4_PUB', 'NPT4_PRIV',
-      'ADM_RATE', 'C150_4', 'C150_L4', 'UGDS',
+      'ADM_RATE', 'C150_4', 'C150_L4', 'UGDS', 'PREDDEG',
     ],
   })
   const institutions = new Map<string, Institution>()
   // Main campus state for every OPEID6, from all records, including schools left
   // out below for missing coordinates.
   const mainCampusState = new Map<string, string>()
+  // The state of every campus in the file, for counting where graduates studied.
+  const stateByUnitId = new Map<string, string>()
   for (const record of records) {
     if (record.MAIN === '1') mainCampusState.set(record.OPEID6, record.STABBR)
+    stateByUnitId.set(record.UNITID, record.STABBR)
     const control = CONTROL_CODES[record.CONTROL]
     const level = LEVEL_CODES[record.ICLEVEL]
     const inStateTuition = parseNumber(record.TUITIONFEE_IN)
@@ -262,11 +266,11 @@ async function loadInstitutions() {
       graduationRate:
         graduationRateValue === undefined
           ? undefined
-          : { rate: graduationRateValue, basis: isFourYear ? 'fourYear' : 'lessThanFourYear' },
+          : { rate: graduationRateValue, basis: isFourYear ? 'fourYear' : 'lessThanFourYear', withinSixYears: isFourYear && record.PREDDEG === '3' },
       undergraduates: positiveOrMissing(parseNumber(record.UGDS)),
     })
   }
-  return { institutions, mainCampusState }
+  return { institutions, mainCampusState, stateByUnitId }
 }
 
 // IPEDS directory: which metro area (CBSA) each school is in. CBSATYPE 1 is a
@@ -331,6 +335,9 @@ type OccupationWage = {
   median?: number
   p10?: number
   p90?: number
+  // BLS publishes only yearly pay for the job (the ANNUAL column is "TRUE"), so
+  // the yearly figure is not an hourly figure times 2,080 hours.
+  yearlyPayOnly: boolean
 }
 
 // OEWS marks wages it doesn't publish with "*", employment with "**", and wages
@@ -348,7 +355,7 @@ async function loadOccupationWages() {
     headerRow: 1,
     columns: [
       'AREA', 'AREA_TITLE', 'AREA_TYPE', 'I_GROUP', 'OWN_CODE', 'OCC_CODE', 'OCC_TITLE', 'O_GROUP',
-      'TOT_EMP', 'A_MEDIAN', 'A_PCT10', 'A_PCT90',
+      'TOT_EMP', 'A_MEDIAN', 'A_PCT10', 'A_PCT90', 'ANNUAL',
     ],
   })
   const wages = new Map<string, OccupationWage>()
@@ -371,6 +378,7 @@ async function loadOccupationWages() {
       median: parseOewsNumber(record.A_MEDIAN),
       p10: parseOewsNumber(record.A_PCT10),
       p90: parseOewsNumber(record.A_PCT90),
+      yearlyPayOnly: record.ANNUAL === 'TRUE',
     })
   }
   return wages
@@ -479,6 +487,12 @@ function computeBenchmark(rows: ProgramRow[]): Benchmark {
   }
 }
 
+// The states a metro area lies in, from its BEA name: "Kansas City, MO-KS
+// (Metropolitan Statistical Area)" is in MO and KS.
+function metroStates(officialName: string) {
+  return /, ([A-Z]{2}(?:-[A-Z]{2})*)/.exec(officialName)?.[1].split('-') ?? []
+}
+
 // "Austin-Round Rock-San Marcos, TX" becomes "Austin". BEA and BLS use the same
 // metro codes and names.
 function metroFirstCity(metroCode: string, officialName: string) {
@@ -558,7 +572,7 @@ async function main() {
   const startedAt = Date.now()
   const [
     allRows,
-    { institutions, mainCampusState },
+    { institutions, mainCampusState, stateByUnitId },
     metroCodeByUnitId,
     districtTuitionUnitIds,
     priceParities,
@@ -581,9 +595,34 @@ async function main() {
   // National pools: every kept row except foreign schools. Closed schools stay in,
   // because their graduates are part of the measured cohorts.
   const nationalPools = new Map<string, ProgramRow[]>()
-  // State pools: rows at schools with a known state, leaving out schools whose
-  // main campus is in another state.
+  // Where each program's graduates studied. The federal file repeats one pay and
+  // debt figure on every campus of a school, but gives each campus its own count
+  // of graduates. A campus missing from the institution file can't be placed in
+  // a state and is not counted.
+  const graduatesByState = new Map<string, Map<string, number>>()
+  for (const row of allRows) {
+    const campusState = row.unitId ? stateByUnitId.get(row.unitId) : undefined
+    if (!campusState || !row.awardsLaterYear) continue
+    const programKey = poolKey(row.opeId6, row.cipCode, row.credentialLevel)
+    const byState = graduatesByState.get(programKey) ?? new Map<string, number>()
+    byState.set(campusState, (byState.get(campusState) ?? 0) + row.awardsLaterYear)
+    graduatesByState.set(programKey, byState)
+  }
+  // How many of a program's graduates studied in one state, and how many in all.
+  function graduatesIn(row: ProgramRow, state: string) {
+    const byState = graduatesByState.get(poolKey(row.opeId6, row.cipCode, row.credentialLevel))
+    const total = [...(byState?.values() ?? [])].reduce((sum, count) => sum + count, 0)
+    return { inState: byState?.get(state) ?? 0, total, stateCount: byState?.size ?? 0 }
+  }
+
+  // State pools: rows at schools with a known state. A school whose main campus
+  // is in another state is left out. So is a program when more than half of its
+  // graduates studied at campuses in other states: its combined figure says
+  // little about the state. Such a program stays in the national pool.
   const statePools = new Map<string, ProgramRow[]>()
+  // Programs left out for that reason that report pay, by state pool and by school.
+  const studiedElsewhereByStatePool = new Map<string, number>()
+  const studiedElsewhereBySchool = new Map<string, number>()
   // Each school's own programs at each credential level that report pay, for the
   // school rank and the school page.
   const schoolPools = new Map<string, ProgramRow[]>()
@@ -602,6 +641,15 @@ async function main() {
     if (!institution) continue
     const mainState = mainCampusState.get(row.opeId6)
     if (mainState && mainState !== institution.state) continue
+    const studied = graduatesIn(row, institution.state)
+    if (studied.inState * 2 < studied.total) {
+      if (row.earningsYear1 !== undefined) {
+        const statePoolKey = poolKey(row.cipCode, row.credentialLevel, institution.state)
+        studiedElsewhereByStatePool.set(statePoolKey, (studiedElsewhereByStatePool.get(statePoolKey) ?? 0) + 1)
+        studiedElsewhereBySchool.set(row.unitId!, (studiedElsewhereBySchool.get(row.unitId!) ?? 0) + 1)
+      }
+      continue
+    }
     addTo(statePools, poolKey(row.cipCode, row.credentialLevel, institution.state), row)
     const schoolKey = poolKey(row.unitId!, row.credentialLevel)
     if (row.earningsYear1 !== undefined) addTo(schoolPools, schoolKey, row)
@@ -765,6 +813,17 @@ async function main() {
     }
   }
 
+  // A school whose metro area lies in another state than its address has a row
+  // that contradicts itself: the address says one place and the map position
+  // another. Nothing can tell which is right, so nothing that depends on where
+  // the school is gets shown for it: no nearby programs, no local price level and
+  // no metro pay. It is also left out of other schools' nearby programs.
+  function hasTrustedLocation(unitId: string, state: string) {
+    const metroCode = metroCodeByUnitId.get(unitId)
+    const metroPrice = metroCode ? priceParities.metros.get(metroCode) : undefined
+    return !metroPrice || metroStates(metroPrice.name).includes(state)
+  }
+
   function matchingOccupationFor(cipCode: string, stateFips: string, metroCode: string | undefined) {
     const matching = MATCHING_OCCUPATIONS[cipCode]
     if (!matching) return undefined
@@ -884,9 +943,12 @@ async function main() {
     })
     stateComparison.sort((first, second) => first.schoolName.localeCompare(second.schoolName))
 
+    const studiedHere = graduatesIn(row, institution.state)
+    const locationTrusted = hasTrustedLocation(institution.unitId, institution.state)
     const nearby: NearbyProgram[] = []
     for (const other of pageRowsByField.get(nationalKey)!) {
       const otherInstitution = institutions.get(other.unitId!)!
+      if (other !== row && !(locationTrusted && hasTrustedLocation(otherInstitution.unitId, otherInstitution.state))) continue
       const milesAway = milesBetween(
         institution.latitude,
         institution.longitude,
@@ -921,18 +983,17 @@ async function main() {
     const metroCode = metroCodeByUnitId.get(institution.unitId)
     const metroPrice = metroCode ? priceParities.metros.get(metroCode) : undefined
     const nonmetroPrice = priceParities.statePortions.get(`${stateInfo.fips}999`)
-    if (statePrice && metroCode && metroPrice) {
+    if (!locationTrusted) {
+      // The state's price level depends only on the address.
+      if (statePrice) priceLevels = { stateIndex: statePrice.index }
+    } else if (statePrice && metroCode && metroPrice) {
       priceLevels = {
-        areaKind: 'metro',
-        areaName: `${metroFirstCity(metroCode, metroPrice.name)} area`,
-        areaIndex: metroPrice.index,
+        area: { kind: 'metro', name: `${metroFirstCity(metroCode, metroPrice.name)} area`, index: metroPrice.index },
         stateIndex: statePrice.index,
       }
     } else if (statePrice && !metroCode && nonmetroPrice) {
       priceLevels = {
-        areaKind: 'nonmetro',
-        areaName: stateInfo.name,
-        areaIndex: nonmetroPrice.index,
+        area: { kind: 'nonmetro', name: stateInfo.name, index: nonmetroPrice.index },
         stateIndex: statePrice.index,
       }
     }
@@ -1000,9 +1061,10 @@ async function main() {
       })),
       priceLevels,
       occupations: occupationsFor(row.cipCode, stateInfo.fips),
-      matchingOccupation: matchingOccupationFor(row.cipCode, stateInfo.fips, metroCode),
+      matchingOccupation: matchingOccupationFor(row.cipCode, stateInfo.fips, locationTrusted ? metroCode : undefined),
       stateRankingHref: stateRankingHrefByKey.get(stateKey)!,
       schoolProgramTotal: schoolProgramTotal(row.unitId!),
+      ...(studiedHere.stateCount > 1 ? { inStateGraduateShare: studiedHere.inState / studiedHere.total } : {}),
       stateComparison,
       nearby,
     }
@@ -1062,7 +1124,7 @@ async function main() {
           if (!otherHref) return []
           const degree = DEGREE_ABBREVIATIONS[cipCode]?.[level] ?? CREDENTIALS[level].label
           const programCount = countWhere(statePools.get(poolKey(cipCode, level, stateCode))!, (row) => row.earningsYear1 !== undefined)
-          return [{ href: otherHref, title: `${FIELD_NAMES[cipCode].name} (${degree}) programs in ${stateInfo.name}, ranked`, programCount }]
+          return [{ href: otherHref, title: `${FIELD_NAMES[cipCode].name} (${degree}) programs in ${placeInSentence(stateInfo.name)}, ranked`, programCount }]
         })
       const [, , stateSlug, slug] = href.split('/')
       result.push({
@@ -1084,6 +1146,7 @@ async function main() {
         },
         programs,
         debtOnlyCount: countWhere(pool, (row) => row.debtMedian !== undefined && row.earningsYear1 === undefined),
+        studiedElsewhereCount: studiedElsewhereByStatePool.get(key) ?? 0,
         ...(matching && matchingOutlook?.stateMedianPay !== undefined
           ? { matchingJob: { ...matchingOutlook, pluralName: matching.pluralName } }
           : {}),
@@ -1140,7 +1203,12 @@ async function main() {
           debtOnlyCount: debtOnlyCountBySchool.get(poolKey(unitId, credentialLevel)) ?? 0,
         })
       }
-      result.push({ schoolSlug: schoolSlugByUnitId.get(unitId)!, school: schoolFacts(institution), levels })
+      result.push({
+        schoolSlug: schoolSlugByUnitId.get(unitId)!,
+        school: schoolFacts(institution),
+        levels,
+        studiedElsewhereCount: studiedElsewhereBySchool.get(unitId) ?? 0,
+      })
     }
     return result
   }
@@ -1480,7 +1548,13 @@ async function main() {
         title: national.title,
         name,
         sentenceName: lowercaseWords(name),
-        national: { medianPay: national.median!, employment: national.employment, p10Pay: national.p10, p90Pay: national.p90 },
+        national: {
+          medianPay: national.median!,
+          employment: national.employment,
+          p10Pay: national.p10,
+          p90Pay: national.p90,
+          ...(national.yearlyPayOnly ? { yearlyPayOnly: true as const } : {}),
+        },
         growthShare: projection?.growthShare,
         openingsPerYear: projection?.openingsPerYear,
         typicalEducation: projection?.typicalEducation,
@@ -1734,7 +1808,7 @@ function isComplete(page: ProgramPage) {
     debt.parentPlusBorrowers !== undefined &&
     debt.parentPlusMedian !== undefined &&
     page.repayment?.rows.length === 4 &&
-    page.priceLevels !== undefined &&
+    page.priceLevels?.area !== undefined &&
     page.nearby.length > 1 &&
     page.program.graduatesPerYear !== undefined &&
     (school.inStateTuition !== undefined || school.programTuition !== undefined) &&

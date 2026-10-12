@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react'
+import { Pager, ROWS_PER_PAGE } from '@/components/page-blocks'
 import { ProgramLink } from '@/components/program/program-link'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { NationalRankedProgram } from '@/data/national-program-page'
-import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { formatMoney, formatShare } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 type SortKey = 'pay' | 'afterPrices' | 'debt' | 'ratio'
@@ -16,10 +16,6 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'debt', label: 'Lowest debt' },
   { key: 'ratio', label: 'Lowest debt-to-earnings' },
 ]
-
-// Rows on one page of the table. Every row is in the HTML; rows on other pages
-// are hidden.
-const ROWS_PER_PAGE = 10
 
 // On large screens the table and its pager are wider than the page column, so
 // all seven columns fit without scrolling sideways.
@@ -125,27 +121,7 @@ export function NationalRankingTable({ programs }: { programs: NationalRankedPro
           </TableBody>
         </Table>
       </Card>
-      {pageCount > 1 ? (
-        <div data-slot="pager" className={cn('flex flex-wrap items-center justify-between gap-3', WIDER_THAN_COLUMN)}>
-          <p className="text-sm text-muted-foreground tabular-nums">
-            Page {formatCount(page)} of {formatCount(pageCount)}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button size="icon-sm" variant="outline" className="rounded-full" aria-label="First page" disabled={page === 1} onClick={() => setPage(1)}>
-              <ChevronsLeftIcon aria-hidden />
-            </Button>
-            <Button size="sm" variant="outline" className="rounded-full px-3.5" disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Previous
-            </Button>
-            <Button size="sm" variant="outline" className="rounded-full px-3.5" disabled={page === pageCount} onClick={() => setPage(page + 1)}>
-              Next
-            </Button>
-            <Button size="icon-sm" variant="outline" className="rounded-full" aria-label="Last page" disabled={page === pageCount} onClick={() => setPage(pageCount)}>
-              <ChevronsRightIcon aria-hidden />
-            </Button>
-          </div>
-        </div>
-      ) : null}
+      <Pager page={page} pageCount={pageCount} onPageChange={setPage} className={WIDER_THAN_COLUMN} />
     </>
   )
 }

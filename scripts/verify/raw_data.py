@@ -98,7 +98,7 @@ def load_field_of_study():
 INSTITUTION_COLUMNS = [
     'UNITID', 'OPEID6', 'INSTNM', 'CITY', 'STABBR', 'ST_FIPS', 'MAIN', 'CURROPER', 'CONTROL', 'ICLEVEL',
     'LATITUDE', 'LONGITUDE', 'TUITIONFEE_IN', 'TUITIONFEE_OUT', 'TUITIONFEE_PROG', 'NPT4_PUB', 'NPT4_PRIV',
-    'ADM_RATE', 'C150_4', 'C150_L4', 'UGDS',
+    'ADM_RATE', 'C150_4', 'C150_L4', 'UGDS', 'PREDDEG',
 ]
 
 
@@ -271,6 +271,8 @@ def load_occupation_wages():
                 'median': oews_number(row[index['A_MEDIAN']]),
                 'p10': oews_number(row[index['A_PCT10']]),
                 'p90': oews_number(row[index['A_PCT90']]),
+                # BLS publishes only yearly pay for the job (teachers, coaches).
+                'yearly_only': row[index['ANNUAL']] == 'TRUE',
             }
         return wages
 

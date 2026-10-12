@@ -143,6 +143,29 @@
   background-position: center top;
 }
 
+/* The site header stays at the top of the window. Its bottom line and the
+   shadow under it are hidden while the page is at its top, where the tinted
+   band starts right under the header, and come in over the first few pixels of
+   scrolling, once content starts to pass beneath. Browsers without scroll
+   timelines show the line at all times and no shadow. */
+@keyframes reveal-edge-on-scroll {
+  from {
+    border-bottom-color: transparent;
+    box-shadow: none;
+  }
+  to {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@utility reveal-edge-on-scroll {
+  @supports (animation-timeline: scroll()) and (animation-range: 0px 1px) {
+    animation: reveal-edge-on-scroll linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px --spacing(2);
+  }
+}
+
 /* A sideways scroller fades at the edge that still has more to show. A scroll
    timeline is inactive while nothing overflows, so the fade only appears when
    there is something to scroll to. Browsers without scroll timelines show no

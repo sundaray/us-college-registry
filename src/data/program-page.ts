@@ -56,17 +56,22 @@ export type RepaymentRow = {
 
 export type GraduationRate = {
   rate: number
-  // 'fourYear' is C150_4 (within 150% of normal time at a four-year school, so six
-  // years for a bachelor's). 'lessThanFourYear' is C150_L4.
+  // 'fourYear' is C150_4 and 'lessThanFourYear' is C150_L4. Both are for the whole
+  // school and count first-time, full-time students who finish within 150% of the
+  // normal time.
   basis: 'fourYear' | 'lessThanFourYear'
+  // True when the school mostly awards bachelor's degrees (PREDDEG 3), which makes
+  // 150% of the normal time six years. A school the file classes as four-year may
+  // mostly award shorter credentials, and then "six years" is wrong.
+  withinSixYears: boolean
 }
 
 export type PriceLevels = {
-  // 'metro': the school's metro area ("Austin area"). 'nonmetro': the parts of the
-  // state outside metro areas, and areaName is the state name.
-  areaKind: 'metro' | 'nonmetro'
-  areaName: string
-  areaIndex: number
+  // The price level where the school is. 'metro': the school's metro area ("Austin
+  // area"). 'nonmetro': the parts of the state outside metro areas, and the name
+  // is the state name. Missing when the school's location is not trusted
+  // (hasTrustedLocation in scripts/build-data.ts).
+  area?: { kind: 'metro' | 'nonmetro'; name: string; index: number }
   stateIndex: number
 }
 
@@ -203,11 +208,19 @@ export type ProgramPage = {
   // level. The school has its own page only when this is at least 2
   // (hasSchoolPage in src/data/school-page.ts).
   schoolProgramTotal: number
+  // Set when some of the program's graduates studied at campuses in other
+  // states: the share who studied in the school's state. It is at least half,
+  // or the program would be left out of the state and have no page.
+  inStateGraduateShare?: number
   // Every state program that reports both pay and debt, for the scatter chart.
   stateComparison: ComparisonProgram[]
   // Programs with pages within NEARBY_MILES, nearest first, current program first.
   nearby: NearbyProgram[]
 }
+
+// The page as the route receives it: the record, with each job's name as it
+// reads inside a sentence. getProgramPage adds the names.
+export type ProgramView = Omit<ProgramPage, 'occupations'> & { occupations: NamedOccupation[] }
 
 export type ProgramIndexEntry = {
   schoolSlug: string

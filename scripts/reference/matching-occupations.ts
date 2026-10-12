@@ -8,16 +8,18 @@
 export type MatchingOccupation = {
   socCode: string
   pluralName: string
-  // Singular, for sentences like "The median Texas RN earns ...".
+  // Singular, for sentences like "The median registered nurse in Texas earns ...".
+  // Written out in full: readers may not know "RN" or "LPN". "HVAC" stays, because
+  // it is the field's own name and the word people search for.
   shortName: string
 }
 
 export const MATCHING_OCCUPATIONS: Record<string, MatchingOccupation> = {
-  '5138': { socCode: '29-1141', pluralName: 'registered nurses', shortName: 'RN' },
+  '5138': { socCode: '29-1141', pluralName: 'registered nurses', shortName: 'registered nurse' },
   '5139': {
     socCode: '29-2061',
     pluralName: 'licensed practical and vocational nurses',
-    shortName: 'LPN or LVN',
+    shortName: 'licensed practical or vocational nurse',
   },
   '1204': {
     socCode: '39-5012',

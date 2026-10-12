@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import type { NationalProgramPage } from '@/data/national-program-page'
 import type { OccupationPage } from '@/data/occupation-page'
-import type { ProgramPage } from '@/data/program-page'
+import type { NamedOccupation, OccupationOutlook, ProgramPage } from '@/data/program-page'
 import type { SchoolPage } from '@/data/school-page'
 import type { StatePage } from '@/data/state-page'
 import type { StateProgramPage } from '@/data/state-program-page'
@@ -46,6 +46,26 @@ export function readNationalProgramRecord(programSlug: string) {
 
 export function readOccupationRecord(careerSlug: string) {
   return readRecord<OccupationPage>('occupations', careerSlug)
+}
+
+// Keeps words written in capitals (HVAC), as scripts/build-data.ts does.
+function lowercaseWords(name: string) {
+  return name
+    .split(' ')
+    .map((word) => (word === word.toUpperCase() ? word : word.toLowerCase()))
+    .join(' ')
+}
+
+// Adds each job's name as it reads inside a sentence ("software developers"). It
+// is the name the job's career page uses. A job without a career page uses its
+// title, lowercased word by word.
+export function withSentenceNames(occupations: OccupationOutlook[]): Promise<NamedOccupation[]> {
+  return Promise.all(
+    occupations.map(async (occupation) => {
+      const career = occupation.careerSlug ? await readOccupationRecord(occupation.careerSlug) : undefined
+      return { ...occupation, sentenceName: career?.sentenceName ?? lowercaseWords(occupation.title) }
+    }),
+  )
 }
 
 // The home page and the navbar's list pages: data/generated/site/{name}.json.

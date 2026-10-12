@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Pager, ROWS_PER_PAGE } from '@/components/page-blocks'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { CareersListPage } from '@/data/site-pages'
 import { formatCount, formatMoney, roundedPercent } from '@/lib/format'
+import { cn } from '@/lib/utils'
 
 type Career = CareersListPage['careers'][number]
 type SortKey = 'pay' | 'jobs' | 'growth'
@@ -27,18 +29,27 @@ export function growthLabel(growthShare: number) {
   return growthShare > 0 ? `+${percent}%` : `−${percent}%`
 }
 
-// Every career, highest median pay first in the prerendered HTML. Buttons re-sort
-// by jobs or by projected growth; careers without the figure go last without a
-// rank. Ranks come from the record.
+// Every career, highest median pay first in the prerendered HTML, the first page
+// of ten showing. Every row is in the HTML; rows on other pages are hidden.
+// Buttons re-sort by jobs or by projected growth and go back to the first page;
+// careers without the figure go last without a rank. Ranks come from the record.
 export function CareersTable({ careers }: { careers: Career[] }) {
   const [sortKey, setSortKey] = useState<SortKey>('pay')
+  const [page, setPage] = useState(1)
+  const pageCount = Math.ceil(careers.length / ROWS_PER_PAGE)
+  const figureCell = (key: SortKey) => cn('px-4 py-2.5 text-right align-top', key === sortKey && 'font-bold')
+  const sortBy = (key: SortKey) => {
+    setSortKey(key)
+    setPage(1)
+  }
+  // Name ties are broken in a fixed locale, so the server and every browser sort alike.
   const sorted = [...careers].sort((first, second) => {
     const firstRank = rankFor(first, sortKey)
     const secondRank = rankFor(second, sortKey)
     if (firstRank === undefined && secondRank === undefined) return first.payRank - second.payRank
     if (firstRank === undefined) return 1
     if (secondRank === undefined) return -1
-    return firstRank - secondRank || first.payRank - second.payRank || first.name.localeCompare(second.name)
+    return firstRank - secondRank || first.payRank - second.payRank || first.name.localeCompare(second.name, 'en')
   })
   return (
     <>
@@ -50,14 +61,14 @@ export function CareersTable({ careers }: { careers: Career[] }) {
             variant={option.key === sortKey ? 'default' : 'outline'}
             aria-pressed={option.key === sortKey}
             className="rounded-full px-3.5"
-            onClick={() => setSortKey(option.key)}
+            onClick={() => sortBy(option.key)}
           >
             {option.label}
           </Button>
         ))}
       </div>
       <Card size="sm" className="py-0">
-        <Table>
+        <Table containerClassName="**:data-[slot=scroll-area-viewport]:fade-scroll-edges">
           <TableHeader>
             <TableRow>
               <TableHead className="px-4">#</TableHead>
@@ -67,30 +78,32 @@ export function CareersTable({ careers }: { careers: Career[] }) {
               <TableHead className="px-4 text-right">Growth</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="tabular-nums">
-            {sorted.map((career) => (
+          {/* The card's edge closes the table, so the last row on screen has no line of its own. */}
+          <TableBody className="tabular-nums [&_tr:nth-last-child(1_of_:not([hidden]))]:border-0">
+            {sorted.map((career, position) => (
               // data-soc lets scripts/verify check each row against the raw data.
-              <TableRow key={career.href} data-soc={career.socCode}>
+              <TableRow key={career.href} data-soc={career.socCode} hidden={Math.floor(position / ROWS_PER_PAGE) !== page - 1}>
                 <TableCell className="px-4 py-2.5 align-top text-muted-foreground">{rankFor(career, sortKey) ?? ''}</TableCell>
-                <TableCell className="min-w-52 px-4 py-2.5 align-top whitespace-normal">
+                <TableCell className="min-w-48 px-4 py-2.5 align-top whitespace-normal">
                   <span data-name="">
                     <Link to="/careers/$careerSlug" params={{ careerSlug: career.href.split('/')[2] }} className="font-semibold text-primary underline underline-offset-3">
                       {career.name}
                     </Link>
                   </span>
                 </TableCell>
-                <TableCell className="px-4 py-2.5 text-right align-top font-bold">{formatMoney(career.medianPay)}</TableCell>
-                <TableCell className="px-4 py-2.5 text-right align-top">
-                  {career.employment !== undefined ? formatCount(career.employment) : <span className="text-[13px] text-muted-foreground">Not reported</span>}
+                <TableCell className={figureCell('pay')}>{formatMoney(career.medianPay)}</TableCell>
+                <TableCell className={figureCell('jobs')}>
+                  {career.employment !== undefined ? formatCount(career.employment) : <span className="text-sm font-normal text-muted-foreground">Not reported</span>}
                 </TableCell>
-                <TableCell className="px-4 py-2.5 text-right align-top">
-                  {career.growthShare !== undefined ? growthLabel(career.growthShare) : <span className="text-[13px] text-muted-foreground">Not reported</span>}
+                <TableCell className={figureCell('growth')}>
+                  {career.growthShare !== undefined ? growthLabel(career.growthShare) : <span className="text-sm font-normal text-muted-foreground">Not reported</span>}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </Card>
+      <Pager page={page} pageCount={pageCount} onPageChange={setPage} />
     </>
   )
 }

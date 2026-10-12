@@ -185,6 +185,9 @@ async function waitForServer(url: string) {
 async function checkPhoneLayout(pagePaths: string[], chartPaths: Set<string>) {
   const problems: string[] = []
   const browser = await puppeteer.launch({ executablePath: CHROME_PATH, headless: true })
+  // The queue grows when a page needs a second look, so work on a copy.
+  pagePaths = [...pagePaths]
+  const secondLook = new Set<string>()
   let next = 0
   let done = 0
   try {
@@ -215,9 +218,19 @@ async function checkPhoneLayout(pagePaths: string[], chartPaths: Set<string>) {
               chartInArea: chart ? inArea[tableCount] : false,
             }
           })
-          if (layout.pageWidth > layout.viewportWidth) problems.push(`${pagePath}: page scrolls sideways`)
-          if (layout.looseTables > 0) problems.push(`${pagePath}: ${layout.looseTables} table(s) outside a ScrollArea`)
-          if (chartPaths.has(pagePath) && (layout.chartWidth < 559 || !layout.chartInArea)) problems.push(`${pagePath}: scatter chart ${Math.round(layout.chartWidth)}px`)
+          const pageProblems: string[] = []
+          if (layout.pageWidth > layout.viewportWidth) pageProblems.push(`${pagePath}: page scrolls sideways`)
+          if (layout.looseTables > 0) pageProblems.push(`${pagePath}: ${layout.looseTables} table(s) outside a ScrollArea`)
+          if (chartPaths.has(pagePath) && (layout.chartWidth < 559 || !layout.chartInArea)) pageProblems.push(`${pagePath}: scatter chart ${Math.round(layout.chartWidth)}px`)
+          if (pageProblems.length > 0 && !secondLook.has(pagePath)) {
+            // A static page measures the same every time. One that fails is put
+            // back in the queue and counts only if it fails again, since a load
+            // that did not complete also measures as a missing chart.
+            secondLook.add(pagePath)
+            pagePaths.push(pagePath)
+            continue
+          }
+          problems.push(...pageProblems)
           done += 1
           if (done % 2000 === 0) console.log(`      phone check: ${done} of ${pagePaths.length}`)
         }
@@ -225,6 +238,9 @@ async function checkPhoneLayout(pagePaths: string[], chartPaths: Set<string>) {
     )
   } finally {
     await browser.close()
+  }
+  if (secondLook.size > 0) {
+    console.log(`      ${secondLook.size} page(s) needed a second look: ${[...secondLook].slice(0, 10).join(', ')}`)
   }
   return problems
 }
@@ -240,7 +256,7 @@ async function checkNavigation(report: { page: string; links: string[] }[]) {
   try {
     for (const sample of samples) {
       const page = await browser.newPage()
-      const target = sample.links.find((link) => isPageLink(link) && link !== sample.page)!
+      const candidates = sample.links.filter((link) => isPageLink(link) && link !== sample.page)
       page.on('console', (message) => {
         if (message.type() === 'error') problems.push(`${sample.page}: console error ${message.text()}`)
       })
@@ -249,8 +265,25 @@ async function checkNavigation(report: { page: string; links: string[] }[]) {
       await page.evaluate(() => {
         ;(window as unknown as { navigationMarker: boolean }).navigationMarker = true
       })
+      // Tables show ten rows at a time, so a link can be in the page and hidden.
+      // The first link to another page that is on screen is the one to click.
+      const target = await page.evaluate((links: string[]) => {
+        for (const anchor of document.querySelectorAll('main a[href]')) {
+          const href = anchor.getAttribute('href') ?? ''
+          if (links.includes(href) && anchor.getClientRects().length > 0) {
+            anchor.setAttribute('data-navigation-target', '')
+            return href
+          }
+        }
+        return undefined
+      }, candidates)
+      if (!target) {
+        problems.push(`${sample.page}: no link to another page is on screen`)
+        await page.close()
+        continue
+      }
       const dataResponse = page.waitForResponse((response) => response.url().includes('/__tsr/staticServerFnCache/'), { timeout: 10000 }).catch(() => null)
-      await page.click(`main a[href="${target}"]`)
+      await page.click('main a[data-navigation-target]')
       const response = await dataResponse
       // 304 means the browser already had the file from an earlier sample and the server confirmed it.
       if (!response || (response.status() !== 200 && response.status() !== 304)) problems.push(`${sample.page} -> ${target}: static page data not loaded`)

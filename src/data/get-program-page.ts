@@ -1,6 +1,7 @@
 import { notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { staticFunctionMiddleware } from '@tanstack/start-static-server-functions'
+import type { ProgramView } from '@/data/program-page'
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
@@ -21,9 +22,9 @@ export const getProgramPage = createServerFn({ method: 'GET' })
     if (!SLUG_PATTERN.test(params.schoolSlug) || !SLUG_PATTERN.test(params.programSlug)) throw notFound()
     return params
   })
-  .handler(async ({ data }) => {
-    const { readProgramRecord } = await import('./program-records.server')
+  .handler(async ({ data }): Promise<ProgramView> => {
+    const { readProgramRecord, withSentenceNames } = await import('./program-records.server')
     const page = await readProgramRecord(data.schoolSlug, data.programSlug)
     if (!page) throw notFound()
-    return page
+    return { ...page, occupations: await withSentenceNames(page.occupations) }
   })

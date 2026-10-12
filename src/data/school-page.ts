@@ -51,6 +51,10 @@ export type SchoolPage = {
   // Bachelor's first, then associate's, then certificates. Only levels with at
   // least one program that reports pay.
   levels: SchoolLevel[]
+  // The school's programs, at any level, that report pay but are left out of
+  // the state, because more than half of their graduates studied at campuses in
+  // other states. They are not listed.
+  studiedElsewhereCount: number
 }
 
 export type SchoolIndexEntry = {

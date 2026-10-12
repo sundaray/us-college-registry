@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
-import { cn } from '@/lib/utils'
+import { RELATED_LINK, RelatedLinkText } from '@/components/page-blocks'
 
 // Links to a national program page from its stored URL ("/programs/{program}").
 export function NationalProgramLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
@@ -12,29 +12,11 @@ export function NationalProgramLink({ href, className, children }: { href: strin
   )
 }
 
-// A card link to a national program page, styled like RelatedRankingLink. The
-// revised pages pass the theme's named text sizes; the other page types keep the
-// sizes below until they are revised too.
-export function RelatedNationalLink({
-  href,
-  title,
-  detail,
-  className,
-  detailClassName,
-}: {
-  href: string
-  title: string
-  detail: string
-  className?: string
-  detailClassName?: string
-}) {
+// A link to a national program page among a page's related links.
+export function RelatedNationalLink({ href, title, detail }: { href: string; title: string; detail: string }) {
   return (
-    <NationalProgramLink
-      href={href}
-      className={cn('block rounded-lg bg-card px-3.5 py-3 text-[15px] leading-snug font-semibold ring-1 ring-foreground/10 hover:ring-primary', className)}
-    >
-      {title}
-      <span className={cn('mt-0.5 block text-[13px] font-normal text-muted-foreground', detailClassName)}>{detail}</span>
+    <NationalProgramLink href={href} className={RELATED_LINK}>
+      <RelatedLinkText title={title} detail={detail} />
     </NationalProgramLink>
   )
 }
