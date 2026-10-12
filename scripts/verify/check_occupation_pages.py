@@ -261,7 +261,7 @@ def expected_sections(page):
     graduate_scope = "This site lists only certificates, associate's degrees and bachelor's degrees; it does not include graduate programs."
     usual = ''
     if page['code'] == '29-1171':
-        usual = re.escape(" According to the Bureau of Labor Statistics, nurse practitioners need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. " + graduate_scope)
+        usual = re.escape(" According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. " + graduate_scope)
     elif page['education']:
         usual = rf" The Bureau of Labor Statistics lists {re.escape(EDUCATION_NEEDED[page['education']])} as the typical education for entering this career\."
         if page['education'] in ("Master's degree", 'Doctoral or professional degree'):

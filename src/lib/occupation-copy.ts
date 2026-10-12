@@ -180,7 +180,7 @@ export function relatedProgramsIntro(page: OccupationPage) {
   if (page.socCode === '29-1171') {
     return [
       match,
-      `According to the Bureau of Labor Statistics, nurse practitioners need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. ${graduateScope}`,
+      `According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. ${graduateScope}`,
     ]
   }
 
