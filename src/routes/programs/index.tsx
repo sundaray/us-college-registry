@@ -40,6 +40,35 @@ function ProgramsListView() {
               <ListedProgramTable programs={level.programs} searchLabel={`Search ${level.credential.toLowerCase()} programs`} />
             </PageSection>
           ))}
+
+          {/* What the three tables show and who the figures count. Each statement was checked
+              against the Department of Education's field of study documentation. */}
+          <PageSection name="about-data" title="About this data">
+            <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
+              <li>
+                The figures are from the U.S. Department of Education's College Scorecard. Pay comes from federal tax
+                records, and debt comes from federal student loan records.
+              </li>
+              <li>
+                Each row is one type of program, for example bachelor's programs in nursing. Its pay and debt are the
+                medians across the programs of that type in the US. Each program counts once, however many graduates it
+                has.
+              </li>
+              <li>
+                "Programs" is the number of programs that report first-year pay. The debt figure is the median across the
+                programs that report debt, which can be a different number.
+              </li>
+              <li>
+                "Year 1 pay" starts from each program's own figure: the median pay of its graduates in the first year
+                after graduation. It only counts graduates who received federal financial aid, were working and were not
+                enrolled in more school.
+              </li>
+              <li>
+                "Debt" starts from each program's own figure too: the median amount borrowed by its graduates who took
+                federal student loans. Loans taken by parents and private loans are not counted.
+              </li>
+            </ul>
+          </PageSection>
         </div>
       </main>
       <SiteFooter />

@@ -223,6 +223,17 @@ def programs_sections(site):
             section.add(str(program['rank']), count(program['count']), money(program['pay']), money(program['debt']))
         section.claim(NURSING_NOTE, False)
         section.rows = rows
+    # Under the last table: what the three tables show and who the figures count. The wording was
+    # checked against the Department of Education's field of study documentation (the user, 2026-10-12).
+    about = sections['about-data'] = Expectation(True)
+    about.claim(
+        r"^About this data "
+        r"The figures are from the U\.S\. Department of Education's College Scorecard\. Pay comes from federal tax records, and debt comes from federal student loan records\. "
+        r"Each row is one type of program, for example bachelor's programs in nursing\. Its pay and debt are the medians across the programs of that type in the US\. Each program counts once, however many graduates it has\. "
+        r'"Programs" is the number of programs that report first-year pay\. The debt figure is the median across the programs that report debt, which can be a different number\. '
+        r'"Year 1 pay" starts from each program\'s own figure: the median pay of its graduates in the first year after graduation\. It only counts graduates who received federal financial aid, were working and were not enrolled in more school\. '
+        r'"Debt" starts from each program\'s own figure too: the median amount borrowed by its graduates who took federal student loans\. Loans taken by parents and private loans are not counted\.$'
+    )
     description = sections['#description'] = Expectation(True)
     description.add(count(site.counts['nationals']))
     return sections
@@ -448,7 +459,7 @@ def check_page(html_text, site, page_path):
                 errors.append(f'section {name}: wording {pattern!r} should {"" if should_match else "not "}appear')
         if page_path == '/' and name in ('fields', 'careers'):
             check_listed_links(node, expectation.rows, name, errors)
-        if page_path == '/programs':
+        if page_path == '/programs' and name.startswith('programs-'):
             check_program_search(node, expectation, name, errors)
             check_program_rows(node, expectation, name, errors)
             check_paging(node, name, expectation, 'data-href', errors)
@@ -463,7 +474,7 @@ def check_page(html_text, site, page_path):
         check_schools_list(main, site, errors)
     if page_path == '/programs':
         order = [node.attributes['data-section'] for node in main.find_all(lambda node: 'data-section' in node.attributes)]
-        if order != ['header', 'programs-3', 'programs-2', 'programs-1']:
+        if order != ['header', 'programs-3', 'programs-2', 'programs-1', 'about-data']:
             errors.append(f'sections are in the wrong order: {order}')
     if page_path != '/':
         header = present.get('header')
