@@ -20,6 +20,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
+import raw_data  # noqa: E402
 import check_program_pages  # noqa: E402
 from check_program_pages import (  # noqa: E402
     CAMPUS_RULE, FORBIDDEN_PATTERNS, MEDIAN_EXAMPLE_TOKENS, ONE_PARAGRAPH_LIMIT, SOURCE_LINE, STATE_NAMES, TOKEN_PATTERN, Expectation,
@@ -27,7 +28,7 @@ from check_program_pages import (  # noqa: E402
 )
 from page_model import count, money, round_half_up  # noqa: E402
 
-CREDENTIALS = {3: "Bachelor's", 2: "Associate's", 1: 'Certificate'}
+CREDENTIALS = {5: "Master's", 3: "Bachelor's", 2: "Associate's", 1: 'Certificate'}
 WITH_ARTICLE = {3: "a bachelor's", 2: "an associate's", 1: 'a certificate'}
 CONTROL_LABELS = {'1': 'Public', '2': 'Private nonprofit', '3': 'For-profit'}
 NURSING_CIP = '5138'
@@ -36,9 +37,27 @@ STATE_STATIC_PHRASES = ['Regional Price Parities for 2024', 'Regional Price Pari
 VISIBLE_ROWS = 10
 # Sections in the order the page shows them. A state has a field ranking for each
 # credential level it has ranking pages at, bachelor's first.
-SECTION_ORDER = ['header', 'summary', 'key-figures', 'key-figure-questions', 'credentials', 'fields-3', 'fields-2', 'fields-1', 'schools', 'faq', 'about-data']
+SECTION_ORDER = ['header', 'summary', 'key-figures', 'key-figure-questions', 'credentials', 'fields-5', 'fields-3', 'fields-2', 'fields-1', 'schools', 'faq', 'about-data']
 # Wording the revised pages no longer use anywhere.
-RETIRED_WORDING = [r', so ', r'—', r'(?i)\bearnings\b', r'The short answer', r'\bBLS\b', r'\bBEA\b', r'(?<!College )\bScorecard\b', r', and the median', r', ranked$']
+RETIRED_WORDING = [
+    r', so ', r'—', r'(?i)\bearnings\b', r'The short answer', r'\bBLS\b', r'\bBEA\b', r'(?<!College )\bScorecard\b', r', and the median', r', ranked$',
+    # The table of schools and the counts beside it leave out master's programs.
+    # These sentences spoke of every school and every program, which stopped
+    # being true when master's pages were added (the user, 2026-10-14).
+    r'schools? with program pages', r'This table lists every', r'ranks all its programs', r"counts the school's programs that report",
+    r'for at least one program,', r'at least one program with its own page',
+    # The paragraph above each table of fields, before it took the wording of the
+    # national pages' table of states (the user, 2026-10-14).
+    r"Each row is one field's median", r'Field names link to the full ranking',
+]
+# Under the table of schools: what "Programs" counts.
+PROGRAMS_NOTE = "\"Programs\" counts the school's master's, bachelor's, associate's and certificate programs that report first-year pay."
+# A master's program counts only loans for graduate study at its own school.
+MASTERS_DEBT_ABOUT = "Debt only includes federal loans. Private loans and credit cards are not counted. For a master's program, it only counts loans for graduate study at that school."
+
+# What the table of schools and the last question count.
+COUNTED_PROGRAMS = "bachelor's, associate's or certificate"
+
 
 
 class Rows:
@@ -72,7 +91,10 @@ def state_model(rows, state, field_names, degrees):
 
     fields = {}
     for cip, level, pool in rows.pools[state]:
-        if not any(id(row) in model.page_ids for row in pool):
+        # A field has a ranking where one of its programs has a page. Master's
+        # programs have their own set of pages.
+        with_page = model.masters_ids if level == raw_data.MASTERS_LEVEL else model.page_ids
+        if not any(id(row) in with_page for row in pool):
             continue
         benchmark = model.benchmark(pool)
         degree = degrees.get((cip, level))
@@ -94,7 +116,8 @@ def state_model(rows, state, field_names, degrees):
         institution = model.institutions[unit_id]
         if institution['STABBR'] != state:
             continue
-        total = sum(len(model.school.get((unit_id, level), [])) for level in (1, 2, 3))
+        # Every program the school's own page lists, master's programs included.
+        total = sum(len(model.school.get((unit_id, level), [])) for level in (1, 2, 3, raw_data.MASTERS_LEVEL))
         only = page_rows[0] if total == 1 else None
         program_name = None
         if only is not None:
@@ -223,14 +246,20 @@ def expected_sections(state):
         credential_section.add(*cells)
         credential_section.rows.append([CREDENTIALS[credential['level']], *cells])
 
-    for level in (3, 2, 1):
+    for level in (raw_data.MASTERS_LEVEL, 3, 2, 1):
         level_fields = state['fields'].get(level, [])
         section = sections[f'fields-{level}'] = Expectation(bool(level_fields))
         sortable = len(level_fields) >= 3
         # "Bachelor's programs", whatever the number of rows. The page title already
         # says what they are ranked by, so the heading has no count and no "ranked by".
+        # The paragraph above the national pages' table of states, for fields.
         if level_fields:
-            section.claim(rf"^{re.escape(CREDENTIALS[level])} programs Each row is one field's median")
+            borrowed = 'borrowed in federal loans for graduate study at the school' if level == raw_data.MASTERS_LEVEL else 'borrowed in federal loans'
+            section.claim(
+                rf"^{re.escape(CREDENTIALS[level])} programs In the table below, we show pay and debt for each field's {re.escape(CREDENTIALS[level].lower())} programs in "
+                rf"{re.escape(page_model.place_in_sentence(name))}\. Year 1 pay is what a program's typical graduate earned in the first year after finishing\. "
+                rf"Debt is what a program's typical graduate {borrowed}\. Each field's figure is the median across its programs: half of them are higher, and half are lower\. "
+            )
         section.claim(r'types? of|ranked by graduate pay', False)
         # "Page 1 of N" under a table with more than ten fields.
         section.pages = -(-len(level_fields) // VISIBLE_ROWS)
@@ -245,11 +274,14 @@ def expected_sections(state):
         section.sortable = sortable
 
     school_section = sections['schools'] = Expectation(True)
+    # The heading names the programs, and the sort buttons or the table follow
+    # it at once: no paragraph sits between them.
     if len(state['schools']) > 1:
         school_section.add(count(len(state['schools'])))
-        school_section.claim(rf"^{count(len(state['schools']))} {re.escape(name)} schools with program pages This table lists every {re.escape(name)} school with at least one program page\.")
+        school_section.claim(rf"^{count(len(state['schools']))} {re.escape(name)} schools with {COUNTED_PROGRAMS} program pages (?:A to Z Most programs )?School City Type Programs ")
     else:
-        school_section.claim(rf"^One {re.escape(name)} school with program pages This table lists every")
+        school_section.claim(rf"^One {re.escape(name)} school with {COUNTED_PROGRAMS} program pages (?:A to Z Most programs )?School City Type Programs ")
+    school_section.claim(re.escape(PROGRAMS_NOTE) + '$')
     school_section.pages = -(-len(state['schools']) // VISIBLE_ROWS)
     if school_section.pages > 1:
         school_section.add('1', count(school_section.pages))
@@ -282,6 +314,8 @@ def expected_sections(state):
     faq.add(count(state['schools_with_pay']), count(state['program_count']))
     if len(state['schools']) > 1:
         faq.add(count(len(state['schools'])))
+    with_pages = 'One of them has' if len(state['schools']) == 1 else f"{count(len(state['schools']))} of them have"
+    faq.claim(rf"{count(state['schools_with_pay'])} {re.escape(name)} schools report first-year pay for at least one {COUNTED_PROGRAMS} program, {count(state['program_count'])} programs in all\. {with_pages} at least one of those programs with its own page here\.")
     faq.question_patterns.append(rf'^How many {re.escape(name)} colleges report graduate pay\?$')
 
     about = sections['about-data'] = Expectation(True)
@@ -289,6 +323,9 @@ def expected_sections(state):
     about.claim(r'^About this data Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school\.')
     about.claim(r'Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024\.', state['price'] is not None)
     about.claim(r'Medians are across programs, not students\. Each program counts once, however many graduates it has\.')
+    has_masters = bool(state['fields'].get(raw_data.MASTERS_LEVEL))
+    about.claim(re.escape(MASTERS_DEBT_ABOUT), has_masters)
+    about.claim(r'Debt only includes federal loans\. Private loans and credit cards are not counted\. To protect privacy', not has_masters)
     about.claim(CAMPUS_RULE.format(state=re.escape(name), place=re.escape(page_model.place_in_sentence(name))))
 
     description = sections['#description'] = Expectation(True)
@@ -317,9 +354,12 @@ def check_field_rows(node, expectation, state_slug, errors, name):
         shown = [visible_text(cell) for cell in cells]
         if shown != wanted:
             errors.append(f"section {name}: {field['cip']} shows {shown}, expected {wanted}")
+        # The field's own ranking in the state, at this table's credential level.
+        level = int(name.split('-')[1])
+        wanted_href = f"/states/{state_slug}/{check_program_pages.address_slug(field['name'])}-{check_program_pages.CREDENTIAL_SLUGS[level]}"
         link = cells[0].find(lambda child: child.tag == 'a')
-        if link is None or not link.attributes.get('href', '').startswith(f'/states/{state_slug}/'):
-            errors.append(f"section {name}: {field['cip']} does not link to a {state_slug} ranking")
+        if link is None or link.attributes.get('href') != wanted_href:
+            errors.append(f"section {name}: {field['cip']} links to {link.attributes.get('href') if link is not None else None}, expected {wanted_href}")
         if previous is not None and field['pay'] > previous:
             errors.append(f'section {name}: rows are not in order of median pay')
         previous = field['pay']
@@ -519,7 +559,7 @@ def main():
     parser.add_argument('--pages', required=True)
     parser.add_argument('--report', required=True)
     arguments = parser.parse_args()
-    rows = Rows(page_model.Model())
+    rows = Rows(page_model.Model(include_masters=True))
     field_names = page_model.load_field_names()
     degrees = page_model.load_degree_abbreviations()
     results = []

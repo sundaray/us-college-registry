@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/page-blocks'
 import type { HeaderFact } from '@/components/page-blocks'
 import type { ProgramPage } from '@/data/program-page'
 import { hasSchoolPage } from '@/data/school-page'
-import { formatCount } from '@/lib/format'
+import { formatGraduatesPerYear } from '@/lib/format'
 import { buildPageTitle } from '@/lib/program-copy'
 import { institutionKind } from '@/lib/school-copy'
 
@@ -17,7 +17,7 @@ export function ProgramHeader({ page }: { page: ProgramPage }) {
     { icon: <Building2Icon aria-hidden />, text: institutionKind(school) },
     { icon: <MapPinIcon aria-hidden />, text: `${school.city}, ${school.state}` },
     ...(program.graduatesPerYear
-      ? [{ icon: <UsersIcon aria-hidden />, text: `About ${formatCount(program.graduatesPerYear)} graduates a year` }]
+      ? [{ icon: <UsersIcon aria-hidden />, text: formatGraduatesPerYear(program.graduatesPerYear) }]
       : []),
   ]
 

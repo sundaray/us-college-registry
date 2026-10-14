@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { SchoolProgram } from '@/data/school-page'
-import { formatCount, formatMoney } from '@/lib/format'
+import { formatCount, formatGraduatesPerYear, formatMoney } from '@/lib/format'
 import { placeInSentence } from '@/lib/place-names'
 import { ordinal } from '@/lib/program-copy'
 import { cn } from '@/lib/utils'
@@ -99,7 +99,7 @@ export function SchoolProgramTable({ programs, stateName }: { programs: SchoolPr
                     </span>
                     <span className={cn('block text-sm text-muted-foreground', sortKey === 'graduates' && 'font-bold')}>
                       {program.graduatesPerYear !== undefined
-                        ? `About ${formatCount(program.graduatesPerYear)} graduates a year`
+                        ? formatGraduatesPerYear(program.graduatesPerYear)
                         : 'Graduates a year not reported'}
                     </span>
                   </TableCell>

@@ -48,8 +48,8 @@ export type SchoolLevel = {
 export type SchoolPage = {
   schoolSlug: string
   school: ProgramPage['school']
-  // Bachelor's first, then associate's, then certificates. Only levels with at
-  // least one program that reports pay.
+  // Master's first, then bachelor's, associate's and certificates. Only levels
+  // with at least one program that reports pay.
   levels: SchoolLevel[]
   // The school's programs, at any level, that report pay but are left out of
   // the state, because more than half of their graduates studied at campuses in

@@ -3,6 +3,7 @@
 
 import type { KeyFigureTile, PageQuestion } from '@/components/page-blocks'
 import type { OccupationPage, OccupationStateRow } from '@/data/occupation-page'
+import { isGraduateLevel } from '@/data/program-page'
 import { formatCount, formatMoney, listWords, roundedPercent } from '@/lib/format'
 import { educationNeeded, neededToStart } from '@/lib/job-copy'
 import { occupationKeyFigureQuestions } from '@/lib/key-figure-copy'
@@ -176,19 +177,22 @@ export function buildStateNotes(page: OccupationPage) {
 // against the Occupational Outlook Handbook; see data/raw/SOURCES.md.
 export function relatedProgramsIntro(page: OccupationPage) {
   const match = `These programs are listed because their subjects are related to the work of ${page.sentenceName}, according to the U.S. Department of Education and the Bureau of Labor Statistics. This connection does not mean each program qualifies you for the job.`
-  const graduateScope = "This site lists only certificates, associate's degrees and bachelor's degrees; it does not include graduate programs."
+  // The site lists master's programs, and no doctoral or professional ones.
+  const doctoralScope = 'This site does not include doctoral or professional programs.'
   if (page.socCode === '29-1171') {
     return [
       match,
-      `According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. ${graduateScope}`,
+      "According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification.",
     ]
   }
 
   const education: string[] = []
   if (page.typicalEducation) {
     education.push(`The Bureau of Labor Statistics lists ${educationNeeded(page.typicalEducation)} as the typical education for entering this career.`)
-    if (page.typicalEducation === "Master's degree" || page.typicalEducation === 'Doctoral or professional degree') {
-      education.push(graduateScope)
+    if (page.typicalEducation === 'Doctoral or professional degree') education.push(doctoralScope)
+    // A reader told the job needs a master's degree would look for one in the table.
+    if (page.typicalEducation === "Master's degree" && !page.programs.some((program) => isGraduateLevel(program.credentialLevel))) {
+      education.push("This site lists no master's programs for this career.")
     }
   }
   return education.length > 0 ? [match, education.join(' ')] : [match]

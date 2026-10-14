@@ -5,9 +5,16 @@
 
 export type SchoolControl = 'Public' | 'Private nonprofit' | 'Private for-profit'
 
-// Scorecard credential levels that get pages: 1 undergraduate certificate,
-// 2 associate's degree, 3 bachelor's degree.
-export type CredentialLevel = 1 | 2 | 3
+// Scorecard credential levels the site reads: 1 undergraduate certificate,
+// 2 associate's degree, 3 bachelor's degree, 5 master's degree. Level 4, a
+// certificate taken after a bachelor's degree, is not read.
+export type CredentialLevel = 1 | 2 | 3 | 5
+
+// A master's degree is a graduate degree. Its page shows a different debt figure
+// from an undergraduate page and words some sentences differently.
+export function isGraduateLevel(credentialLevel: CredentialLevel) {
+  return credentialLevel >= 5
+}
 
 export type ComparisonProgram = {
   schoolName: string
@@ -155,17 +162,31 @@ export type ProgramPage = {
     degreeAbbreviation?: string
     // IPEDSCOUNT2: awards in the later of the two award years.
     graduatesPerYear?: number
+    // What the school reports about studying online (Scorecard's DISTANCE
+    // marker, from IPEDS): 'all' when every program of this credential in the
+    // field can be completed fully online, 'some' when at least one can. Missing
+    // when none can or the school did not report.
+    online?: 'all' | 'some'
   }
   earnings: {
     year1: number
     year5?: number
+    // The Pell split is never set on a graduate page: the file does not say when
+    // a graduate student received the grant.
     pellYear1?: number
     otherYear1?: number
     workingCount?: number
     workingInStateCount?: number
   }
+  // On an undergraduate page, federal loans from every school the graduate
+  // attended (Scorecard's ANY figures). On a graduate page, federal loans taken
+  // for graduate study at this school only (the EVAL figures), because the file
+  // withholds the other figure for every graduate program.
   debt: {
     median: number
+    // On a graduate page: how many graduates took the loans the median is of
+    // (DEBT_ALL_STGP_EVAL_N). The page says how many people each figure counts.
+    borrowers?: number
     monthlyPayment?: number
     pellMedian?: number
     otherMedian?: number
@@ -202,11 +223,21 @@ export type ProgramPage = {
   // Up to OCCUPATION_LIMIT occupations, most national employment first.
   occupations: OccupationOutlook[]
   matchingOccupation?: MatchingOccupationPay
-  // The ranking page for this field and credential in the school's state.
-  stateRankingHref: string
-  // Every program at the school that reports first-year pay, at every credential
-  // level. The school has its own page only when this is at least 2
-  // (hasSchoolPage in src/data/school-page.ts).
+  // The ranking page for this field and credential in the school's state. Every
+  // program page has one, and the national ranking page that goes with it.
+  stateRankingHref?: string
+  // On a graduate page: the same school's bachelor's program in the same field,
+  // when that program has a page. `degree` is the degree as that page names it
+  // ("Bachelor's", or "BSN" for nursing).
+  bachelorsProgram?: { href: string; degree: string }
+  // On a bachelor's page: the same school's master's program in the same field,
+  // when that program has a page. `degree` is the degree as that page names it.
+  mastersProgram?: { href: string; degree: string }
+  // The programs the school's own page lists: every certificate, associate's,
+  // bachelor's and master's program at the school that reports first-year pay. 0 at a school
+  // with graduate program pages alone, which has no page of its own. The school
+  // has its own page only when this is at least 2 (hasSchoolPage in
+  // src/data/school-page.ts).
   schoolProgramTotal: number
   // Set when some of the program's graduates studied at campuses in other
   // states: the share who studied in the school's state. It is at least half,
@@ -215,6 +246,7 @@ export type ProgramPage = {
   // Every state program that reports both pay and debt, for the scatter chart.
   stateComparison: ComparisonProgram[]
   // Programs with pages within NEARBY_MILES, nearest first, current program first.
+  // On a graduate page they are graduate programs.
   nearby: NearbyProgram[]
 }
 

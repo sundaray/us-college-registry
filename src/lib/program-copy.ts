@@ -3,11 +3,12 @@
 // differently, and every claim in a sentence is checked against the record first.
 
 import type { PageQuestion } from '@/components/page-blocks'
-import type { ProgramPage } from '@/data/program-page'
+import { isGraduateLevel, type ProgramPage } from '@/data/program-page'
+import { classYearsNote, combinedCampusesNotes, payPrivacyNote, reportedFiguresNote } from '@/lib/data-notes'
 import { formatCount, formatMoney, formatShare, roundedPercent } from '@/lib/format'
 import { stateCareersIntro, stateCareersTitle } from '@/lib/job-copy'
-import { programKeyFigureQuestions } from '@/lib/key-figure-copy'
-import { placeInSentence } from '@/lib/place-names'
+import { officialProgramFieldSentence, programKeyFigureQuestions } from '@/lib/key-figure-copy'
+import { isState, placeInSentence } from '@/lib/place-names'
 import { summaryParagraphs } from '@/lib/summary'
 
 export type ProgramMetrics = ReturnType<typeof computeMetrics>
@@ -44,8 +45,30 @@ export function computeMetrics(page: ProgramPage) {
   }
 }
 
+export function isGraduateProgram(page: ProgramPage) {
+  return isGraduateLevel(page.program.credentialLevel)
+}
+
+// The program as sentences name it. A school can have a bachelor's and a
+// master's program in one field. A graduate page names the degree too:
+// "business administration master's".
 export function programLabel(page: ProgramPage) {
-  return page.program.sentenceName
+  return isGraduateProgram(page) ? `${page.program.sentenceName} ${page.program.credential.toLowerCase()}` : page.program.sentenceName
+}
+
+// A school's name as it reads when it stands alone in a sentence: "at the
+// University of Missouri", "at Harvard University". A name that opens with a
+// general word and "of" takes "the", and a name that opens with "The" keeps it
+// in lower case.
+export function schoolInSentence(shortName: string) {
+  if (shortName.startsWith('The ')) return `the ${shortName.slice(4)}`
+  return /^(University|College|Institute|School|Academy) of /.test(shortName) ? `the ${shortName}` : shortName
+}
+
+// The name of the debt figure. A graduate program's figure counts only loans
+// taken for graduate study at the school, and its name says so wherever it shows.
+export function debtFigureLabel(page: ProgramPage) {
+  return isGraduateProgram(page) ? 'Median federal debt for graduate study' : 'Median federal debt'
 }
 
 // "nursing bachelor's programs", "cosmetology certificate programs".
@@ -92,9 +115,14 @@ export function nationalPayStandingLabel(page: ProgramPage) {
   return `Higher than ${nationalEarningsPercentile}% of ${count} programs nationally`
 }
 
-// "90%", or "more than 99%" when the share rounds to 100% but isn't all of them.
-export function shareOfPrograms(share: number) {
-  return roundedPercent(share) === 100 && share < 1 ? 'more than 99%' : formatShare(share)
+// "90% of nursing programs", or "nearly all nursing programs" when the share
+// rounds to 100% but isn't all of them. `programs` names what is counted. The
+// words used to be "more than 99% of", which after "more than" made a reader
+// trip; the user chose "nearly all" on 2026-10-13. "Those programs" keeps its
+// "of": "nearly all of those programs".
+export function shareOfPrograms(share: number, programs: string) {
+  if (roundedPercent(share) !== 100 || share >= 1) return `${formatShare(share)} of ${programs}`
+  return programs.startsWith('those ') ? `nearly all of ${programs}` : `nearly all ${programs}`
 }
 
 export function year5ChangeLabel(year5Growth: number) {
@@ -141,11 +169,22 @@ export function buildSummary(page: ProgramPage) {
   ]
 
   const lowDebt = ranks.debtLowerThanShare >= 0.75
-  const borrowed = `The typical graduate leaves with ${formatMoney(debt.median)} in federal loans`
+  const borrowed = isGraduateProgram(page)
+    ? `The typical graduate borrowed ${formatMoney(debt.median)} in federal loans for graduate study at ${schoolInSentence(school.shortName)}`
+    : `The typical graduate leaves with ${formatMoney(debt.median)} in federal loans`
+  // A graduate page gives the comparison and no verdict on it. Its debt figure
+  // counts only the graduates who took federal loans for graduate study at the
+  // school, who can be a small part of a class (46 borrowers at a program with
+  // about 877 graduates a year). "Stands out" or "is high" would say more
+  // than the figure can. The user decided this on 2026-10-13.
+  const graduate = isGraduateProgram(page)
+  // "Less than graduates of 91% of business programs", as the pay sentence says
+  // "more than graduates of most business programs". It used to read "less than
+  // at 91% of", which the user found stiff (2026-10-13).
   const owed = lowDebt
-    ? ['Where this program stands out is debt.', `${borrowed}, less than at ${shareOfPrograms(ranks.debtLowerThanShare)} of ${program} programs in the country.`]
+    ? [...(graduate ? [] : ['Where this program stands out is debt.']), `${borrowed}, less than graduates of ${shareOfPrograms(ranks.debtLowerThanShare, `${program} programs`)} in the country.`]
     : ranks.debtHigherThanShare >= 0.75
-      ? ['Debt is high.', `${borrowed}, more than at ${shareOfPrograms(ranks.debtHigherThanShare)} of ${program} programs in the country.`]
+      ? [...(graduate ? [] : ['Debt is high.']), `${borrowed}, more than graduates of ${shareOfPrograms(ranks.debtHigherThanShare, `${program} programs`)} in the country.`]
       : [`${borrowed}, ${comparedWithNationalMedian(debt.median, benchmarks.national.medianDebt, DEBT_ABOUT_THE_SAME_PERCENT)}.`]
 
   const higherPayingInState = ranks.stateEarningsRank - 1
@@ -153,13 +192,25 @@ export function buildSummary(page: ProgramPage) {
   if (topQuarterInState) {
     pay.push(`This is one of the higher-paying ${program} ${degreeWord(page)} in ${placeInSentence(school.stateName)}.`)
   } else if (lowDebt && ranks.nationalEarningsPercentile <= 25 && earnings.year1 < benchmarks.state.earningsYear1) {
-    owed.push(`Debt is low, but pay is also below the ${school.stateName} median of ${formatMoney(benchmarks.state.earningsYear1)}.`)
+    // On a graduate page the same fact goes with the pay sentences, without "Debt is low".
+    if (graduate) pay.push(`That is also below the ${school.stateName} median of ${formatMoney(benchmarks.state.earningsYear1)}.`)
+    else owed.push(`Debt is low, but pay is also below the ${school.stateName} median of ${formatMoney(benchmarks.state.earningsYear1)}.`)
   } else if (higherPayingInState >= 3) {
     pay.push(`Several ${school.stateName} programs report higher pay.`)
   } else if (higherPayingInState === 2) {
     pay.push(`Two other ${school.stateName} programs report higher pay.`)
   } else if (higherPayingInState === 1) {
     pay.push(`One other ${school.stateName} program reports higher pay.`)
+  }
+
+  // A graduate page has no section about the school. Its summary says where
+  // the program stands among the school's programs of the same degree. A school
+  // with one such program has nothing to rank it against. The count is of the
+  // programs that report pay, and the sentence says so: most programs do not.
+  if (graduate && ranks.schoolProgramCount > 1) {
+    pay.push(
+      `At ${schoolInSentence(school.shortName)} the program ranks ${ordinal(ranks.schoolEarningsRank)} by first-year pay among the ${ranks.schoolProgramCount} ${page.program.credential.toLowerCase()} programs that report it.`,
+    )
   }
 
   return summaryParagraphs([pay, owed])
@@ -169,7 +220,8 @@ export function buildSummary(page: ProgramPage) {
 export function buildKeyFigureQuestions(page: ProgramPage) {
   const { school, program, earnings, debt, benchmarks } = page
   return programKeyFigureQuestions({
-    graduates: `${school.shortName} ${program.sentenceName} graduates`,
+    graduates: `${school.shortName} ${programLabel(page)} graduates`,
+    graduateDebt: isGraduateProgram(page),
     programs: `${program.sentenceName} ${program.credential.toLowerCase()}`,
     stateName: school.stateName,
     earningsYear1: earnings.year1,
@@ -185,14 +237,16 @@ export function compareTitle(page: ProgramPage) {
   return `How this program compares with other ${programLabel(page)} programs`
 }
 
+// Jobs are linked to the field, whatever the degree. The careers section
+// names the field alone.
 export function careersTitle(page: ProgramPage) {
-  return stateCareersTitle(programLabel(page), page.school.stateName)
+  return stateCareersTitle(page.program.sentenceName, page.school.stateName)
 }
 
 // `everyJobHasStatePay` is false when a listed job has no pay figure for the
 // state and shows the national one.
 export function careersIntro(page: ProgramPage, everyJobHasStatePay: boolean) {
-  return stateCareersIntro(programLabel(page), page.school.stateName, everyJobHasStatePay)
+  return stateCareersIntro(page.program.sentenceName, page.school.stateName, everyJobHasStatePay)
 }
 
 // State programs with more debt than this one that also report higher five-year pay.
@@ -343,14 +397,16 @@ export function buildOccupationPriceSentence(page: ProgramPage, metrics: Program
   }
 }
 
-// "Nursing ranks 11th of 61 bachelor's programs at UT Austin by first-year pay."
+// "Nursing ranks 11th by first-year pay among the 61 bachelor's programs at UT
+// Austin that report it." The count is of the school's programs that report pay,
+// which can be far fewer than the programs it offers. The sentence says so.
 export function buildSchoolRankSentence(page: ProgramPage) {
   const { ranks, program, school } = page
   const credential = program.credential.toLowerCase()
   if (ranks.schoolProgramCount === 1) {
     return `${program.name} is the only ${credential} program at ${school.shortName} that reports first-year pay.`
   }
-  return `${program.name} ranks ${ordinal(ranks.schoolEarningsRank)} of ${ranks.schoolProgramCount} ${credential} programs at ${school.shortName} by first-year pay.`
+  return `${program.name} ranks ${ordinal(ranks.schoolEarningsRank)} by first-year pay among the ${ranks.schoolProgramCount} ${credential} programs at ${school.shortName} that report it.`
 }
 
 // With four or more programs, name the top three. With two or three, name the
@@ -398,13 +454,15 @@ function worthAnswer(page: ProgramPage, metrics: ProgramMetrics) {
   // side, so a smaller share would read as if the rest were on the other side.
   const debtStanding =
     ranks.debtLowerThanShare >= 0.75
-      ? `less than at ${shareOfPrograms(ranks.debtLowerThanShare)} of those programs`
+      ? `less than graduates of ${shareOfPrograms(ranks.debtLowerThanShare, 'those programs')}`
       : ranks.debtHigherThanShare >= 0.75
-        ? `more than at ${shareOfPrograms(ranks.debtHigherThanShare)} of those programs`
+        ? `more than graduates of ${shareOfPrograms(ranks.debtHigherThanShare, 'those programs')}`
         : comparedWithNationalMedian(debt.median, benchmarks.national.medianDebt, DEBT_ABOUT_THE_SAME_PERCENT)
   const figures = [
     `${school.shortName} ${programLabel(page)} graduates earn a median of ${formatMoney(earnings.year1)} in their first year, ${payStanding}.`,
-    `They leave with a median of ${formatMoney(debt.median)} in federal loans, ${debtStanding}.`,
+    isGraduateProgram(page)
+      ? `They borrowed a median of ${formatMoney(debt.median)} in federal loans for graduate study at ${schoolInSentence(school.shortName)}, ${debtStanding}.`
+      : `They leave with a median of ${formatMoney(debt.median)} in federal loans, ${debtStanding}.`,
   ]
   if (debt.monthlyPayment !== undefined && metrics.paymentShareOfPay !== undefined) {
     figures.push(
@@ -412,7 +470,8 @@ function worthAnswer(page: ProgramPage, metrics: ProgramMetrics) {
     )
   }
   const limits = ['These figures count only students who finished, and we have no completion rate for this program alone.']
-  const graduation = graduationSentence(page)
+  // The school's graduation rate describes its undergraduates.
+  const graduation = isGraduateProgram(page) ? undefined : graduationSentence(page)
   if (graduation) limits.push(graduation)
   return [
     'That depends on things we cannot know: what you would pay after grants and scholarships, how much you would borrow and what work you want. What this page shows is how past graduates did.',
@@ -426,6 +485,7 @@ function worthAnswer(page: ProgramPage, metrics: ProgramMetrics) {
 export function buildFaq(page: ProgramPage, metrics: ProgramMetrics): PageQuestion[] {
   const { school, earnings, debt, ranks, benchmarks } = page
   const program = programLabel(page)
+  const graduate = isGraduateProgram(page)
   const items: PageQuestion[] = []
 
   const payParts = [
@@ -449,40 +509,76 @@ export function buildFaq(page: ProgramPage, metrics: ProgramMetrics): PageQuesti
   }
   items.push({ question: `How much do ${school.shortName} ${program} graduates make?`, answer: [payParts.join(' ')] })
 
+  const debtLead = graduate
+    ? `The median graduate borrowed ${formatMoney(debt.median)} in federal loans for graduate study at ${schoolInSentence(school.shortName)}`
+    : `The median federal loan balance is ${formatMoney(debt.median)}`
   const debtParts = [
-    `The median federal loan balance is ${formatMoney(debt.median)}, which ranks ${rankLowest(ranks.stateDebtRank, ranks.stateProgramsWithBoth)} ${programKindPlural(page)} in ${placeInSentence(school.stateName)}.`,
+    `${debtLead}, which ranks ${rankLowest(ranks.stateDebtRank, ranks.stateProgramsWithBoth)} ${programKindPlural(page)} in ${placeInSentence(school.stateName)}.`,
   ]
   if (debt.monthlyPayment !== undefined) {
     debtParts.push(`That works out to about ${formatMoney(debt.monthlyPayment)} a month over 10 years.`)
   }
+  if (graduate) debtParts.push('Undergraduate loans and loans taken at other schools are not counted.')
   items.push({ question: `How much debt do ${school.shortName} ${program} graduates have?`, answer: [debtParts.join(' ')] })
 
   // A field name that starts with "other" goes after the noun: "an other health
   // professions degree" reads badly, and "a degree in other health professions"
   // does not.
+  // On a graduate page the label ends with the degree ("other health professions
+  // master's"). The degree moves in front of the noun.
   const degreeQuestion = program.startsWith('other ')
-    ? `Is a degree in ${program} from ${school.shortName} worth it?`
+    ? graduate
+      ? `Is ${withArticle(page.program.credential.toLowerCase())} degree in ${page.program.sentenceName} from ${school.shortName} worth it?`
+      : `Is a degree in ${program} from ${school.shortName} worth it?`
     : `Is ${withArticle(program)} degree from ${school.shortName} worth it?`
   items.push({
     question: page.program.credentialLevel === 1 ? `Is the ${program} program at ${school.shortName} worth it?` : degreeQuestion,
     answer: worthAnswer(page, metrics),
   })
 
+  // The question and its answer give the share and say nothing of staying or
+  // leaving: the file does not say where a graduate lived before, and a student
+  // who studied online may never have lived in the school's state. The user
+  // decided this on 2026-10-13.
   if (metrics.inStateShare !== undefined) {
     items.push({
-      question: `Do ${school.shortName} ${program} graduates stay in ${placeInSentence(school.stateName)}?`,
-      answer: [`${metrics.inStateShare >= 0.5 ? 'Most do.' : 'Many leave.'} ${formatShare(metrics.inStateShare)} (${formatCount(earnings.workingInStateCount!)} of ${formatCount(earnings.workingCount!)}) were working in ${placeInSentence(school.stateName)} one year after graduating.`],
+      question: `What share of ${school.shortName} ${program} graduates work in ${placeInSentence(school.stateName)}?`,
+      answer: [
+        [
+          `${formatShare(metrics.inStateShare)} (${formatCount(earnings.workingInStateCount!)} of ${formatCount(earnings.workingCount!)}) were working in ${placeInSentence(school.stateName)} one year after graduating.`,
+          ...onlineStudySentences(page),
+        ].join(' '),
+      ],
     })
   }
   return items
 }
 
+// What the school reports about studying online, for the answer about where
+// graduates work. The federal marker covers all of the school's programs of
+// this credential in the field. The sentence speaks of those and not of one
+// program.
+function onlineStudySentences(page: ProgramPage) {
+  const { school, program } = page
+  if (!program.online) return []
+  const programs = `${program.credential.toLowerCase()} programs in this field`
+  const reported = program.online === 'all' ? `its ${programs} can all be completed fully online` : `at least one of its ${programs} can be completed fully online`
+  return [
+    `${capitalize(schoolInSentence(school.shortName))} reports that ${reported}.`,
+    `Online students may live ${isState(school.stateName) ? 'in other states' : 'elsewhere'}.`,
+  ]
+}
+
 // Kept near 60 characters where the names allow, so Google shows it in full on most
-// screens. The same text is the H1.
+// screens. The same text is the H1. A graduate page shows no tuition, and its
+// title does not promise any: the files give only the school's average charge to
+// graduate students, which is not the price of one program. The user decided
+// this on 2026-10-13.
 export function buildPageTitle(page: ProgramPage) {
   const { school, program } = page
   const degree = program.degreeAbbreviation ?? program.credential
-  return `${school.shortName} ${program.name} (${degree}): Tuition, Graduate Salary, and Debt`
+  const subject = isGraduateProgram(page) ? 'Graduate Salary and Debt' : 'Tuition, Graduate Salary, and Debt'
+  return `${school.shortName} ${program.name} (${degree}): ${subject}`
 }
 
 // Kept near 160 characters where the names allow. Leads with the numbers people
@@ -496,13 +592,60 @@ export function buildMetaDescription(page: ProgramPage) {
       ? `${school.shortName} ${program} graduates earn ${formatMoney(earnings.year1)} in year one and ${formatMoney(earnings.year5)} by year five.`
       : `${school.shortName} ${program} graduates earn ${formatMoney(earnings.year1)} in year one.`
 
+  const debtFigure = debtFigureLabel(page)
+  // "Lower than at" stays here: the subject is the debt figure, not a graduate.
   if (ranks.debtLowerThanShare >= 0.75) {
-    return `${opening} Median federal debt: ${formatMoney(debt.median)}, lower than at ${shareOfPrograms(ranks.debtLowerThanShare)} of similar programs.`
+    return `${opening} ${debtFigure}: ${formatMoney(debt.median)}, lower than at ${shareOfPrograms(ranks.debtLowerThanShare, 'similar programs')}.`
   }
   if (ranks.debtHigherThanShare >= 0.75) {
-    return `${opening} Median federal debt: ${formatMoney(debt.median)}, higher than at ${shareOfPrograms(ranks.debtHigherThanShare)} of similar programs.`
+    return `${opening} ${debtFigure}: ${formatMoney(debt.median)}, higher than at ${shareOfPrograms(ranks.debtHigherThanShare, 'similar programs')}.`
   }
   // Between the two quarters the description gives both figures and no verdict:
   // such a program's debt can be a third below the national median or half above it.
-  return `${opening} Median federal debt: ${formatMoney(debt.median)}. National median: ${formatMoney(benchmarks.national.medianDebt)}.`
+  return `${opening} ${debtFigure}: ${formatMoney(debt.median)}. National median: ${formatMoney(benchmarks.national.medianDebt)}.`
+}
+
+// The note under the key figures of a graduate page: how many people the pay
+// figure and the debt figure each count. Both counts are for the two graduating
+// classes the figures describe (EARN_COUNT_WNE_1YR and DEBT_ALL_STGP_EVAL_N).
+// The header gives the graduates a year. A reader can see how much of a
+// class the figures cover. Some programs have no count of borrowers.
+export function buildCountedNote(page: ProgramPage) {
+  const { workingCount } = page.earnings
+  const { borrowers } = page.debt
+  if (!isGraduateProgram(page) || !workingCount) return undefined
+  const pay = `Pay is based on ${formatCount(workingCount)} working graduates`
+  return borrowers ? `${pay} and debt on ${formatCount(borrowers)} borrowers, from two graduating classes.` : `${pay}, from two graduating classes.`
+}
+
+// The paragraph over the comparison table on a graduate page. It names the
+// graduates the first column is about.
+export function buildGraduateCompareIntro(page: ProgramPage) {
+  const { school } = page
+  return `The first column shows the median pay and debt of ${school.shortName} ${programLabel(page)} graduates. The other two columns show the median of the same figures across all ${programKindPlural(page)} that report them, in ${placeInSentence(school.stateName)} and in the country as a whole.`
+}
+
+// The paragraph over the chart on a graduate page: what the chart shows and how
+// to read a dot. It does not say which corner of the chart is better.
+export function buildGraduateChartIntro(page: ProgramPage) {
+  const { school } = page
+  return `The chart below shows ${formatCount(page.stateComparison.length)} ${programKindPlural(page)} in ${placeInSentence(school.stateName)}. Each dot is one program. A dot higher up means its graduates earn more in their first year, and a dot further right means they borrowed more in federal loans for graduate study. The highlighted dot shows where ${schoolInSentence(school.shortName)} sits among them. Dashed lines mark the ${school.stateName} medians.`
+}
+
+// "About this data" on a graduate page, one string for each item in the list.
+// It says who each figure counts and which classes the figures describe, and it
+// has no line about school-level numbers, because the page shows none.
+// `hasFiveYearPay` is true when the page shows pay after five years.
+export function buildGraduateDataNotes(page: ProgramPage, hasFiveYearPay: boolean) {
+  const { school, program } = page
+  return [
+    officialProgramFieldSentence(program),
+    'Pay only includes graduates who received federal financial aid. Debt only includes graduates who took federal loans.',
+    'Pay only counts graduates who were working and not enrolled in more school. Graduates who went straight to further study are not included.',
+    `Debt only includes federal loans taken for graduate study at ${schoolInSentence(school.shortName)}. Undergraduate loans, loans taken at other schools, private loans and credit cards are not counted.`,
+    payPrivacyNote(),
+    reportedFiguresNote(),
+    ...combinedCampusesNotes(school.stateName),
+    `${classYearsNote(hasFiveYearPay)} Bureau of Labor Statistics wages are from May 2025.`,
+  ]
 }

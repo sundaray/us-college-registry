@@ -23,6 +23,17 @@ const DEBT_MEASURE = [
   'It counts only graduates who took federal loans, and it leaves out interest, Parent PLUS loans and private loans.',
 ]
 const DEBT_TO_EARNINGS_MEASURE = "It is a program's median federal debt divided by its graduates' median first-year pay."
+// For a graduate degree the file gives debt only for loans taken at the school
+// itself for graduate study (College Scorecard's field of study documentation,
+// cumulative loan debt).
+const GRADUATE_DEBT_MEASURE = [
+  "For a graduate degree, College Scorecard reports the median amount each program's graduates borrowed in federal student loans for graduate study at that school.",
+  'It counts only graduates who took federal loans, and it leaves out interest, undergraduate loans, loans taken at other schools and private loans.',
+]
+const GRADUATE_DEBT_TO_EARNINGS_MEASURE = "It is a program's median federal debt for graduate study divided by its graduates' median first-year pay."
+// A graduate's loans from an earlier degree are in neither the debt figure nor
+// anything worked out from it, and the answer says so where the figure is explained.
+const GRADUATE_DEBT_TO_EARNINGS_LIMIT = 'Loans from an earlier degree are not counted. With them the figure would be higher.'
 const LOWER_IS_BETTER = 'A lower figure means graduates owe less compared with what they earn.'
 
 // The five salaries are an example, not data: they add up to $400,000. `people`
@@ -41,7 +52,19 @@ const MEDIAN_QUESTION = medianQuestion('graduates')
 
 // `programs` names the programs the medians are taken across, as it reads before
 // the word "programs": "computer engineering bachelor's", "Texas nursing bachelor's".
-export function keyFigureQuestions({ benchmark, programs, showYear5 }: { benchmark: Benchmark; programs: string; showYear5: boolean }): PageQuestion[] {
+// `graduateDebt` is true on the ranking pages of a graduate degree, whose debt
+// figure is measured differently and has its own name.
+export function keyFigureQuestions({
+  benchmark,
+  programs,
+  showYear5,
+  graduateDebt = false,
+}: {
+  benchmark: Benchmark
+  programs: string
+  showYear5: boolean
+  graduateDebt?: boolean
+}): PageQuestion[] {
   const pay = [
     ...PAY_MEASURE,
     `${formatMoney(benchmark.earningsYear1)} is the median of those figures across the ${formatCount(benchmark.earningsYear1Count)} ${programs} programs that report one.`,
@@ -53,10 +76,10 @@ export function keyFigureQuestions({ benchmark, programs, showYear5 }: { benchma
     MEDIAN_QUESTION,
     { question: 'What is median first-year pay?', answer: [pay.join(' ')], source: PAY_SOURCE },
     {
-      question: 'What is median federal debt?',
+      question: graduateDebt ? 'What is median federal debt for graduate study?' : 'What is median federal debt?',
       answer: [
         [
-          ...DEBT_MEASURE,
+          ...(graduateDebt ? GRADUATE_DEBT_MEASURE : DEBT_MEASURE),
           `${formatMoney(benchmark.medianDebt)} is the median of those figures across the ${formatCount(benchmark.medianDebtCount)} programs that report one.`,
         ].join(' '),
       ],
@@ -66,10 +89,11 @@ export function keyFigureQuestions({ benchmark, programs, showYear5 }: { benchma
       question: 'What is debt-to-earnings?',
       answer: [
         [
-          DEBT_TO_EARNINGS_MEASURE,
+          graduateDebt ? GRADUATE_DEBT_TO_EARNINGS_MEASURE : DEBT_TO_EARNINGS_MEASURE,
           'A program whose graduates borrowed $20,000 and earned $50,000 in their first year would be at 40%.',
           LOWER_IS_BETTER,
           `${formatShare(benchmark.debtToEarnings)} is the median across the ${formatCount(benchmark.debtToEarningsCount)} ${programs} programs that report both figures.`,
+          ...(graduateDebt ? [GRADUATE_DEBT_TO_EARNINGS_LIMIT] : []),
         ].join(' '),
       ],
     },
@@ -81,7 +105,8 @@ export function keyFigureQuestions({ benchmark, programs, showYear5 }: { benchma
 // the figure out from the page's two numbers. `graduates` names them ("UT Austin
 // nursing graduates"). `programs` names the programs the state and national
 // medians are taken across, as it reads before the word "programs" ("nursing
-// bachelor's").
+// bachelor's"). `graduateDebt` is true on the page of a graduate degree, whose
+// debt figure is measured differently and has its own name.
 export function programKeyFigureQuestions({
   graduates,
   programs,
@@ -91,6 +116,7 @@ export function programKeyFigureQuestions({
   medianDebt,
   stateDebtToEarnings,
   nationalDebtToEarnings,
+  graduateDebt = false,
 }: {
   graduates: string
   programs: string
@@ -100,6 +126,7 @@ export function programKeyFigureQuestions({
   medianDebt: number
   stateDebtToEarnings: number
   nationalDebtToEarnings: number
+  graduateDebt?: boolean
 }): PageQuestion[] {
   const pay = [...PAY_MEASURE, `For ${graduates} that figure is ${formatMoney(earningsYear1)}.`]
   if (earningsYear5 !== undefined) {
@@ -109,18 +136,19 @@ export function programKeyFigureQuestions({
     MEDIAN_QUESTION,
     { question: 'What is median first-year pay?', answer: [pay.join(' ')], source: PAY_SOURCE },
     {
-      question: 'What is median federal debt?',
-      answer: [[...DEBT_MEASURE, `For ${graduates} that figure is ${formatMoney(medianDebt)}.`].join(' ')],
+      question: graduateDebt ? 'What is median federal debt for graduate study?' : 'What is median federal debt?',
+      answer: [[...(graduateDebt ? GRADUATE_DEBT_MEASURE : DEBT_MEASURE), `For ${graduates} that figure is ${formatMoney(medianDebt)}.`].join(' ')],
       source: DEBT_SOURCE,
     },
     {
       question: 'What is debt-to-earnings?',
       answer: [
         [
-          DEBT_TO_EARNINGS_MEASURE,
+          graduateDebt ? GRADUATE_DEBT_TO_EARNINGS_MEASURE : DEBT_TO_EARNINGS_MEASURE,
           `For this program that is ${formatMoney(medianDebt)} divided by ${formatMoney(earningsYear1)}, which is ${formatShare(medianDebt / earningsYear1)}.`,
           LOWER_IS_BETTER,
           `The median across ${stateName} ${programs} programs is ${formatShare(stateDebtToEarnings)}, and the national median is ${formatShare(nationalDebtToEarnings)}.`,
+          ...(graduateDebt ? [GRADUATE_DEBT_TO_EARNINGS_LIMIT] : []),
         ].join(' '),
       ],
     },

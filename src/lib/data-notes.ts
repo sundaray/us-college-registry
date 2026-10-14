@@ -23,6 +23,31 @@ export function payPrivacyNote(figures = 'each pay figure') {
   return `To protect privacy, the U.S. Department of Education changes ${figures} slightly before publishing it. About half of first-year figures are within 1% of the true figure, most of the rest are within 4% and about 6% are off by 5% to 9%. Small gaps in pay, and ranks next to each other, may not be real differences. Debt figures are not changed.`
 }
 
+// "About this data" on a graduate page: which graduating classes the figures
+// describe. The years are from the cohort map in College Scorecard's data
+// dictionary for the June 2026 release (sheet FieldOfStudy_Cohort_Map, column
+// FieldOfStudyMostRecent). First-year pay, debt and the monthly payment are for
+// the classes of 2018-19 and 2019-20. Five-year pay is for the classes of
+// 2014-15 and 2015-16. Both pay figures were measured in 2020 and 2021 and
+// adjusted to 2022 dollars. Change the years when the data release changes.
+// `hasFiveYearPay` is false on a page that shows no pay after five years.
+export function classYearsNote(hasFiveYearPay: boolean) {
+  if (!hasFiveYearPay) {
+    return 'Pay and debt are for students who graduated in 2018-19 and 2019-20. Pay was measured in 2020 and 2021 and is shown in 2022 dollars.'
+  }
+  return 'First-year pay and debt are for students who graduated in 2018-19 and 2019-20. Pay after 5 years is for students who graduated in 2014-15 and 2015-16. Both pay figures were measured in 2020 and 2021 and are shown in 2022 dollars.'
+}
+
+// "About this data" on a program page: a rank, a median or a count of programs
+// covers only the programs that report the figure, which can be far fewer than
+// the programs there are ("10th lowest of 23" in a state with 42). The government
+// withholds the rest to protect privacy (College Scorecard's field of study
+// documentation, privacy protection). The user decided on 2026-10-13 to say this
+// once here, and not in every sentence that gives a rank or a count.
+export function reportedFiguresNote() {
+  return "Ranks, medians and counts only include programs that report the figure. The government withholds many programs' figures to protect privacy."
+}
+
 // Programs that report pay but are left out of a state, because more than half
 // of their graduates studied at campuses in other states.
 export function studiedElsewhereNote(programCount: number) {

@@ -22,13 +22,15 @@ import argparse
 import json
 import re
 import sys
-from collections import Counter
+import unicodedata
+from collections import Counter, defaultdict
 from fractions import Fraction
 from html.parser import HTMLParser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
+import raw_data  # noqa: E402
 from job_rows import job_text, job_tokens, lowercase_words, matching_job_short_names  # noqa: E402
 from page_model import count, miles_label, money, ordinal, percent, percent_number, share_of_programs  # noqa: E402
 
@@ -226,8 +228,89 @@ def against_national_median(expectation, amount, national_median, about_the_same
     return rf"{re.escape(money(abs(gap)))} {'more' if gap > 0 else 'less'} than the national median of {re.escape(shown_median)}"
 
 
+def share_of(expectation, share, programs):
+    """How a sentence gives the share of programs with more debt, or with less,
+    as a pattern: "87% of those programs", or "nearly all of those programs"
+    when the share rounds to 100% but is not all of them. `programs` is a
+    pattern for what is counted. Adds the number, when the words show one, to
+    the expectation."""
+    if percent_number(share) == 100 and share < 1:
+        return f'nearly all of {programs}' if programs.startswith('those ') else f'nearly all {programs}'
+    expectation.add(percent(share))
+    return f'{percent(share)} of {programs}'
+
+
+# Wording that the two kinds of ranking page share when they rank the programs
+# of a graduate degree. The user approved it in the preview of 2026-10-14.
+GRADUATE_DEBT_COLUMN_NOTE = r"Debt is the median amount a program's graduates borrowed in federal loans for graduate study at that school\. It only counts graduates who took such loans\. Undergraduate loans and loans taken at other schools are not counted\."
+GRADUATE_LOWEST_DEBT_CAUTION = r"A debt figure only counts the graduates who took federal loans for graduate study at the school\. At some programs that is a small part of the class, and each program's own page says how many\."
+GRADUATE_RANKING_DATA_NOTES = r"Pay only includes graduates who received federal financial aid\. Debt only includes graduates who took federal loans\. Pay only counts graduates who were working and not enrolled in more school\. Graduates who went straight to further study are not included\. Debt only includes federal loans taken for graduate study at each program's own school\. Undergraduate loans, loans taken at other schools, private loans and credit cards are not counted\."
+# Words that belong to one kind of ranking page and must not turn up on the other.
+GRADUATE_ONLY_WORDING = [r'graduate study', r'earlier degree', r'such loans']
+UNDERGRADUATE_ONLY_WORDING = [r'Parent PLUS', r'several years ago', r'upper left']
+# Wording that no ranking page uses any more. The user reworded the paragraphs
+# above the tables on 2026-10-14, for every credential.
+RETIRED_RANKING_WORDING = [r"don't report a figure", r'This measures', r'State names link', r'A state ranking needs', r'too few (?:in each )?to rank']
+
+
+def ranking_debt_name(masters):
+    return 'median federal debt for graduate study' if masters else 'median federal debt'
+
+
+def ranking_question_claims(questions, masters):
+    """The two answers under a ranking page's key figures that explain debt and
+    debt-to-earnings. A graduate figure counts only loans for graduate study at
+    the school, and its answers say so."""
+    if masters:
+        questions.claim(r"What is median federal debt for graduate study\? For a graduate degree, College Scorecard reports the median amount each program's graduates borrowed in federal student loans for graduate study at that school\. It counts only graduates who took federal loans, and it leaves out interest, undergraduate loans, loans taken at other schools and private loans\.")
+        questions.claim(r"It is a program's median federal debt for graduate study divided by its graduates' median first-year pay\. A program whose graduates borrowed \$20,000 and earned \$50,000 in their first year would be at 40%\.")
+        questions.claim(r'programs that report both figures\. Loans from an earlier degree are not counted\. With them the figure would be higher\.')
+    else:
+        questions.claim(r"What is median federal debt\? College Scorecard reports the median amount each program's graduates borrowed in federal student loans\. It counts only graduates who took federal loans, and it leaves out interest, Parent PLUS loans and private loans\.")
+        questions.claim(r"It is a program's median federal debt divided by its graduates' median first-year pay\. A program whose graduates borrowed \$20,000 and earned \$50,000 in their first year would be at 40%\.")
+    questions.claim(r'earlier degree', masters)
+
+
+def ranking_about_claims(about, masters, has_five_year_pay, after_years):
+    """The lines of "About this data" that differ between a ranking page of a
+    graduate degree and any other. `after_years` is what follows the sentence
+    about graduating classes, as a pattern."""
+    if masters:
+        about.claim(GRADUATE_RANKING_DATA_NOTES)
+        years_sentence = class_years_sentence(has_five_year_pay)
+        about.add(*number_tokens(years_sentence, ''))
+        about.claim(rf'{re.escape(years_sentence)} {after_years}')
+    else:
+        about.claim(r'Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school\. Debt only includes federal loans\. Private loans and credit cards are not counted\.')
+        about.claim(rf'College Scorecard figures describe graduating classes from several years ago\. {after_years}')
+
+
+def wrong_kind_errors(masters, main_text):
+    """An error for each phrase of the other kind of ranking page, and for
+    each phrase that no ranking page uses any more."""
+    unwanted = UNDERGRADUATE_ONLY_WORDING if masters else GRADUATE_ONLY_WORDING
+    errors = [f'wording of the other kind of ranking page: {pattern!r}' for pattern in unwanted if re.search(pattern, main_text)]
+    return errors + [f'retired wording {pattern!r}' for pattern in RETIRED_RANKING_WORDING if re.search(pattern, main_text)]
+
+
+def class_years_sentence(has_five_year_pay):
+    """The line in a master's page's "About this data" that names the graduating
+    classes, built from the cohort map in College Scorecard's data dictionary."""
+    years = raw_data.load_class_years()
+    first_year, measured = ' and '.join(years['first_year']), ' and '.join(years['measured'])
+    if not has_five_year_pay:
+        return f"Pay and debt are for students who graduated in {first_year}. Pay was measured in {measured} and is shown in {years['dollars']} dollars."
+    return (f"First-year pay and debt are for students who graduated in {first_year}. "
+            f"Pay after 5 years is for students who graduated in {' and '.join(years['five_year'])}. "
+            f"Both pay figures were measured in {measured} and are shown in {years['dollars']} dollars.")
+
+
 def expected_sections(model_page, cip):
     page = model_page
+    # A master's page names its debt figure for what it counts, has no section
+    # about the school and gives the program's rank at the school in the summary.
+    masters = page['masters']
+    debt_label = 'Median federal debt for graduate study' if masters else 'Median federal debt'
     year1, year5, debt = page['year1'], page['year5'], page['debt']
     national, state = page['national'], page['state']
     row = page['row']
@@ -249,13 +332,19 @@ def expected_sections(model_page, cip):
         pay_sentences = [rf'{earned}, less than graduates of most .* programs nationally\.']
     else:
         pay_sentences = [rf"{earned}, {against_national_median(summary, year1, national['year1'], PAY_ABOUT_THE_SAME)}\."]
-    borrowed = rf"The typical graduate leaves with {re.escape(money(debt))} in federal loans"
+    borrowed = (
+        rf"The typical graduate borrowed {re.escape(money(debt))} in federal loans for graduate study at .*"
+        if masters else rf"The typical graduate leaves with {re.escape(money(debt))} in federal loans"
+    )
+    # A master's page gives the comparison and no verdict on it: its debt figure
+    # can rest on a small part of a class.
+    stands_out = '' if masters else r'Where this program stands out is debt\. '
+    debt_is_high = '' if masters else r'Debt is high\. '
+    summary.claim(r'stands out|Debt is high|Debt is low', not masters and (low_debt or high_debt))
     if low_debt:
-        summary.add(share_of_programs(page['lower_than']))
-        debt_sentences = [rf"Where this program stands out is debt\. {borrowed}, less than at {share_of_programs(page['lower_than'])} of .* programs in the country\."]
+        debt_sentences = [rf"{stands_out}{borrowed}, less than graduates of {share_of(summary, page['lower_than'], '.* programs')} in the country\."]
     elif high_debt:
-        summary.add(share_of_programs(page['higher_than']))
-        debt_sentences = [rf"Debt is high\. {borrowed}, more than at {share_of_programs(page['higher_than'])} of .* programs in the country\."]
+        debt_sentences = [rf"{debt_is_high}{borrowed}, more than graduates of {share_of(summary, page['higher_than'], '.* programs')} in the country\."]
     else:
         debt_sentences = [rf"{borrowed}, {against_national_median(summary, debt, national['debt'], DEBT_ABOUT_THE_SAME)}\."]
     # The closing remark goes with the subject it is about.
@@ -264,13 +353,23 @@ def expected_sections(model_page, cip):
         pay_sentences.append(r'This is one of the higher-paying .* (?:degrees|programs) in .*\.')
     elif low_debt and page['percentile'] <= 25 and year1 < state['year1']:
         summary.add(money(state['year1']))
-        debt_sentences.append(rf"Debt is low, but pay is also below the .* median of {re.escape(money(state['year1']))}\.")
+        if masters:
+            # The same fact, with the pay sentences and without "Debt is low".
+            pay_sentences.append(rf"That is also below the .* median of {re.escape(money(state['year1']))}\.")
+        else:
+            debt_sentences.append(rf"Debt is low, but pay is also below the .* median of {re.escape(money(state['year1']))}\.")
     elif higher_paying_count >= 3:
         pay_sentences.append(r'Several .* programs report higher pay\.')
     elif higher_paying_count == 2:
         pay_sentences.append(r'Two other .* programs report higher pay\.')
     elif higher_paying_count == 1:
         pay_sentences.append(r'One other .* program reports higher pay\.')
+    # The rank among the school's master's programs that report pay closes the
+    # pay sentences. A school with one such program has nothing to rank against.
+    if masters and page['school_count'] > 1:
+        summary.add(ordinal(page['school_rank']), count(page['school_count']))
+        pay_sentences.append(rf"At .* the program ranks {ordinal(page['school_rank'])} by first-year pay among the {count(page['school_count'])} master's programs that report it\.")
+    summary.claim(r'by first-year pay among', masters and page['school_count'] > 1)
     summary.pay_pattern = ' '.join(pay_sentences)
     summary.debt_pattern = ' '.join(debt_sentences)
     summary.claim(r'The short answer|[Ss]trong value|It is one of the higher-paying|about what|close to the national median', False)
@@ -309,9 +408,20 @@ def expected_sections(model_page, cip):
     else:
         figures.add(ordinal(page['state_debt_rank']))
         debt_place = f"{ordinal(page['state_debt_rank'])} lowest of {count(len(page['state_both']))}"
-    figures.tiles.append(['Median federal debt', money(debt), f'{debt_place} {state_name} programs'])
+    figures.tiles.append([debt_label, money(debt), f'{debt_place} {state_name} programs'])
     figures.add(percent(debt_to_earnings), percent(state['dte']), percent(national['dte']))
     figures.tiles.append(['Debt-to-earnings', percent(debt_to_earnings), f"{state_name} median {percent(state['dte'])}, national {percent(national['dte'])}"])
+
+    # A note under a master's page's key figures: how many people the pay figure
+    # and the debt figure each count, across the two classes they describe.
+    counted = sections['counted'] = Expectation(masters and bool(page['working']))
+    if counted.present:
+        counted.add(count(page['working']))
+        if page['borrowers']:
+            counted.add(count(page['borrowers']))
+            counted.claim(rf"^Pay is based on {count(page['working'])} working graduates and debt on {count(page['borrowers'])} borrowers, from two graduating classes\.$")
+        else:
+            counted.claim(rf"^Pay is based on {count(page['working'])} working graduates, from two graduating classes\.$")
 
     # A note under the key figures when some graduates studied at campuses in
     # other states: the share who studied in the school's own state.
@@ -339,7 +449,15 @@ def expected_sections(model_page, cip):
     questions.claim(r'The median is the middle value when the values are put in order: half are higher, and half are lower\.')
     questions.claim(rf"were not enrolled in more school\. For .* graduates that figure is {re.escape(money(year1))}\.")
     questions.claim(rf"Median pay after 5 years is the same measure for an earlier graduating class, and for this program it is {re.escape(money(year5)) if year5 is not None else ''}\.", year5 is not None)
-    questions.claim(rf"Parent PLUS loans and private loans\. For .* graduates that figure is {re.escape(money(debt))}\.")
+    if masters:
+        questions.claim(r"What is median federal debt for graduate study\? For a graduate degree, College Scorecard reports the median amount each program's graduates borrowed in federal student loans for graduate study at that school\.")
+        questions.claim(rf"it leaves out interest, undergraduate loans, loans taken at other schools and private loans\. For .* graduates that figure is {re.escape(money(debt))}\.")
+        questions.claim(r"It is a program's median federal debt for graduate study divided by its graduates' median first-year pay\.")
+        questions.claim(rf"and the national median is {percent(national['dte'])}\. Loans from an earlier degree are not counted\. With them the figure would be higher\.")
+    else:
+        questions.claim(rf"Parent PLUS loans and private loans\. For .* graduates that figure is {re.escape(money(debt))}\.")
+    questions.claim(r'Parent PLUS', not masters)
+    questions.claim(r'earlier degree', masters)
     questions.claim(rf"For this program that is {re.escape(money(debt))} divided by {re.escape(money(year1))}, which is {percent(debt_to_earnings)}\. A lower figure means graduates owe less compared with what they earn\. The median across {re.escape(state_name)} .* programs is {percent(state['dte'])}, and the national median is {percent(national['dte'])}\.")
     questions.claim(r"College Scorecard: the U\.S\. Department of Education's public database of colleges and their programs, with pay figures drawn from federal tax records\.")
     questions.claim(r"College Scorecard: the U\.S\. Department of Education's public database of colleges and their programs, with debt figures drawn from federal student loan records\.")
@@ -347,14 +465,17 @@ def expected_sections(model_page, cip):
 
     # How this program compares with other programs
     compare = sections['compare'] = Expectation(True)
-    compare.claim(r'^How this program compares with other .* programs The first column shows this program, where each figure is the median for its graduates\.')
+    if masters:
+        compare.claim(rf"^How this program compares with other .* programs The first column shows the median pay and debt of .* graduates\. The other two columns show the median of the same figures across all .* programs that report them, in {re.escape(state_place)} and in the country as a whole\.")
+    else:
+        compare.claim(r'^How this program compares with other .* programs The first column shows this program, where each figure is the median for its graduates\.')
     compare.claim(r'Debt as share|national figure|How it compares', False)
     # The table, row by row: this program, the state median, the national median.
     compare.head = ['', None, f'{state_name} median', 'National median']
     compare.rows = [['Median first-year pay', money(year1), money(state['year1']), money(national['year1'])]]
     if year5 is not None and state['year5'] is not None and national['year5'] is not None:
         compare.rows.append(['Median pay after 5 years', money(year5), money(state['year5']), money(national['year5'])])
-    compare.rows.append(['Median federal debt', money(debt), money(state['debt']), money(national['debt'])])
+    compare.rows.append([debt_label, money(debt), money(state['debt']), money(national['debt'])])
     compare.rows.append(['Debt-to-earnings', percent(debt_to_earnings), percent(state['dte']), percent(national['dte'])])
     compare.rows.append(['Programs compared', '', count(state['year1_count']), count(national['year1_count'])])
     for compare_row in compare.rows:
@@ -386,6 +507,11 @@ def expected_sections(model_page, cip):
     scatter = sections['scatter'] = Expectation(True)
     scatter.add(count(len(page['state_both'])))
     scatter.claim(rf"Only the {count(len(page['state_both']))} programs that report both pay and debt are shown\.")
+    if masters:
+        # The lines over a master's chart say what it shows and how to read a dot.
+        scatter.add(count(len(page['state_both'])))
+        scatter.claim(rf"The chart below shows {count(len(page['state_both']))} .* programs in {re.escape(state_place)}\. Each dot is one program\. A dot higher up means its graduates earn more in their first year, and a dot further right means they borrowed more in federal loans for graduate study\. The highlighted dot shows where .* sits among them\. Dashed lines mark the {re.escape(state_name)} medians\.")
+    scatter.claim(r'Programs in the upper left give graduates higher pay for less debt\.', not masters)
     # The note about programs for working nurses, on nursing bachelor's pages only.
     scatter.claim(r"are for nurses who are already licensed and working\. College Scorecard counts them with programs for new students, and their graduates' pay reflects years of nursing experience\. High pay at a program here", cip == '5138' and row['CREDLEV'] == 3)
 
@@ -464,6 +590,14 @@ def expected_sections(model_page, cip):
         repayment.add(money(page['monthly']))
         share_of_pay = page_model.round_half_up(Fraction(page['monthly'] * 12 * 100, year1), 1)
         repayment.add(f'{share_of_pay:.1f}%')
+        # A master's payment is worked out from the debt for graduate study alone,
+        # and the sentence says so next to it.
+        payment = rf"means a payment of about {re.escape(money(page['monthly']))} a month, or {share_of_pay:.1f}% of a graduate's typical monthly pay in the first year\."
+        if masters:
+            repayment.claim(rf"On a standard 10-year plan, the median debt for graduate study {payment} Loans from an earlier degree are not in this figure\. A graduate who has them pays more\.")
+        else:
+            repayment.claim(rf"On a standard 10-year plan, the median debt {payment}")
+        repayment.claim(r'earlier degree', masters)
         if page['repayment']:
             repayment.add(count(page['repayment_borrowers']))
             for _, share_text in page['repayment']:
@@ -530,7 +664,7 @@ def expected_sections(model_page, cip):
     career_section.claim(r'crosswalk|Median pay in |Median pay nationwide|Typical education to start|Careers this field leads to', False)
 
     # About the school
-    school = sections['school'] = Expectation(True)
+    school = sections['school'] = Expectation(not masters)
     # The table of school facts, row by row.
     school.rows = []
     if page['reports_by_program']:
@@ -563,7 +697,9 @@ def expected_sections(model_page, cip):
         school.claim(r'is the only .* program at .* that reports first-year pay\.')
     else:
         school.add(ordinal(page['school_rank']), count(page['school_count']))
-        school.claim(r' programs at .* by first-year pay\.')
+        # The count is of the school's programs that report pay, and the sentence says so.
+        school.claim(rf" ranks {ordinal(page['school_rank'])} by first-year pay among the {count(page['school_count'])} .* programs at .* that report it\.")
+        school.claim(r' programs at .* by first-year pay\.', False)
     if page['school_count'] >= 4:
         school.add(*[money(pay) for _, pay in page['top_programs']])
         school.claim(r'The top three are')
@@ -625,13 +761,15 @@ def expected_sections(model_page, cip):
     # compared with most programs, and any other with the national median in
     # dollars. Programs with the same debt count on neither side, so a smaller
     # share would read as if the rest were on the other side.
-    left_with = rf"They leave with a median of {re.escape(money(debt))} in federal loans, "
+    left_with = (
+        rf"They borrowed a median of {re.escape(money(debt))} in federal loans for graduate study at .*, "
+        if masters else rf"They leave with a median of {re.escape(money(debt))} in federal loans, "
+    )
+    faq.claim(rf"The median graduate borrowed {re.escape(money(debt))} in federal loans for graduate study at .*, which ranks .* Undergraduate loans and loans taken at other schools are not counted\.", masters)
     if low_debt:
-        faq.add(share_of_programs(page['lower_than']))
-        faq.claim(left_with + rf"less than at {re.escape(share_of_programs(page['lower_than']))} of those programs\.")
+        faq.claim(left_with + rf"less than graduates of {share_of(faq, page['lower_than'], 'those programs')}\.")
     elif high_debt:
-        faq.add(share_of_programs(page['higher_than']))
-        faq.claim(left_with + rf"more than at {re.escape(share_of_programs(page['higher_than']))} of those programs\.")
+        faq.claim(left_with + rf"more than graduates of {share_of(faq, page['higher_than'], 'those programs')}\.")
     else:
         faq.claim(left_with + against_national_median(faq, debt, national['debt'], DEBT_ABOUT_THE_SAME) + r'\.')
     faq.claim(r'of those programs', low_debt or high_debt)
@@ -640,16 +778,33 @@ def expected_sections(model_page, cip):
         faq.add(money(page['monthly']), f'{share_of_pay:.1f}%')
         faq.claim(rf"On a standard 10-year plan that is about {re.escape(money(page['monthly']))} a month, or {share_of_pay:.1f}% of first-year pay\.")
     faq.claim(r'These figures count only students who finished, and we have no completion rate for this program alone\.')
-    if page['graduation_rate'] is not None:
+    # The school's graduation rate describes its undergraduates. A master's page leaves it out.
+    shows_graduation = page['graduation_rate'] is not None and not masters
+    if shows_graduation:
         faq.add(percent(page['graduation_rate']))
         finish = 'graduate within six years' if page['within_six_years'] else 'finish within one and a half times the normal length of their program'
         faq.claim(rf"Across .*, {percent(page['graduation_rate'])} of first-time, full-time students {finish}\.")
-    faq.claim(r'first-time, full-time students', page['graduation_rate'] is not None)
+    faq.claim(r'first-time, full-time students', shows_graduation)
     faq.claim(r'On the numbers|yes for most students|It depends on your other options|Debt equals|highest possible early salary|before deciding', False)
-    faq.claim(r'graduates stay in ', in_state_share is not None)
+    # The last question gives the share who work in the school's state and says
+    # nothing of staying or leaving. Where the school reports that the field's
+    # programs can be completed online, the answer says so.
+    faq.claim(r'What share of .* graduates work in ', in_state_share is not None)
+    faq.claim(r'graduates stay in |Most do\.|Many leave\.', False)
+    online = page['online'] if in_state_share is not None else None
     if in_state_share is not None:
         faq.add(percent(in_state_share), count(page['working_in_state']), count(page['working']))
-        faq.claim(r'Most do\.' if in_state_share >= Fraction(1, 2) else r'Many leave\.')
+        answer = rf"graduates work in {re.escape(state_place)}\? {percent(in_state_share)} \({count(page['working_in_state'])} of {count(page['working'])}\) were working in {re.escape(state_place)} one year after graduating\."
+        credential = CREDENTIAL_LABELS[row['CREDLEV']].lower()
+        live = 'in other states' if page_model.is_state(state_name) else 'elsewhere'
+        if online == 'all':
+            answer += rf" .* reports that its {re.escape(credential)} programs in this field can all be completed fully online\. Online students may live {live}\.$"
+        elif online == 'some':
+            answer += rf" .* reports that at least one of its {re.escape(credential)} programs in this field can be completed fully online\. Online students may live {live}\.$"
+        else:
+            answer += '$'
+        faq.claim(answer)
+    faq.claim(r'completed fully online', online is not None)
 
     # Meta description
     description = sections['#description'] = Expectation(True)
@@ -660,38 +815,53 @@ def expected_sections(model_page, cip):
     else:
         description.claim(r'graduates earn \$[\d,]+ in year one\. ')
     if low_debt:
-        description.add(share_of_programs(page['lower_than']))
-        description.claim(r'Median federal debt: \$[\d,]+, lower than at .* of similar programs\.$')
+        description.claim(rf"{debt_label}: {re.escape(money(debt))}, lower than at {share_of(description, page['lower_than'], 'similar programs')}\.$")
     elif high_debt:
-        description.add(share_of_programs(page['higher_than']))
-        description.claim(r'Median federal debt: \$[\d,]+, higher than at .* of similar programs\.$')
+        description.claim(rf"{debt_label}: {re.escape(money(debt))}, higher than at {share_of(description, page['higher_than'], 'similar programs')}\.$")
     else:
         # Both figures and no verdict: the debt can be far from the national median.
         description.add(money(national['debt']))
-        description.claim(rf"Median federal debt: {re.escape(money(debt))}\. National median: {re.escape(money(national['debt']))}\.$")
+        description.claim(rf"{debt_label}: {re.escape(money(debt))}\. National median: {re.escape(money(national['debt']))}\.$")
     description.claim(r'near the national median', False)
 
-    # Related pages: the state ranking for this field and credential, and the
-    # school's page, which lists every program at the school that reports pay.
+    # Related pages: the state ranking for this field and credential, the
+    # national one, and the school's page. A master's page links to the school's
+    # bachelor's program in the same field when that program has a page, and a
+    # bachelor's page to the master's program.
+    has_school_page = page['school_total'] >= 2
     related = sections['related'] = Expectation(True)
     related.add(count(state['year1_count']))
-    related.claim(r'programs in .*, ranked')
-    # Schools with only one program that reports pay have no school page.
-    if page['school_total'] >= 2:
+    related.claim(r'^Related pages .* programs in .*, ranked')
+    # Schools with only one program that reports pay have no school page. The
+    # school's page lists its master's programs too, and the link counts them.
+    if has_school_page:
         related.add(count(page['school_total']))
-    related.claim(r'All .* programs, ranked', page['school_total'] >= 2)
+    related.claim(r'All .* programs, ranked', has_school_page)
     # And the national page for the field and credential.
     related.add(count(national['year1_count']))
     related.claim(r'programs in the US, ranked')
+    bachelors_degree = DEGREE_ABBREVIATIONS.get((cip, 3), "Bachelor's")
+    related.claim(rf"\({re.escape(bachelors_degree)}\) Tuition, graduate salary and debt", page['bachelors_page'])
+    related.claim(r'\) Graduate salary and debt', page['masters_page'])
 
     official = ' '.join(row['CIPDESC'].split()).rstrip('.')
     about = sections['about-data'] = Expectation(True)
     about.claim(PAY_PRIVACY_NOTE.format(figures='each pay figure'))
+    # Said once here, for every rank, median and count of programs on the page.
+    about.claim(r"Debt figures are not changed\. Ranks, medians and counts only include programs that report the figure\. The government withholds many programs' figures to protect privacy\. For some schools with several campuses")
     about.claim(rf"^About this data This program is in the field the U\.S\. Department of Education calls \"{re.escape(official)}\"\.")
-    about.claim(r'Pay and debt only include students who received federal financial aid \(grants or loans\)\. Pay only counts graduates who were working and not enrolled in more school\.')
     about.claim(CAMPUS_RULE.format(state=re.escape(state_name), place=re.escape(state_place)))
-    about.claim(r'School-level numbers like tuition, admission rate and graduation rate are for the whole school, not the .* program\.')
-    about.claim(r'College Scorecard figures describe graduating classes from several years ago\. Bureau of Labor Statistics wages are from May 2025\.')
+    if masters:
+        about.claim(r'Pay only includes graduates who received federal financial aid\. Debt only includes graduates who took federal loans\. Pay only counts graduates who were working and not enrolled in more school\. Graduates who went straight to further study are not included\. Debt only includes federal loans taken for graduate study at .*\. Undergraduate loans, loans taken at other schools, private loans and credit cards are not counted\.')
+        # The classes the figures describe, as the federal data dictionary gives them.
+        years_sentence = class_years_sentence(year5 is not None)
+        about.add(*number_tokens(years_sentence, ''))
+        about.claim(rf'{re.escape(years_sentence)} Bureau of Labor Statistics wages are from May 2025\. Sources ')
+        about.claim(r'School-level numbers|several years ago|grants or loans|[Tt]uition', False)
+    else:
+        about.claim(r'Pay and debt only include students who received federal financial aid \(grants or loans\)\. Pay only counts graduates who were working and not enrolled in more school\.')
+        about.claim(r'School-level numbers like tuition, admission rate and graduation rate are for the whole school, not the .* program\.')
+        about.claim(r'College Scorecard figures describe graduating classes from several years ago\. Bureau of Labor Statistics wages are from May 2025\.')
 
     sections['#graduates'] = page['graduates']
     sections['#official'] = official
@@ -714,14 +884,15 @@ CAMPUS_RULE = r'''For some schools with several campuses, College Scorecard give
 # The five salaries in the answer that explains the median: an example, not data.
 MEDIAN_EXAMPLE_TOKENS = ['$40,000', '$45,000', '$50,000', '$55,000', '$210,000', '$80,000', '$50,000']
 CONTROL_LABELS = {'1': 'Public', '2': 'Private nonprofit', '3': 'Private for-profit'}
-CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
+CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's", 5: "Master's"}
+DEGREE_ABBREVIATIONS = page_model.load_degree_abbreviations()
 REPAYMENT_LABELS = {
     'paidInFull': 'Paid off in full', 'makingProgress': 'Paying down the balance',
     'forbearance': 'Paused payments (forbearance)', 'default': 'In default',
 }
 # Sections in the order the page shows them. A page leaves out those it has no data for.
 SECTION_ORDER = [
-    'header', 'summary', 'key-figures', 'campuses', 'key-figure-questions', 'compare', 'scatter', 'over-time', 'family-income',
+    'header', 'summary', 'key-figures', 'counted', 'campuses', 'key-figure-questions', 'compare', 'scatter', 'over-time', 'family-income',
     'repayment', 'work', 'careers', 'school', 'nearby', 'faq', 'related', 'about-data',
 ]
 # Wording the revised pages no longer use anywhere. "Earnings" survives only in
@@ -732,7 +903,20 @@ RETIRED_WORDING = [
     r'\bRN\b', r'\bLPN\b', r'\bLVN\b', r'\bBLS\b', r'(?<!College )\bScorecard\b',
     # Two agencies link fields of study to jobs, so naming one alone is retired.
     r'Department of Education links',
+    # "More than at more than 99% of" made a reader trip. It is "nearly all" now (the user, 2026-10-13).
+    r'than at more than',
+    # "The typical graduate leaves with $19,500, less than at 91% of business programs" read stiffly.
+    # It is "less than graduates of 91% of" now, as the pay sentence says it (the user, 2026-10-13).
+    r'\b(?:less|more) than at\b',
+    # A school's page lists its master's programs, so the link to it no longer
+    # names undergraduate programs (the user, 2026-10-14).
+    r'undergraduate programs, ranked',
 ]
+
+
+def graduates_per_year(graduates):
+    """How a page gives a program's graduates a year: one graduate, or several."""
+    return f"About {count(graduates)} {'graduate' if graduates == 1 else 'graduates'} a year"
 
 
 def institution_kind(institution):
@@ -770,7 +954,227 @@ def check_career_links(node, codes, career_codes, errors):
 FORBIDDEN_PATTERNS = [r'\bundefined\b', r'\bNaN\b', r'\bnull\b', r'\$0(?![\d,])']
 
 
-def check_page(html_text, model, page_path):
+# ---------------------------------------------------------------------------
+# Names and addresses
+#
+# What the site calls each school and where each program page lives, worked out
+# from the federal files and the reviewed lists in scripts/reference. A second
+# implementation of the naming and address rules in scripts/build-data.ts.
+
+FIELD_NAMES = page_model.load_field_names()
+CREDENTIAL_SLUGS = {1: 'certificate', 2: 'associate', 3: 'bachelors', 5: 'masters'}
+# The rules of scripts/reference/school-short-names.ts, in order: the pattern,
+# what replaces it, and whether every match is replaced or only the first. A
+# second copy on purpose. Its length is compared with the file's. A rule
+# added there stops this checker until it is added here.
+SHORT_NAME_RULES = [
+    (r'\s*-\s*Main Campus$', '', False),
+    (r'\s+Main Campus$', '', False),
+    (r'-Main$', '', False),
+    (r'^The ', '', False),
+    (r',? (LLC|Inc)\.?$', '', False),
+    (r'^CUNY (.+)$', r'\1', False),
+    (r'^(.+) CUNY$', r'\1', False),
+    (r' A & M ', ' A&M ', True),
+    (r'^University of California-(.+)$', r'UC \1', False),
+    (r'^California State University-(.+)$', r'Cal State \1', False),
+    (r'^University of Texas at (.+)$', r'UT \1', False),
+    (r'^Texas A&M University-(.+)$', r'Texas A&M-\1', False),
+    (r'^University of North Carolina at (.+)$', r'UNC \1', False),
+    (r'^University of Wisconsin-(.+)$', r'UW-\1', False),
+    (r'^University of Massachusetts-(.+)$', r'UMass \1', False),
+    (r'^Indiana University-(.+)$', r'IU \1', False),
+    (r'^Purdue University (.+)$', r'Purdue \1', False),
+    (r'^State University of New York at (.+)$', r'SUNY \1', False),
+    (r'^SUNY at (.+)$', r'SUNY \1', False),
+    (r'^University of Puerto Rico-(.+)$', r'UPR \1', False),
+    (r'^University of South Carolina-(.+)$', r'USC \1', False),
+    (r'^(.+?)(?<!&)(?<! and) State University$', r'\1 State', False),
+    (r'^(University of Phoenix|DeVry University|Colorado Technical University|Keiser University|Rasmussen University|Chamberlain University)-.+$', r'\1', False),
+    (r"^St\. John's University-New York$", "St. John's University", False),
+    (r"^Saint Joseph's University - Philadelphia$", "Saint Joseph's University", False),
+]
+
+
+def address_slug(text):
+    """A name as it reads in an address (scripts/lib/slug.ts): "Texas A&M"
+    becomes "texas-am", and "Arts & Sciences" becomes "arts-and-sciences"."""
+    text = re.sub('[̀-ͯ]', '', unicodedata.normalize('NFKD', text)).lower()
+    text = re.sub(r'([a-z0-9])&([a-z0-9])', r'\1\2', text).replace('&', ' and ')
+    return re.sub(r'[^a-z0-9]+', '-', re.sub("['’]", '', text)).strip('-')
+
+
+def load_school_short_names():
+    """UNITID to the short name written by hand for a well-known school."""
+    text = (page_model.REFERENCE / 'school-short-names.ts').read_text()
+    if text.count('{ pattern: ') != len(SHORT_NAME_RULES):
+        raise ValueError('school-short-names.ts and SHORT_NAME_RULES in this file no longer hold the same number of rules')
+    listed = text.split('export const SCHOOL_SHORT_NAMES', 1)[1].split('type ShortNameRule', 1)[0]
+    return {unit_id: single or double for unit_id, single, double in re.findall(r"'(\d+)': (?:'([^']*)'|\"([^\"]*)\")", listed)}
+
+
+class Identity:
+    """The name the site gives every school its pages name, and the address of
+    every program page."""
+
+    def __init__(self, model):
+        self.model = model
+        institutions = model.institutions
+        short_names = load_school_short_names()
+
+        # Every school a page names: schools with program pages, and every
+        # school in a state pool that reports pay. A master's pool is named when
+        # its field has master's pages: the field's national ranking page lists
+        # every program in it.
+        named = set(model.page_unit_ids) | {row['UNITID'] for row in model.masters_rows}
+        for (cip, level, _state), rows in model.state.items():
+            if level == raw_data.MASTERS_LEVEL and (cip, level) not in model.masters_rows_by_field:
+                continue
+            named.update(row['UNITID'] for row in rows if row['EARN_MDN_1YR'] is not None)
+
+        # A school's names, shortest first. When two schools would share a name,
+        # both move to the next one: the short name, the official name, then the
+        # official name with the state, then with the city too.
+        def name_steps(unit_id):
+            institution = institutions[unit_id]
+            official = institution['INSTNM']
+            short = short_names.get(unit_id)
+            if short is None:
+                short = official.strip()
+                for pattern, replacement, every_match in SHORT_NAME_RULES:
+                    short = re.sub(pattern, replacement, short, count=0 if every_match else 1)
+            state_name = STATE_NAMES.get(institution['STABBR'], institution['STABBR'])
+            return [short, official, f'{official} ({state_name})', f"{official} ({institution['CITY']}, {state_name})"]
+
+        steps = {unit_id: name_steps(unit_id) for unit_id in named}
+        step_of = dict.fromkeys(named, 0)
+        for _ in range(4):
+            sharing = defaultdict(list)
+            for unit_id in named:
+                sharing[steps[unit_id][step_of[unit_id]]].append(unit_id)
+            moved = False
+            for unit_ids in sharing.values():
+                for unit_id in unit_ids if len(unit_ids) > 1 else []:
+                    if step_of[unit_id] < 3:
+                        step_of[unit_id] += 1
+                        moved = True
+            if not moved:
+                break
+        self.names = {unit_id: steps[unit_id][step_of[unit_id]] for unit_id in named}
+
+        # Addresses. A school's address is its name. Schools with the same name
+        # all add the state, then the city, then the UNITID.
+        def name_slug(unit_id):
+            return address_slug(re.sub(r'^The\s+', '', institutions[unit_id]['INSTNM'], flags=re.I))
+
+        def longer_slugs(unit_id):
+            institution = institutions[unit_id]
+            state, city = address_slug(institution['STABBR']), address_slug(institution['CITY'])
+            return [f'{name_slug(unit_id)}-{state}', f'{name_slug(unit_id)}-{city}-{state}', f'{name_slug(unit_id)}-{unit_id}']
+
+        sharing = defaultdict(list)
+        for unit_id in model.page_unit_ids:
+            sharing[name_slug(unit_id)].append(unit_id)
+        self.school_slugs = {}
+        for slug, unit_ids in sharing.items():
+            if len(unit_ids) == 1:
+                self.school_slugs[unit_ids[0]] = slug
+                continue
+            for step in range(3):
+                slugs = [longer_slugs(unit_id)[step] for unit_id in unit_ids]
+                if len(set(slugs)) == len(slugs) or step == 2:
+                    self.school_slugs.update(zip(unit_ids, slugs))
+                    break
+        # A school with master's pages only takes the first address that no
+        # school has yet, in the order of the federal file.
+        for row in model.masters_rows:
+            unit_id = row['UNITID']
+            if unit_id not in self.school_slugs:
+                taken = set(self.school_slugs.values())
+                self.school_slugs[unit_id] = next(slug for slug in [name_slug(unit_id), *longer_slugs(unit_id)] if slug not in taken)
+
+    def program_slug(self, cip, credential_level):
+        return f'{address_slug(FIELD_NAMES[cip])}-{CREDENTIAL_SLUGS[credential_level]}'
+
+    def address(self, unit_id, cip, credential_level):
+        return f'/schools/{self.school_slugs[unit_id]}/{self.program_slug(cip, credential_level)}'
+
+    def has_page(self, unit_id, cip, credential_level):
+        row = self.model.kept_by_unit.get((unit_id, cip, credential_level))
+        return row is not None and id(row) in (self.model.masters_ids if credential_level == raw_data.MASTERS_LEVEL else self.model.page_ids)
+
+    def every_address(self):
+        """The address of every program page the federal files call for."""
+        return {self.address(row['UNITID'], row['CIPCODE'], row['CREDLEV']) for row in [*self.model.page_rows, *self.model.masters_rows]}
+
+
+def links_in(node):
+    return [anchor.attributes.get('href', '') for anchor in node.find_all(lambda child: child.tag == 'a')] if node is not None else []
+
+
+def chart_errors(node, programs, medians, highlighted=None):
+    """Reads the chart as a reader would, against its own axis labels. Every dot
+    must sit at the pay and debt of one program in the federal file, and the
+    dashed lines at the state medians. `programs` holds each program's (debt,
+    pay) and `medians` the state's. On the page of one program, `highlighted`
+    is that program's (debt, pay): its dot is larger and drawn last. A ranking
+    page highlights no dot."""
+    def number(element, name):
+        return float(element.attributes[name])
+
+    def thousands(label):
+        return int(label.raw_text().strip().removeprefix('$').removesuffix('k')) * 1000
+
+    # Each pay label sits beside its grid line. Each debt label sits under its value.
+    pay_marks, debt_marks = [], []
+    for label in node.find_all(lambda child: child.tag == 'text' and child.raw_text().strip().startswith('$')):
+        if label.attributes.get('text-anchor') == 'end':
+            pay_marks.append((thousands(label), number(label.parent.find(lambda child: child.tag == 'line'), 'y1')))
+        else:
+            debt_marks.append((thousands(label), number(label, 'x')))
+
+    def reading(marks, axis):
+        """Turns a position on an axis into dollars, from its first and last labels."""
+        if len(marks) < 2 or marks[0][1] == marks[-1][1]:
+            raise ValueError(f'the {axis} axis has {len(marks)} labels')
+        (first_value, first_position), (last_value, last_position) = marks[0], marks[-1]
+        dollars_per_unit = (last_value - first_value) / (last_position - first_position)
+        read = lambda position: first_value + (position - first_position) * dollars_per_unit
+        if any(abs(read(position) - value) > 0.5 for value, position in marks):
+            raise ValueError(f'the labels of the {axis} axis are not evenly placed: {marks}')
+        return read
+
+    try:
+        read_debt, read_pay = reading(debt_marks, 'debt'), reading(pay_marks, 'pay')
+    except ValueError as error:
+        return [f'scatter chart: {error}']
+
+    errors = []
+    circles = node.find_all(lambda child: child.tag == 'circle')
+    shown = [(round(read_debt(number(circle, 'cx')), 2), round(read_pay(number(circle, 'cy')), 2)) for circle in circles]
+    expected = [(float(debt), float(pay)) for debt, pay in programs]
+    if Counter(shown) != Counter(expected):
+        errors.append(f'scatter chart: dots sit at {sorted((Counter(shown) - Counter(expected)).elements())[:5]}, where the federal file has programs at {sorted((Counter(expected) - Counter(shown)).elements())[:5]} (debt, pay)')
+    large = [position for position, circle in enumerate(circles) if circle.attributes.get('r') != '5']
+    if highlighted is None:
+        if large:
+            errors.append(f'scatter chart: dots {large} are not the size of the others')
+    else:
+        here = (float(highlighted[0]), float(highlighted[1]))
+        if large != [len(circles) - 1] or circles[-1].attributes.get('r') != '7' or shown[-1] != here:
+            errors.append(f"scatter chart: the highlighted dot should be drawn last and sit at {here}, found dots {large} and {shown[-1] if shown else None}")
+    dashed = [line for line in node.find_all(lambda child: child.tag == 'line') if 'stroke-dasharray' in line.attributes]
+    medians = (float(medians[0]), float(medians[1]))
+    if len(dashed) != 2:
+        errors.append(f'scatter chart: {len(dashed)} dashed lines, expected 2')
+    else:
+        drawn = (read_debt(number(dashed[0], 'x1')), read_pay(number(dashed[1], 'y1')))
+        if abs(drawn[0] - medians[0]) > 0.01 or abs(drawn[1] - medians[1]) > 0.01:
+            errors.append(f'scatter chart: dashed lines at {drawn}, and the state medians are {medians} (debt, pay)')
+    return errors
+
+
+def check_page(html_text, model, page_path, identity):
     errors, warnings = [], []
     root = parse_html(html_text)
     errors.extend(frame_errors(root))
@@ -807,6 +1211,21 @@ def check_page(html_text, model, page_path):
     except LookupError as error:
         return {'page': page_path, 'errors': errors + [str(error)], 'warnings': warnings, 'links': []}
 
+    # The page is at the address this program belongs at, and it calls the
+    # school and the field what the federal files and the reviewed name lists
+    # call them. A master's page shows no tuition, and its title names none.
+    expected_path = identity.address(unit_id, cip, credential_level)
+    if page_path != expected_path:
+        errors.append(f'the page is at {page_path}, and this program belongs at {expected_path}')
+    expected_name = identity.names.get(unit_id)
+    if school_name != expected_name:
+        errors.append(f'the page calls the school {school_name!r}, expected {expected_name!r}')
+    degree = DEGREE_ABBREVIATIONS.get((cip, credential_level), CREDENTIAL_LABELS[credential_level])
+    title_subject = 'Graduate Salary and Debt' if model_page['masters'] else 'Tuition, Graduate Salary, and Debt'
+    expected_title = f'{expected_name} {FIELD_NAMES[cip]} ({degree}): {title_subject}'
+    if title != expected_title:
+        errors.append(f'title should be {expected_title!r}: {title!r}')
+
     main_text = visible_text(main)
     errors.extend(page_model.bare_place_errors(title, description, main_text))
     for pattern in FORBIDDEN_PATTERNS:
@@ -823,7 +1242,7 @@ def check_page(html_text, model, page_path):
     graduates = model_page['graduates']
     facts = [institution_kind(institution), f"{institution['CITY']}, {institution['STABBR']}"]
     if graduates:
-        facts.append(f'About {count(graduates)} graduates a year')
+        facts.append(graduates_per_year(graduates))
     expected_end = ' '.join([h1, *facts, SOURCE_LINE])
     if not header_text.endswith(expected_end):
         errors.append(f'header should end with {expected_end!r}, found {header_text[-len(expected_end) - 40:]!r}')
@@ -923,12 +1342,75 @@ def check_page(html_text, model, page_path):
                 errors.append(f"scatter has {len(circles)} dots, expected {len(model_page['state_both'])} (at least 5)")
             # The chart's own words: two axis titles and the current school's name.
             chart_words = [label.raw_text().strip() for label in node.find_all(lambda child: child.tag == 'text') if not label.raw_text().strip().startswith('$')]
-            if chart_words != ['Median federal debt at graduation', 'Median first-year pay', school_name]:
+            debt_axis = 'Median federal debt for graduate study' if model_page['masters'] else 'Median federal debt at graduation'
+            if chart_words != [debt_axis, 'Median first-year pay', school_name]:
                 errors.append(f'scatter chart shows the words {chart_words}')
+            errors.extend(chart_errors(
+                node,
+                [(other['DEBT_ALL_STGP_ANY_MDN'], other['EARN_MDN_1YR']) for other in model_page['state_both']],
+                (model_page['state']['debt'], model_page['state']['year1']),
+                (model_page['debt'], model_page['year1']),
+            ))
+        if name == 'nearby':
+            # Each row names the school the federal file has at that distance,
+            # and every row but this program's links to that school's page.
+            rows = [row for row in node.find_all(lambda child: child.tag == 'tr') if row.find(lambda child: child.tag == 'td')]
+            for row, item in zip(rows, model_page['nearby']):
+                other = model.institutions[item['unit_id']]
+                named = [visible_text(part) for part in row.find_all(lambda child: 'data-name' in child.attributes)]
+                wanted_names = [identity.names.get(item['unit_id']), f"{other['CITY']}, {other['STABBR']} · {CONTROL_LABELS[other['CONTROL']].lower()}"]
+                wanted_links = [] if item['current'] else [identity.address(item['unit_id'], cip, credential_level)]
+                if named != wanted_names or links_in(row) != wanted_links:
+                    errors.append(f'section nearby: a row names {named} and links to {links_in(row)}, expected {wanted_names} and {wanted_links}')
+        if name == 'school':
+            # The school's other programs, by name, each linked to its own page when it has one.
+            listed = model_page['top_programs'] if model_page['school_count'] >= 4 else [top for top in model_page['top_programs'] if top[0] != cip]
+            parts = [f'{FIELD_NAMES[top_cip]} ({money(pay)})' for top_cip, pay in listed]
+            if parts:
+                wanted_text = f"{', '.join(parts[:-1])} and {parts[-1]}." if len(parts) > 1 else f'{parts[0]}.'
+                if not visible_text(node).endswith(f' {wanted_text}'):
+                    errors.append(f"section school: the school's other programs should read {wanted_text!r}")
+            wanted_links = [identity.address(unit_id, top_cip, credential_level) for top_cip, _ in listed if identity.has_page(unit_id, top_cip, credential_level)]
+            if links_in(node) != wanted_links:
+                errors.append(f'section school: links {links_in(node)}, expected {wanted_links}')
+        if name == 'related':
+            # The state ranking, the national ranking, the school's bachelor's
+            # or master's program in the field, and the school's own page, in
+            # that order.
+            program_slug = identity.program_slug(cip, credential_level)
+            wanted_links = [f"/states/{page_model.state_slug(STATE_NAMES[institution['STABBR']])}/{program_slug}", f'/programs/{program_slug}']
+            # Each link's words in full: its title, then the line under it.
+            kind = f'{FIELD_NAMES[cip]} {CREDENTIAL_LABELS[credential_level].lower()} programs'
+            by_pay_and_debt = lambda programs: f"{count(programs)} programs by pay and debt"
+            wanted_words = [
+                f"{kind} in {page_model.place_in_sentence(STATE_NAMES[institution['STABBR']])}, ranked {by_pay_and_debt(model_page['state']['year1_count'])}",
+                f"{kind} in the US, ranked {by_pay_and_debt(model_page['national']['year1_count'])}",
+            ]
+            if model_page['bachelors_page']:
+                wanted_links.append(identity.address(unit_id, cip, 3))
+                bachelors_degree = DEGREE_ABBREVIATIONS.get((cip, 3), CREDENTIAL_LABELS[3])
+                wanted_words.append(f'{expected_name} {FIELD_NAMES[cip]} ({bachelors_degree}) Tuition, graduate salary and debt')
+            if model_page['masters_page']:
+                wanted_links.append(identity.address(unit_id, cip, raw_data.MASTERS_LEVEL))
+                masters_degree = DEGREE_ABBREVIATIONS.get((cip, raw_data.MASTERS_LEVEL), CREDENTIAL_LABELS[raw_data.MASTERS_LEVEL])
+                wanted_words.append(f'{expected_name} {FIELD_NAMES[cip]} ({masters_degree}) Graduate salary and debt')
+            if model_page['school_total'] >= 2:
+                wanted_links.append(f'/schools/{identity.school_slugs[unit_id]}')
+                wanted_words.append(f"All {expected_name} programs, ranked {by_pay_and_debt(model_page['school_total'])}")
+            shown_words = [visible_text(link) for link in node.find_all(lambda child: child.tag == 'a')]
+            if shown_words != wanted_words:
+                errors.append(f'section related: the links read {shown_words}, expected {wanted_words}')
+            if links_in(node) != wanted_links:
+                errors.append(f'section related: links {links_in(node)}, expected {wanted_links}')
 
     shown_careers = [occupation['code'] for occupation in model_page['occupations']
                      if occupation['state_median'] is not None or occupation['national_median'] is not None]
-    check_career_links(present_sections.get('careers'), shown_careers, model.career_fields(), errors)
+    career_codes = model.career_fields()
+    check_career_links(present_sections.get('careers'), shown_careers, career_codes, errors)
+    # Each job with a career page links to that page, in the order the jobs are listed.
+    wanted_links = [f"/careers/{address_slug(OCCUPATION_NAMES.get(code) or model.wages[('US', code)]['title'])}" for code in shown_careers if code in career_codes]
+    if links_in(present_sections.get('careers')) != wanted_links:
+        errors.append(f"section careers: links {links_in(present_sections.get('careers'))}, expected {wanted_links}")
 
     description_expectation = expectations['#description']
     actual = Counter(number_tokens(description, school_name))
@@ -981,9 +1463,11 @@ def main():
     parser.add_argument('--html-dir', required=True)
     parser.add_argument('--pages', required=True, help='file with one page path per line')
     parser.add_argument('--report', required=True, help='where to write the JSON report')
+    parser.add_argument('--complete', action='store_true', help='the list is meant to hold every program page: fail if a program the federal files call for has no page in it')
     arguments = parser.parse_args()
 
-    model = page_model.Model()
+    model = page_model.Model(include_masters=True)
+    identity = Identity(model)
     page_paths = [line.strip() for line in Path(arguments.pages).read_text().splitlines() if line.strip()]
     results = []
     for page_path in page_paths:
@@ -991,7 +1475,11 @@ def main():
         if not file_path.exists():
             results.append({'page': page_path, 'errors': [f'no built file {file_path}'], 'warnings': [], 'links': []})
             continue
-        results.append(check_page(file_path.read_text(), model, page_path))
+        results.append(check_page(file_path.read_text(), model, page_path, identity))
+    if arguments.complete:
+        # A page that should not exist fails its own check. A page that is missing shows up only here.
+        for page_path in sorted(identity.every_address() - set(page_paths)):
+            results.append({'page': page_path, 'errors': ['the federal files call for this page, and it is not in the list'], 'warnings': [], 'links': []})
 
     Path(arguments.report).write_text(json.dumps(results, indent=1))
     failed = [result for result in results if result['errors']]

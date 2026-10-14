@@ -3,6 +3,7 @@
 
 import type { PageQuestion } from '@/components/page-blocks'
 import type { ProgramPage } from '@/data/program-page'
+import { isGraduateLevel } from '@/data/program-page'
 import type { SchoolLevel, SchoolPage, SchoolProgram } from '@/data/school-page'
 import { studiedElsewhereNote } from '@/lib/data-notes'
 import { formatCount, formatMoney, formatShare, listWords } from '@/lib/format'
@@ -25,11 +26,16 @@ export function totalPrograms(page: SchoolPage) {
   return page.levels.reduce((total, level) => total + level.programs.length, 0)
 }
 
-// The level with the most programs, which the summary, the two short lists and
-// most questions are about. Ties go to the higher credential (levels are stored
-// bachelor's first).
+// The bachelor's, associate's and certificate levels. Every school page has one.
+function undergraduateLevels(page: SchoolPage) {
+  return page.levels.filter((level) => !isGraduateLevel(level.credentialLevel))
+}
+
+// The undergraduate level with the most programs, which the summary, the two
+// short lists and most questions are about. Ties go to the higher credential
+// (levels are stored bachelor's first after master's).
 export function primaryLevel(page: SchoolPage) {
-  return page.levels.reduce((best, level) => (level.programs.length > best.programs.length ? level : best))
+  return undergraduateLevels(page).reduce((best, level) => (level.programs.length > best.programs.length ? level : best))
 }
 
 // "Public university", "Public college", "Private for-profit school", going by the
@@ -130,6 +136,10 @@ export type KeyFigureContent = { label: string; value: string; context: string }
 // program pages: schools that report by program show their largest program's
 // whole-program cost, and Scorecard's in-state figure is the in-district rate at
 // schools with district pricing.
+// Tuition, net price, the graduation rate and the admission rate are for
+// undergraduates (docs/InstitutionDataDocumentation.pdf, pages 11, 13 and 14, in
+// data/raw). School pages list master's programs too, so each figure says whom
+// it is for.
 export function buildSchoolKeyFigures(school: School) {
   const figures: KeyFigureContent[] = []
   if (school.reportsByProgram) {
@@ -141,31 +151,31 @@ export function buildSchoolKeyFigures(school: School) {
     }
   } else {
     if (school.inStateTuition !== undefined && school.inStateTuition === school.outOfStateTuition) {
-      figures.push({ label: 'Tuition and fees', value: formatMoney(school.inStateTuition), context: 'Per year, for all students' })
+      figures.push({ label: 'Tuition and fees', value: formatMoney(school.inStateTuition), context: 'Per year, for all undergraduates' })
     } else if (school.inStateTuition !== undefined) {
       figures.push({
         label: school.hasDistrictTuition ? 'In-district tuition and fees' : 'In-state tuition and fees',
         value: formatMoney(school.inStateTuition),
-        context: school.outOfStateTuition !== undefined ? `Per year. Out-of-state ${formatMoney(school.outOfStateTuition)}` : 'Per year',
+        context: school.outOfStateTuition !== undefined ? `Per year, for undergraduates. Out-of-state ${formatMoney(school.outOfStateTuition)}` : 'Per year, for undergraduates',
       })
     } else if (school.outOfStateTuition !== undefined) {
-      figures.push({ label: 'Out-of-state tuition and fees', value: formatMoney(school.outOfStateTuition), context: 'Per year' })
+      figures.push({ label: 'Out-of-state tuition and fees', value: formatMoney(school.outOfStateTuition), context: 'Per year, for undergraduates' })
     }
     if (school.averageNetPrice !== undefined) {
-      figures.push({ label: 'Average net price after aid', value: formatMoney(school.averageNetPrice), context: 'Per year' })
+      figures.push({ label: 'Average net price after aid', value: formatMoney(school.averageNetPrice), context: 'Per year, for undergraduates' })
     }
   }
   if (school.graduationRate !== undefined) {
     figures.push({
       label: 'Graduation rate',
       value: formatShare(school.graduationRate.rate),
-      // The rate counts first-time, full-time students only. Six years is right
-      // only at schools that mainly award bachelor's degrees.
-      context: `First-time, full-time students, within ${school.graduationRate.withinSixYears ? '6 years' : '1.5 times the normal program length'}`,
+      // The rate counts first-time, full-time undergraduates only. Six years is
+      // right only at schools that mainly award bachelor's degrees.
+      context: `First-time, full-time undergraduates, within ${school.graduationRate.withinSixYears ? '6 years' : '1.5 times the normal program length'}`,
     })
   }
   if (school.admissionRate !== undefined) {
-    figures.push({ label: 'Admission rate', value: formatShare(school.admissionRate), context: 'Of applicants' })
+    figures.push({ label: 'Admission rate', value: formatShare(school.admissionRate), context: 'Of undergraduate applicants' })
   }
   return figures
 }
@@ -199,20 +209,25 @@ function costAnswer(school: School) {
     }
     return parts.join(' ')
   }
+  // The figures are for undergraduates, and the answer says so first.
   if (school.inStateTuition !== undefined && school.inStateTuition === school.outOfStateTuition) {
-    parts.push(`Tuition and fees are ${formatMoney(school.inStateTuition)} a year for all students.`)
+    parts.push(`For undergraduates, tuition and fees are ${formatMoney(school.inStateTuition)} a year, the same for in-state and out-of-state students.`)
   } else if (school.inStateTuition !== undefined) {
-    const local = school.hasDistrictTuition ? 'In-district' : 'In-state'
+    const local = school.hasDistrictTuition ? 'in-district' : 'in-state'
     parts.push(
       school.outOfStateTuition !== undefined
-        ? `${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year and ${formatMoney(school.outOfStateTuition)} for out-of-state students.`
-        : `${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year.`,
+        ? `For undergraduates, ${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year and ${formatMoney(school.outOfStateTuition)} for out-of-state students.`
+        : `For undergraduates, ${local} tuition and fees are ${formatMoney(school.inStateTuition)} a year.`,
     )
   } else if (school.outOfStateTuition !== undefined) {
-    parts.push(`Out-of-state tuition and fees are ${formatMoney(school.outOfStateTuition)} a year.`)
+    parts.push(`For undergraduates, out-of-state tuition and fees are ${formatMoney(school.outOfStateTuition)} a year.`)
   }
   if (school.averageNetPrice !== undefined) {
-    parts.push(`After grants and scholarships, the average net price is ${formatMoney(school.averageNetPrice)} a year.`)
+    parts.push(
+      parts.length > 0
+        ? `After grants and scholarships, their average net price is ${formatMoney(school.averageNetPrice)} a year.`
+        : `After grants and scholarships, the average net price for undergraduates is ${formatMoney(school.averageNetPrice)} a year.`,
+    )
   }
   return parts.join(' ')
 }
@@ -224,7 +239,7 @@ export function buildSchoolFaq(page: SchoolPage): PageQuestion[] {
   const level = primaryLevel(page)
   const credential = credentialLower(level)
   // "major" reads naturally only at schools that offer nothing but bachelor's degrees.
-  const programWord = page.levels.length === 1 && level.credentialLevel === 3 ? 'major' : `${credential} program`
+  const programWord = undergraduateLevels(page).length === 1 && level.credentialLevel === 3 ? 'major' : `${credential} program`
   const faq: { question: string; answer: string }[] = []
 
   if (level.programs.length >= 2) {

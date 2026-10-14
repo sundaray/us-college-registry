@@ -5,6 +5,7 @@
 
 import type { NationalProgramPage, NationalRankedProgram, NationalStateRow } from '@/data/national-program-page'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { debtName, GRADUATE_DEBT_LIMIT, isGraduateRanking } from '@/lib/graduate-ranking-copy'
 import { keyFigureQuestions } from '@/lib/key-figure-copy'
 import { isState, outsideStatesRange, placeInSentence, whatPlaceIs } from '@/lib/place-names'
 import { summaryParagraphs } from '@/lib/summary'
@@ -95,9 +96,17 @@ function paySentence(page: NationalProgramPage) {
   return `The median ${programKind(page)} program in the US pays its graduates ${formatMoney(national.earningsYear1)} in their first year${year5}.`
 }
 
+// What the median program's graduates owe. A graduate figure counts only the
+// loans taken for graduate study at the program's own school, and says so.
+function debtSentence(page: NationalProgramPage) {
+  return isGraduateRanking(page)
+    ? `The median program's graduates borrowed ${formatMoney(page.national.medianDebt)} in federal loans for graduate study at their school.`
+    : `The median program leaves its graduates with ${formatMoney(page.national.medianDebt)} in federal debt.`
+}
+
 // The summary has two subjects: the national pay and debt, then the states.
 export function buildNationalSummary(page: NationalProgramPage) {
-  const nation = [paySentence(page), `The median program leaves its graduates with ${formatMoney(page.national.medianDebt)} in federal debt.`]
+  const nation = [paySentence(page), debtSentence(page)]
   const byState: string[] = []
   // Only states are compared with each other. A place that is not a state is
   // mentioned after them when its median falls outside their range.
@@ -125,7 +134,7 @@ export function buildNationalSummary(page: NationalProgramPage) {
 
 // The questions under the key figures, about the national medians.
 export function buildKeyFigureQuestions(page: NationalProgramPage) {
-  return keyFigureQuestions({ benchmark: page.national, programs: programKind(page), showYear5: page.national.earningsYear5 !== undefined })
+  return keyFigureQuestions({ benchmark: page.national, programs: programKind(page), showYear5: page.national.earningsYear5 !== undefined, graduateDebt: isGraduateRanking(page) })
 }
 
 // "165 computer engineering bachelor's programs, ranked by graduate pay".
@@ -153,12 +162,13 @@ export function lowestDebtTitle(page: NationalProgramPage) {
 }
 
 // `listed` is the number of programs in each list: ten, or fewer when fewer report debt.
-export function lowestDebtIntro(listed: number) {
-  const explanation = 'Debt-to-earnings is median federal debt divided by first-year pay.'
+export function lowestDebtIntro(listed: number, graduate = false) {
+  const debt = debtName(graduate)
+  const explanation = `Debt-to-earnings is ${debt} divided by first-year pay.`
   if (listed < LOWEST_DEBT_COUNT) {
-    return `These two lists order the ${COUNT_WORDS[listed]} programs that report debt, first by median federal debt and then by debt-to-earnings. ${explanation}`
+    return `These two lists order the ${COUNT_WORDS[listed]} programs that report debt, first by ${debt} and then by debt-to-earnings. ${explanation}`
   }
-  return `These two lists show the ten programs with the lowest median federal debt and the ten with the lowest debt-to-earnings. ${explanation}`
+  return `These two lists show the ten programs with the lowest ${debt} and the ten with the lowest debt-to-earnings. ${explanation}`
 }
 
 export function careersTitle(page: NationalProgramPage) {
@@ -170,13 +180,24 @@ export function careersIntro(page: NationalProgramPage) {
 }
 
 
-// "Programs in 8 more states and territories report pay, but there are too few in each to rank. ..."
+// The paragraph above the table of states. It explains the two columns a reader
+// may not know and what a median across programs is; the user worded it on
+// 2026-10-14. A graduate debt figure counts only the loans for graduate study
+// at the school, and the sentence about debt says so.
+export function statesIntro(page: NationalProgramPage) {
+  const borrowed = isGraduateRanking(page) ? 'borrowed in federal loans for graduate study at the school' : 'borrowed in federal loans'
+  return `In the table below, we show pay and debt for each state's ${programKind(page)} programs. Year 1 pay is what a program's typical graduate earned in the first year after finishing. Debt is what a program's typical graduate ${borrowed}. Each state's figure is the median across its programs: half of them are higher, and half are lower.`
+}
+
+// "The table leaves out 8 more states and territories, because each has fewer
+// than five programs that report both pay and debt." A reader from one of those
+// places looks for it in the table. The note says why it is missing as a plain
+// fact, and not as a rule of the site.
 export function unrankedNote(page: NationalProgramPage) {
   const count = page.unrankedPlaceCount
   if (count === 0) return undefined
   const places = count === 1 ? 'one more state or territory' : `${formatCount(count)} more states and territories`
-  const tooFew = count === 1 ? 'there are too few to rank' : 'there are too few in each to rank'
-  return `Programs in ${places} report pay, but ${tooFew}. A state ranking needs at least five programs that report both pay and debt.`
+  return `The table leaves out ${places}, because ${count === 1 ? 'it has' : 'each has'} fewer than five programs that report both pay and debt.`
 }
 
 // The line above the pay of a field's one matching job.
@@ -224,13 +245,15 @@ export function buildNationalFaq(page: NationalProgramPage) {
       ? `${topNames} reports the highest first-year pay of the ${formatCount(page.ranking.length)} programs ranked here, ${formatMoney(top[0].earningsYear1)}.`
       : `${topNames} report the highest first-year pay of the ${formatCount(page.ranking.length)} programs ranked here, ${formatMoney(top[0].earningsYear1)}.`,
   ]
-  if (top.length === 1 && top[0].medianDebt !== undefined) topAnswer.push(`Its median federal debt is ${formatMoney(top[0].medianDebt)}.`)
+  if (top.length === 1 && top[0].medianDebt !== undefined) topAnswer.push(`Its ${debtName(isGraduateRanking(page))} is ${formatMoney(top[0].medianDebt)}.`)
   if (top.length === 1 && !top[0].isOpen) topAnswer.push('The school has since closed.')
   faq.push({ question: `Which ${kind} program pays the most?`, answer: topAnswer.join(' ') })
 
   faq.push({
     question: `How much debt do ${kind} graduates have?`,
-    answer: `The median program leaves its graduates with ${formatMoney(page.national.medianDebt)} in federal debt. Across programs, the median debt is ${formatShare(page.national.debtToEarnings)} of first-year pay.`,
+    answer: isGraduateRanking(page)
+      ? `${debtSentence(page)} Across programs, the median debt for graduate study is ${formatShare(page.national.debtToEarnings)} of first-year pay. ${GRADUATE_DEBT_LIMIT}`
+      : `${debtSentence(page)} Across programs, the median debt is ${formatShare(page.national.debtToEarnings)} of first-year pay.`,
   })
   return faq
 }

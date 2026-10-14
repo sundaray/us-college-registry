@@ -52,7 +52,7 @@ export type RankedListedProgram = ListedProgram & {
 }
 
 export type ProgramsListPage = {
-  // Bachelor's first. Highest median first-year pay first within each level.
+  // Master's first, then bachelor's. Highest median first-year pay first within each level.
   levels: { credentialLevel: CredentialLevel; credential: string; programs: RankedListedProgram[] }[]
 }
 

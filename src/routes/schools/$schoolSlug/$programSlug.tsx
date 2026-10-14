@@ -7,6 +7,7 @@ import { DebtEarningsScatter } from '@/components/program/debt-earnings-scatter'
 import { EarningsBars } from '@/components/program/earnings-bars'
 import { ProgramHeader } from '@/components/program/program-header'
 import { ProgramLink } from '@/components/program/program-link'
+import { RelatedProgramLink } from '@/components/program/related-program-link'
 import { RelatedSchoolLink } from '@/components/school/school-link'
 import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { Card, CardContent } from '@/components/ui/card'
@@ -15,15 +16,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getProgramPage } from '@/data/get-program-page'
 import type { ProgramPage, RepaymentStatus } from '@/data/program-page'
 import { hasSchoolPage } from '@/data/school-page'
-import { campusesNote, combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
+import { campusesNote, combinedCampusesNotes, payPrivacyNote, reportedFiguresNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMiles, formatMoney, formatShare, formatShareRange } from '@/lib/format'
 import { officialProgramFieldSentence } from '@/lib/key-figure-copy'
 import { placeInSentence } from '@/lib/place-names'
 import {
+  buildCountedNote,
   buildFamilyIncomeSentence,
   buildFaq,
   buildFiveYearSentence,
+  buildGraduateChartIntro,
+  buildGraduateCompareIntro,
+  buildGraduateDataNotes,
   buildGrowthSentence,
   buildKeyFigureQuestions,
   buildMetaDescription,
@@ -37,8 +42,11 @@ import {
   careersTitle,
   compareTitle,
   computeMetrics,
+  debtFigureLabel,
+  isGraduateProgram,
   nationalPayStandingLabel,
   paymentShareLabel,
+  programLabel,
   rankLowest,
   schoolProgramsToList,
   year5ChangeLabel,
@@ -109,8 +117,16 @@ const REPAYMENT_LABELS: Record<RepaymentStatus, string> = {
 function ProgramPageView() {
   const { page, metrics, figureQuestions, faq } = Route.useLoaderData()
   const { school, program, earnings, debt, ranks, benchmarks } = page
-  const programLower = program.sentenceName
+  // The field alone ("business administration"), and the program as sentences
+  // name it, which adds the degree on a graduate page.
+  const fieldLower = program.sentenceName
+  const programLower = programLabel(page)
   const credentialLower = program.credential.toLowerCase()
+  const graduate = isGraduateProgram(page)
+  const debtLabel = debtFigureLabel(page)
+  const countedNote = buildCountedNote(page)
+  // Every program page links to its two ranking pages.
+  const hasRelatedPages = page.stateRankingHref !== undefined || page.bachelorsProgram !== undefined || hasSchoolPage(page.schoolProgramTotal)
   const fiveYearSentence = buildFiveYearSentence(page, metrics)
   const familyIncomeSentence = buildFamilyIncomeSentence(page)
   const growthSentence = buildGrowthSentence(page, metrics)
@@ -125,7 +141,7 @@ function ProgramPageView() {
     { label: 'Median first-year pay', value: formatMoney(earnings.year1), context: nationalPayStandingLabel(page) },
     ...(hasYear5 ? [{ label: 'Median pay after 5 years', value: formatMoney(earnings.year5!), context: year5ChangeLabel(metrics.year5Growth!) }] : []),
     {
-      label: 'Median federal debt',
+      label: debtLabel,
       value: formatMoney(debt.median),
       context: `${capitalize(rankLowest(ranks.stateDebtRank, ranks.stateProgramsWithBoth))} ${school.stateName} programs`,
     },
@@ -156,6 +172,13 @@ function ProgramPageView() {
             <Summary paragraphs={buildSummary(page)} />
 
             <KeyFigures figures={figures} />
+            {/* How many people the figures count, on a graduate page. It is text-base:
+                a reader should not miss it. */}
+            {countedNote ? (
+              <p data-section="counted" className="mt-3 text-base text-muted-foreground">
+                {countedNote}
+              </p>
+            ) : null}
             {page.inStateGraduateShare !== undefined ? (
               <div data-section="campuses" className="mt-3">
                 <Note>{campusesNote(page.inStateGraduateShare, programLower, school.stateName)}</Note>
@@ -164,11 +187,15 @@ function ProgramPageView() {
             <QuestionList name="figures" section="key-figure-questions" questions={figureQuestions} className="mt-3" />
 
             <PageSection name="compare" title={compareTitle(page)}>
-              <p>
-                The first column shows this program, where each figure is the median for its graduates. The other two
-                show the median across all {programLower} {credentialLower} programs that report the figure, in{' '}
-                {placeInSentence(school.stateName)} and in the country as a whole.
-              </p>
+              {graduate ? (
+                <p>{buildGraduateCompareIntro(page)}</p>
+              ) : (
+                <p>
+                  The first column shows this program, where each figure is the median for its graduates. The other two
+                  show the median across all {fieldLower} {credentialLower} programs that report the figure, in{' '}
+                  {placeInSentence(school.stateName)} and in the country as a whole.
+                </p>
+              )}
               <Card size="sm" className="py-0">
                 <Table role="table" className={STACKED.table}>
                   <TableHeader role="rowgroup" className={STACKED.group}>
@@ -184,7 +211,7 @@ function ProgramPageView() {
                     {hasYear5 && benchmarks.state.earningsYear5 !== undefined && benchmarks.national.earningsYear5 !== undefined ? (
                       <CompareRow label="Median pay after 5 years" values={[earnings.year5!, benchmarks.state.earningsYear5, benchmarks.national.earningsYear5].map(formatMoney)} />
                     ) : null}
-                    <CompareRow label="Median federal debt" values={[debt.median, benchmarks.state.medianDebt, benchmarks.national.medianDebt].map(formatMoney)} />
+                    <CompareRow label={debtLabel} values={[debt.median, benchmarks.state.medianDebt, benchmarks.national.medianDebt].map(formatMoney)} />
                     <CompareRow label="Debt-to-earnings" values={[metrics.debtToEarnings, benchmarks.state.debtToEarnings, benchmarks.national.debtToEarnings].map(formatShare)} />
                     <CompareRow label="Programs compared" values={['', formatCount(benchmarks.state.earningsYear1Count), formatCount(benchmarks.national.earningsYear1Count)]} />
                   </TableBody>
@@ -194,10 +221,14 @@ function ProgramPageView() {
             </PageSection>
 
             <PageSection name="scatter" title={`Debt and first-year pay at every ${school.stateName} ${programLower} program`}>
-              <p>
-                Programs in the upper left give graduates higher pay for less debt. Dashed lines mark the{' '}
-                {school.stateName} medians.
-              </p>
+              {graduate ? (
+                <p>{buildGraduateChartIntro(page)}</p>
+              ) : (
+                <p>
+                  Programs in the upper left give graduates higher pay for less debt. Dashed lines mark the{' '}
+                  {school.stateName} medians.
+                </p>
+              )}
               <Card size="sm">
                 <CardContent>
                   <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -212,6 +243,7 @@ function ProgramPageView() {
                         medianDebt={benchmarks.state.medianDebt}
                         medianEarnings={benchmarks.state.earningsYear1}
                         stateName={school.stateName}
+                        debtTitle={graduate ? debtLabel : undefined}
                       />
                     </div>
                     <ScrollBar orientation="horizontal" />
@@ -277,12 +309,24 @@ function ProgramPageView() {
 
             {debt.monthlyPayment !== undefined && metrics.paymentShareOfPay !== undefined ? (
               <PageSection name="repayment" title="Paying back the loans">
-                <p>
-                  On a standard 10-year plan, the median debt means a payment of about{' '}
-                  <strong>{formatMoney(debt.monthlyPayment)} a month</strong>, or{' '}
-                  <strong>{paymentShareLabel(metrics.paymentShareOfPay)}</strong> of a graduate's typical monthly
-                  pay in the first year.
-                </p>
+                {graduate ? (
+                  // The payment is worked out from the debt for graduate study alone, and
+                  // the sentence says so next to it.
+                  <p>
+                    On a standard 10-year plan, the median debt for graduate study means a payment of about{' '}
+                    <strong>{formatMoney(debt.monthlyPayment)} a month</strong>, or{' '}
+                    <strong>{paymentShareLabel(metrics.paymentShareOfPay)}</strong> of a graduate's typical monthly
+                    pay in the first year. Loans from an earlier degree are not in this figure. A graduate who has
+                    them pays more.
+                  </p>
+                ) : (
+                  <p>
+                    On a standard 10-year plan, the median debt means a payment of about{' '}
+                    <strong>{formatMoney(debt.monthlyPayment)} a month</strong>, or{' '}
+                    <strong>{paymentShareLabel(metrics.paymentShareOfPay)}</strong> of a graduate's typical monthly
+                    pay in the first year.
+                  </p>
+                )}
                 {page.repayment ? (
                   <Card size="sm" className="py-0">
                     <Table>
@@ -369,43 +413,49 @@ function ProgramPageView() {
               </PageSection>
             ) : null}
 
-            <PageSection name="school" title={`About ${school.shortName}`}>
-              {schoolFacts.length > 0 ? (
-                <Card size="sm" className="py-0">
-                  <Table>
-                    <TableBody className="tabular-nums">
-                      {schoolFacts.map((fact) => (
-                        <FactRow key={fact.label} label={fact.label} value={fact.value} />
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
-              ) : null}
-              <p>
-                {buildSchoolRankSentence(page)}
-                {schoolPrograms ? (
-                  <>
-                    {' '}
-                    {schoolPrograms.lead}{' '}
-                    {schoolPrograms.programs.map((topProgram, index) => (
-                      <span key={topProgram.name}>
-                        {index === 0 ? '' : index === schoolPrograms.programs.length - 1 ? ' and ' : ', '}
-                        {topProgram.href ? (
-                          <ProgramLink href={topProgram.href} className="text-primary underline underline-offset-3">{topProgram.name}</ProgramLink>
-                        ) : (
-                          topProgram.name
-                        )}{' '}
-                        ({formatMoney(topProgram.earningsYear1)})
-                      </span>
-                    ))}
-                    .
-                  </>
+            {/* A graduate page has no section about the school. The files give only
+                the school's average charge to graduate students, which is not this
+                program's price, and the other school facts describe undergraduates.
+                The summary gives the program's rank at the school. */}
+            {graduate ? null : (
+              <PageSection name="school" title={`About ${school.shortName}`}>
+                {schoolFacts.length > 0 ? (
+                  <Card size="sm" className="py-0">
+                    <Table>
+                      <TableBody className="tabular-nums">
+                        {schoolFacts.map((fact) => (
+                          <FactRow key={fact.label} label={fact.label} value={fact.value} />
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Card>
                 ) : null}
-              </p>
-            </PageSection>
+                <p>
+                  {buildSchoolRankSentence(page)}
+                  {schoolPrograms ? (
+                    <>
+                      {' '}
+                      {schoolPrograms.lead}{' '}
+                      {schoolPrograms.programs.map((topProgram, index) => (
+                        <span key={topProgram.name}>
+                          {index === 0 ? '' : index === schoolPrograms.programs.length - 1 ? ' and ' : ', '}
+                          {topProgram.href ? (
+                            <ProgramLink href={topProgram.href} className="text-primary underline underline-offset-3">{topProgram.name}</ProgramLink>
+                          ) : (
+                            topProgram.name
+                          )}{' '}
+                          ({formatMoney(topProgram.earningsYear1)})
+                        </span>
+                      ))}
+                      .
+                    </>
+                  ) : null}
+                </p>
+              </PageSection>
+            )}
 
             {page.nearby.length > 1 ? (
-              <PageSection name="nearby" title={`Other ${programLower} ${credentialLower} programs near ${school.city}`}>
+              <PageSection name="nearby" title={`Other ${fieldLower} ${credentialLower} programs near ${school.city}`}>
                 <Card size="sm" className="py-0">
                   <Table role="table" className={STACKED.table}>
                     <TableHeader role="rowgroup" className={STACKED.group}>
@@ -453,39 +503,72 @@ function ProgramPageView() {
             </PageSection>
           </MainColumn>
 
-          <RelatedPages side>
-            <RelatedRankingLink
-              href={page.stateRankingHref}
-              title={`${program.name} ${credentialLower} programs in ${placeInSentence(school.stateName)}, ranked`}
-              detail={`${formatCount(benchmarks.state.earningsYear1Count)} programs by pay and debt`}
-            />
-            <RelatedNationalLink
-              href={`/programs/${page.programSlug}`}
-              title={`${program.name} ${credentialLower} programs in the US, ranked`}
-              detail={`${formatCount(benchmarks.national.earningsYear1Count)} programs by pay and debt`}
-            />
-            {hasSchoolPage(page.schoolProgramTotal) ? (
-              <RelatedSchoolLink
-                schoolSlug={page.schoolSlug}
-                title={`All ${school.shortName} programs, ranked`}
-                detail={`${formatCount(page.schoolProgramTotal)} programs by pay and debt`}
-              />
-            ) : null}
-          </RelatedPages>
+          {hasRelatedPages ? (
+            <RelatedPages side>
+              {/* The state and national ranking pages of a field and credential are
+                  built together. */}
+              {page.stateRankingHref ? (
+                <>
+                  <RelatedRankingLink
+                    href={page.stateRankingHref}
+                    title={`${program.name} ${credentialLower} programs in ${placeInSentence(school.stateName)}, ranked`}
+                    detail={`${formatCount(benchmarks.state.earningsYear1Count)} programs by pay and debt`}
+                  />
+                  <RelatedNationalLink
+                    href={`/programs/${page.programSlug}`}
+                    title={`${program.name} ${credentialLower} programs in the US, ranked`}
+                    detail={`${formatCount(benchmarks.national.earningsYear1Count)} programs by pay and debt`}
+                  />
+                </>
+              ) : null}
+              {/* A graduate page links to the school's bachelor's program in the same
+                  field. It shows none of that program's figures: the two debt figures
+                  are measured differently. The page does not set them side by side. */}
+              {page.bachelorsProgram ? (
+                <RelatedProgramLink
+                  href={page.bachelorsProgram.href}
+                  title={`${school.shortName} ${program.name} (${page.bachelorsProgram.degree})`}
+                  detail="Tuition, graduate salary and debt"
+                />
+              ) : null}
+              {/* And a bachelor's page links to the school's master's program in the field. */}
+              {page.mastersProgram ? (
+                <RelatedProgramLink
+                  href={page.mastersProgram.href}
+                  title={`${school.shortName} ${program.name} (${page.mastersProgram.degree})`}
+                  detail="Graduate salary and debt"
+                />
+              ) : null}
+              {hasSchoolPage(page.schoolProgramTotal) ? (
+                <RelatedSchoolLink
+                  schoolSlug={page.schoolSlug}
+                  title={`All ${school.shortName} programs, ranked`}
+                  detail={`${formatCount(page.schoolProgramTotal)} programs by pay and debt`}
+                />
+              ) : null}
+            </RelatedPages>
+          ) : null}
 
           <MainColumn>
             <PageSection name="about-data" title="About this data">
               <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
-                <li>{officialProgramFieldSentence(program)}</li>
-                <li>Pay and debt only include students who received federal financial aid (grants or loans).</li>
-                <li>Pay only counts graduates who were working and not enrolled in more school. Graduates who went straight to further study are not included.</li>
-                <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
-                <li>{payPrivacyNote()}</li>
-                {combinedCampusesNotes(school.stateName).map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-                <li>College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025.</li>
-                <li>School-level numbers like tuition, admission rate and graduation rate are for the whole school, not the {programLower} program.</li>
+                {graduate ? (
+                  buildGraduateDataNotes(page, hasYear5).map((note) => <li key={note}>{note}</li>)
+                ) : (
+                  <>
+                    <li>{officialProgramFieldSentence(program)}</li>
+                    <li>Pay and debt only include students who received federal financial aid (grants or loans).</li>
+                    <li>Pay only counts graduates who were working and not enrolled in more school. Graduates who went straight to further study are not included.</li>
+                    <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+                    <li>{payPrivacyNote()}</li>
+                    <li>{reportedFiguresNote()}</li>
+                    {combinedCampusesNotes(school.stateName).map((note) => (
+                      <li key={note}>{note}</li>
+                    ))}
+                    <li>College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025.</li>
+                    <li>School-level numbers like tuition, admission rate and graduation rate are for the whole school, not the {fieldLower} program.</li>
+                  </>
+                )}
               </ul>
               <h3 className="text-base font-bold">Sources</h3>
               <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">

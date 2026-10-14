@@ -37,6 +37,7 @@ import type {
   SchoolControl,
   ShareRange,
 } from '../src/data/program-page'
+import { isGraduateLevel } from '../src/data/program-page'
 import { hasSchoolPage, type SchoolIndexEntry, type SchoolLevel, type SchoolPage, type SchoolProgram } from '../src/data/school-page'
 import type { StateField, StateFieldLevel, StateIndexEntry, StatePage, StateSchool } from '../src/data/state-page'
 import type { RankedProgram, StateProgramIndexEntry, StateProgramPage } from '../src/data/state-program-page'
@@ -61,6 +62,10 @@ const NEARBY_MILES = 60
 const NEARBY_LIMIT = 8
 const PRICE_LEVEL_YEAR = '2024'
 const OCCUPATION_LIMIT = 4
+// A career page lists a field whose own pages leave the job out when the
+// field's general program is linked to the job, or at least this share of its
+// narrow programs are.
+const STRONG_LINK_SHARE = 0.25
 // Programs in each quick-pick list on national program pages.
 const NATIONAL_PICK_COUNT = 10
 // Rows in each list on the home page.
@@ -70,6 +75,7 @@ const CREDENTIALS: Record<CredentialLevel, { label: string; slug: string }> = {
   1: { label: 'Certificate', slug: 'certificate' },
   2: { label: "Associate's", slug: 'associate' },
   3: { label: "Bachelor's", slug: 'bachelors' },
+  5: { label: "Master's", slug: 'masters' },
 }
 
 const REPAYMENT_COLUMNS: Record<RepaymentStatus, string> = {
@@ -96,10 +102,13 @@ type ProgramRow = {
   cipCode: string
   cipTitle: string
   credentialLevel: CredentialLevel
+  online?: 'all' | 'some'
   awardsLaterYear?: number
   earningsYear1?: number
   earningsYear5?: number
   debtMedian?: number
+  // Graduate rows only: the number of borrowers the median debt is of.
+  debtBorrowers?: number
   monthlyPayment?: number
   pellEarningsYear1?: number
   otherEarningsYear1?: number
@@ -116,18 +125,24 @@ type ProgramRow = {
 async function loadProgramRows() {
   const records = await readCsv(path.join(RAW_DIRECTORY, 'Most-Recent-Cohorts-Field-of-Study.csv'), {
     columns: [
-      'UNITID', 'OPEID6', 'CONTROL', 'MAIN', 'CIPCODE', 'CIPDESC', 'CREDLEV', 'IPEDSCOUNT2',
+      'UNITID', 'OPEID6', 'CONTROL', 'MAIN', 'CIPCODE', 'CIPDESC', 'CREDLEV', 'DISTANCE', 'IPEDSCOUNT2',
       'EARN_MDN_1YR', 'EARN_MDN_5YR', 'DEBT_ALL_STGP_ANY_MDN', 'DEBT_ALL_STGP_ANY_MDN10YRPAY',
       'EARN_PELL_WNE_MDN_1YR', 'EARN_NOPELL_WNE_MDN_1YR', 'DEBT_PELL_STGP_ANY_MDN', 'DEBT_NOPELL_STGP_ANY_MDN',
       'DEBT_ALL_PP_ANY_N', 'DEBT_ALL_PP_ANY_MDN', 'EARN_COUNT_WNE_1YR', 'EARN_IN_STATE_1YR',
       'BBRR2_FED_COMP_N', ...Object.values(REPAYMENT_COLUMNS),
+      'DEBT_ALL_STGP_EVAL_MDN', 'DEBT_ALL_STGP_EVAL_MDN10YRPAY', 'DEBT_ALL_STGP_EVAL_N',
     ],
   })
 
   const rows: ProgramRow[] = []
   for (const record of records) {
     const credentialLevel = Number(record.CREDLEV)
-    if (credentialLevel !== 1 && credentialLevel !== 2 && credentialLevel !== 3) continue
+    if (credentialLevel !== 1 && credentialLevel !== 2 && credentialLevel !== 3 && credentialLevel !== 5) continue
+    // A graduate row reports debt only for loans taken at this school for
+    // graduate study (the EVAL columns). Its columns for loans from any school
+    // are withheld on every row. Its Pell split is left out, because the file
+    // does not say when a graduate student received the grant.
+    const isGraduate = isGraduateLevel(credentialLevel)
     const repaymentShares: ProgramRow['repaymentShares'] = {}
     for (const [status, column] of Object.entries(REPAYMENT_COLUMNS) as [RepaymentStatus, string][]) {
       const share = parseShareRange(record[column])
@@ -142,15 +157,19 @@ async function loadProgramRows() {
       // A few official titles contain double spaces.
       cipTitle: record.CIPDESC.replace(/\s+/g, ' ').trim().replace(/\.$/, ''),
       credentialLevel,
+      // DISTANCE: 3 when every credential in the field can be completed fully
+      // online, 2 when at least one can, 1 when none can, 0 when not reported.
+      online: record.DISTANCE === '3' ? 'all' : record.DISTANCE === '2' ? 'some' : undefined,
       awardsLaterYear: parseNumber(record.IPEDSCOUNT2),
       earningsYear1: parseNumber(record.EARN_MDN_1YR),
       earningsYear5: parseNumber(record.EARN_MDN_5YR),
-      debtMedian: parseNumber(record.DEBT_ALL_STGP_ANY_MDN),
-      monthlyPayment: parseNumber(record.DEBT_ALL_STGP_ANY_MDN10YRPAY),
-      pellEarningsYear1: parseNumber(record.EARN_PELL_WNE_MDN_1YR),
-      otherEarningsYear1: parseNumber(record.EARN_NOPELL_WNE_MDN_1YR),
-      pellDebtMedian: parseNumber(record.DEBT_PELL_STGP_ANY_MDN),
-      otherDebtMedian: parseNumber(record.DEBT_NOPELL_STGP_ANY_MDN),
+      debtMedian: parseNumber(isGraduate ? record.DEBT_ALL_STGP_EVAL_MDN : record.DEBT_ALL_STGP_ANY_MDN),
+      debtBorrowers: isGraduate ? parseNumber(record.DEBT_ALL_STGP_EVAL_N) : undefined,
+      monthlyPayment: parseNumber(isGraduate ? record.DEBT_ALL_STGP_EVAL_MDN10YRPAY : record.DEBT_ALL_STGP_ANY_MDN10YRPAY),
+      pellEarningsYear1: isGraduate ? undefined : parseNumber(record.EARN_PELL_WNE_MDN_1YR),
+      otherEarningsYear1: isGraduate ? undefined : parseNumber(record.EARN_NOPELL_WNE_MDN_1YR),
+      pellDebtMedian: isGraduate ? undefined : parseNumber(record.DEBT_PELL_STGP_ANY_MDN),
+      otherDebtMedian: isGraduate ? undefined : parseNumber(record.DEBT_NOPELL_STGP_ANY_MDN),
       parentPlusBorrowers: parseNumber(record.DEBT_ALL_PP_ANY_N),
       parentPlusMedian: parseNumber(record.DEBT_ALL_PP_ANY_MDN),
       workingCount: parseNumber(record.EARN_COUNT_WNE_1YR),
@@ -427,25 +446,35 @@ async function loadProjections() {
   return projections
 }
 
-// NCES CIP 2020 to SOC 2018 crosswalk, rolled up to the 4-digit CIP codes that
-// Scorecard uses. "99-9999" means no match.
+// NCES CIP 2020 to SOC 2018 crosswalk. It links narrow 6-digit program codes to
+// jobs. Scorecard uses 4-digit field codes, and `socCodesByField` rolls the links
+// up to those. `programsByField` keeps each field's 6-digit programs with the
+// jobs of each, including programs linked to no job, and marks the field's
+// general program ("Business Administration and Management, General.").
+// "99-9999" means no match.
 async function loadCrosswalk() {
   const records = await readSheet(path.join(RAW_DIRECTORY, 'CIP2020_SOC2018_Crosswalk.xlsx'), {
     sheetName: 'CIP-SOC',
     headerRow: 1,
-    columns: ['CIP2020Code', 'SOC2018Code'],
+    columns: ['CIP2020Code', 'CIP2020Title', 'SOC2018Code'],
   })
   const socCodesByField = new Map<string, Set<string>>()
+  const programsByField = new Map<string, Map<string, { isGeneral: boolean; socCodes: Set<string> }>>()
   for (const record of records) {
-    if (record.SOC2018Code === '99-9999') continue
     const match = record.CIP2020Code.match(/^(\d{2})\.(\d{2})\d{2}$/)
     if (!match) throw new Error(`Unexpected CIP code "${record.CIP2020Code}" in the crosswalk`)
     const fieldCode = `${match[1]}${match[2]}`
+    const programs = programsByField.get(fieldCode) ?? new Map<string, { isGeneral: boolean; socCodes: Set<string> }>()
+    const program = programs.get(record.CIP2020Code) ?? { isGeneral: /,\s*General\.?$/.test(record.CIP2020Title.trim()), socCodes: new Set<string>() }
+    programs.set(record.CIP2020Code, program)
+    programsByField.set(fieldCode, programs)
+    if (record.SOC2018Code === '99-9999') continue
+    program.socCodes.add(record.SOC2018Code)
     const socCodes = socCodesByField.get(fieldCode) ?? new Set<string>()
     socCodes.add(record.SOC2018Code)
     socCodesByField.set(fieldCode, socCodes)
   }
-  return socCodesByField
+  return { socCodesByField, programsByField }
 }
 
 // ---------------------------------------------------------------------------
@@ -584,7 +613,7 @@ async function main() {
     priceParities,
     occupationWages,
     projections,
-    socCodesByField,
+    { socCodesByField, programsByField },
   ] = await Promise.all([
       loadProgramRows(),
       loadInstitutions(),
@@ -652,6 +681,7 @@ async function main() {
       if (row.earningsYear1 !== undefined) {
         const statePoolKey = poolKey(row.cipCode, row.credentialLevel, institution.state)
         studiedElsewhereByStatePool.set(statePoolKey, (studiedElsewhereByStatePool.get(statePoolKey) ?? 0) + 1)
+        // School pages give this count. They list master's programs too.
         studiedElsewhereBySchool.set(row.unitId!, (studiedElsewhereBySchool.get(row.unitId!) ?? 0) + 1)
       }
       continue
@@ -664,14 +694,21 @@ async function main() {
 
   const hasPayAndDebt = (row: ProgramRow) => row.earningsYear1 !== undefined && row.debtMedian !== undefined
 
-  const pageRows = keptRows.filter((row) => {
+  // The rule for a program page, at every credential level.
+  function qualifiesForPage(row: ProgramRow) {
     const institution = row.unitId ? institutions.get(row.unitId) : undefined
     if (!institution || !institution.isOperating || !STATES[institution.state]) return false
     if (!hasPayAndDebt(row)) return false
     const statePool = statePools.get(poolKey(row.cipCode, row.credentialLevel, institution.state))
     if (!statePool?.includes(row)) return false
     return countWhere(statePool, hasPayAndDebt) >= MINIMUM_STATE_PROGRAMS
-  })
+  }
+
+  const pageRows = keptRows.filter((row) => !isGraduateLevel(row.credentialLevel) && qualifiesForPage(row))
+  // Graduate programs that meet the rule. Each has a program page. They are kept
+  // apart from pageRows, because no ranking, school, state or list page lists
+  // graduate programs yet.
+  const graduatePageRows = keptRows.filter((row) => isGraduateLevel(row.credentialLevel) && qualifiesForPage(row))
 
   // Slugs. School names repeat across states ("Columbia College"), so add the
   // state, then the city, when needed.
@@ -704,13 +741,31 @@ async function main() {
     }
   }
 
+  // A school with graduate pages only takes the first address that no school
+  // already has, by the same steps: the name, then the state, then the city.
+  for (const row of graduatePageRows) {
+    const unitId = row.unitId!
+    if (schoolSlugByUnitId.has(unitId)) continue
+    const institution = institutions.get(unitId)!
+    const baseSlug = slugify(institution.name.replace(/^The\s+/i, ''))
+    const takenSlugs = new Set(schoolSlugByUnitId.values())
+    const freeSlug = [
+      baseSlug,
+      `${baseSlug}-${slugify(institution.state)}`,
+      `${baseSlug}-${slugify(institution.city)}-${slugify(institution.state)}`,
+      `${baseSlug}-${unitId}`,
+    ].find((candidate) => !takenSlugs.has(candidate))!
+    schoolSlugByUnitId.set(unitId, freeSlug)
+  }
+
   const missingFieldNames = new Set<string>()
   function programSlug(row: ProgramRow) {
     if (!FIELD_NAMES[row.cipCode]) missingFieldNames.add(`${row.cipCode} ${row.cipTitle}`)
     return `${slugify(FIELD_NAMES[row.cipCode]?.name ?? row.cipCode)}-${CREDENTIALS[row.credentialLevel].slug}`
   }
   const hrefByRow = new Map<ProgramRow, string>()
-  for (const row of pageRows) {
+  for (const row of [...pageRows, ...graduatePageRows]) {
+    if (!schoolSlugByUnitId.has(row.unitId!)) throw new Error(`School ${row.unitId} has a program page but no address`)
     hrefByRow.set(row, `/schools/${schoolSlugByUnitId.get(row.unitId!)}/${programSlug(row)}`)
   }
   const allHrefs = [...hrefByRow.values()]
@@ -719,10 +774,34 @@ async function main() {
   // Every school named on any page: schools with pages, and every school in a
   // state pool that reports pay (scatter charts and ranking tables list them).
   const namedUnitIds = new Set(pageUnitIds)
-  for (const pool of statePools.values()) {
+  for (const [key, pool] of statePools) {
+    // Graduate pools are named below, and only where a graduate page shows them.
+    if (isGraduateLevel(Number(key.split('|')[1]) as CredentialLevel)) continue
     for (const row of pool) if (row.earningsYear1 !== undefined) namedUnitIds.add(row.unitId!)
   }
-  const displayNameByUnitId = buildSchoolDisplayNames([...namedUnitIds], institutions)
+  // Schools a graduate page names: every school with a graduate page, which a
+  // page can list as nearby, and every school in a page's state pool that
+  // reports pay, which its scatter chart shows.
+  const graduateNamedUnitIds = new Set(graduatePageRows.map((row) => row.unitId!))
+  for (const row of graduatePageRows) {
+    const statePool = statePools.get(poolKey(row.cipCode, row.credentialLevel, institutions.get(row.unitId!)!.state))!
+    for (const other of statePool) if (other.earningsYear1 !== undefined) graduateNamedUnitIds.add(other.unitId!)
+  }
+  const graduateFieldKeys = new Set(graduatePageRows.map((row) => poolKey(row.cipCode, row.credentialLevel)))
+  for (const [key, pool] of statePools) {
+    const [cipCode, levelText] = key.split('|')
+    if (!graduateFieldKeys.has(poolKey(cipCode, levelText))) continue
+    for (const other of pool) if (other.earningsYear1 !== undefined) graduateNamedUnitIds.add(other.unitId!)
+  }
+  const displayNameByUnitId = buildSchoolDisplayNames([...new Set([...namedUnitIds, ...graduateNamedUnitIds])], institutions)
+  // The schools that graduate pages add must not rename a school on any other
+  // page. If one ever does, the titles of those pages change, and that is a
+  // decision to take, not a side effect.
+  for (const [unitId, nameWithoutGraduatePages] of buildSchoolDisplayNames([...namedUnitIds], institutions)) {
+    if (displayNameByUnitId.get(unitId) !== nameWithoutGraduatePages) {
+      throw new Error(`Graduate pages would rename "${nameWithoutGraduatePages}" to "${displayNameByUnitId.get(unitId)}" on the pages that list undergraduate programs`)
+    }
+  }
   function schoolDisplayName(unitId: string) {
     return displayNameByUnitId.get(unitId)!
   }
@@ -752,20 +831,30 @@ async function main() {
     return outlooks
   }
 
-  // The occupations listed for a field, most national employment first.
-  function occupationCodesFor(cipCode: string) {
+  // The job a crosswalk code is shown as: the code itself, or the combined code
+  // OEWS publishes in its place. Postsecondary teaching jobs and "All Other"
+  // groups are not shown.
+  function shownSocCode(crosswalkCode: string) {
+    if (crosswalkCode.startsWith('25-1')) return undefined
+    const combinedCode = `${crosswalkCode.slice(0, 6)}0`
+    const socCode = occupationWages.has(`US|${crosswalkCode}`)
+      ? crosswalkCode
+      : occupationWages.has(`US|${combinedCode}`)
+        ? combinedCode
+        : undefined
+    if (!socCode) return undefined
+    const national = occupationWages.get(`US|${socCode}`)!
+    return /all other/i.test(national.title) || national.employment === undefined ? undefined : socCode
+  }
+
+  // Every occupation the crosswalk links to a field, most national employment first.
+  function linkedOccupationCodes(cipCode: string) {
     const candidates: { socCode: string; nationalEmployment: number; title: string }[] = []
     for (const crosswalkCode of socCodesByField.get(cipCode) ?? []) {
-      if (crosswalkCode.startsWith('25-1')) continue
-      const combinedCode = `${crosswalkCode.slice(0, 6)}0`
-      const socCode = occupationWages.has(`US|${crosswalkCode}`)
-        ? crosswalkCode
-        : occupationWages.has(`US|${combinedCode}`)
-          ? combinedCode
-          : undefined
+      const socCode = shownSocCode(crosswalkCode)
       if (!socCode || candidates.some((candidate) => candidate.socCode === socCode)) continue
       const national = occupationWages.get(`US|${socCode}`)!
-      if (/all other/i.test(national.title) || national.employment === undefined) continue
+      if (national.employment === undefined) continue
       // Ordered by everyone in the job (the projections' count), so that the list
       // agrees with the counts the national pages show. The pay survey's count
       // stands in for a job the projections don't list.
@@ -774,7 +863,25 @@ async function main() {
     candidates.sort(
       (first, second) => second.nationalEmployment - first.nationalEmployment || first.socCode.localeCompare(second.socCode),
     )
-    return candidates.slice(0, OCCUPATION_LIMIT).map((candidate) => candidate.socCode)
+    return candidates.map((candidate) => candidate.socCode)
+  }
+
+  // The occupations a field's pages list: its largest ones.
+  function occupationCodesFor(cipCode: string) {
+    return linkedOccupationCodes(cipCode).slice(0, OCCUPATION_LIMIT)
+  }
+
+  // Whether the crosswalk links a job to a field strongly: the field's general
+  // program is linked to it, or at least a quarter of the narrow programs the
+  // field groups are. Every program in Mathematics is linked to mathematicians,
+  // and "Business Administration and Management, General." to chief executives.
+  // One of the 24 in Health and Medical Administration is linked to information
+  // security analysts, which is not enough.
+  function isStronglyLinked(cipCode: string, socCode: string) {
+    const programs = [...(programsByField.get(cipCode)?.values() ?? [])]
+    const isLinked = (program: { socCodes: Set<string> }) => [...program.socCodes].some((crosswalkCode) => shownSocCode(crosswalkCode) === socCode)
+    if (programs.some((program) => program.isGeneral && isLinked(program))) return true
+    return programs.length > 0 && countWhere(programs, isLinked) >= STRONG_LINK_SHARE * programs.length
   }
 
   // BLS pay, employment, and projections for one occupation in the whole US, in
@@ -855,6 +962,13 @@ async function main() {
 
   const pageRowsByField = new Map<string, ProgramRow[]>()
   for (const row of pageRows) addTo(pageRowsByField, poolKey(row.cipCode, row.credentialLevel), row)
+  const graduateRowsByField = new Map<string, ProgramRow[]>()
+  for (const row of graduatePageRows) addTo(graduateRowsByField, poolKey(row.cipCode, row.credentialLevel), row)
+  // Each program with a page, by school, field and credential. A graduate page
+  // finds its school's bachelor's program in the same field here.
+  const pageRowByProgram = new Map(pageRows.map((row) => [poolKey(row.unitId!, row.cipCode, row.credentialLevel), row]))
+  // And the other way: a bachelor's page finds its school's master's program in the field here.
+  const graduatePageRowByProgram = new Map(graduatePageRows.map((row) => [poolKey(row.unitId!, row.cipCode, row.credentialLevel), row]))
 
   // Occupation pages: every occupation a careers section can list (the crosswalk
   // occupations of each field with program pages, and the matching jobs) that has
@@ -872,6 +986,27 @@ async function main() {
   const occupationName = (socCode: string) => OCCUPATION_NAMES[socCode] ?? occupationWages.get(`US|${socCode}`)!.title
   const careerSlugBySoc = new Map([...careerFieldKeysBySoc.keys()].map((socCode) => [socCode, slugify(occupationName(socCode))]))
   if (new Set(careerSlugBySoc.values()).size !== careerSlugBySoc.size) throw new Error('Two occupations share a URL')
+  // A career page also lists the fields the crosswalk links to the job strongly,
+  // although their own pages name only their largest jobs. That leaves no field
+  // out that trains for the job: mathematicians are the smallest of the five
+  // jobs linked to Mathematics. A career page also lists the graduate programs
+  // whose own pages list the career, or that are strongly linked to it. A
+  // graduate field adds no career page: a job that only graduate fields list
+  // keeps having none.
+  for (const key of pageRowsByField.keys()) {
+    const cipCode = key.split('|')[0]
+    for (const socCode of linkedOccupationCodes(cipCode)) {
+      const listed = careerFieldKeysBySoc.get(socCode)
+      if (listed && !listed.includes(key) && isStronglyLinked(cipCode, socCode)) listed.push(key)
+    }
+  }
+  for (const key of graduateRowsByField.keys()) {
+    const cipCode = key.split('|')[0]
+    const ownJobs = new Set(occupationCodesFor(cipCode))
+    for (const socCode of linkedOccupationCodes(cipCode)) {
+      if (careerSlugBySoc.has(socCode) && (ownJobs.has(socCode) || isStronglyLinked(cipCode, socCode))) addTo(careerFieldKeysBySoc, socCode, key)
+    }
+  }
   function careerSlugFor(socCode: string) {
     const careerSlug = careerSlugBySoc.get(socCode)
     return careerSlug ? { careerSlug } : {}
@@ -879,7 +1014,7 @@ async function main() {
 
   // One ranking page per field, credential, and state that has program pages.
   const stateRankingHrefByKey = new Map<string, string>()
-  for (const row of pageRows) {
+  for (const row of [...pageRows, ...graduatePageRows]) {
     const state = institutions.get(row.unitId!)!.state
     const key = poolKey(row.cipCode, row.credentialLevel, state)
     if (!stateRankingHrefByKey.has(key)) {
@@ -911,15 +1046,22 @@ async function main() {
     }
   }
 
+  // The programs a school's own page lists: every program at the school that
+  // reports first-year pay, master's programs included. A school has its own
+  // page when this is at least 2.
   function schoolProgramTotal(unitId: string) {
-    return ([1, 2, 3] as CredentialLevel[]).reduce(
+    return ([1, 2, 3, 5] as CredentialLevel[]).reduce(
       (total, level) => total + (schoolPools.get(poolKey(unitId, level))?.length ?? 0),
       0,
     )
   }
 
+  const undergraduatePageUnitIds = new Set(pageUnitIds)
   const pages: ProgramPage[] = []
-  for (const row of pageRows) {
+  // Graduate pages are built like any program page. They are kept apart from
+  // `pages`, which the other page types and the home page's counts are made from.
+  const graduatePages: ProgramPage[] = []
+  for (const row of [...pageRows, ...graduatePageRows]) {
     const institution = institutions.get(row.unitId!)!
     const earningsYear1 = row.earningsYear1!
     const debtMedian = row.debtMedian!
@@ -956,7 +1098,10 @@ async function main() {
     const studiedHere = graduatesIn(row, institution.state)
     const locationTrusted = hasTrustedLocation(institution.unitId, institution.state)
     const nearby: NearbyProgram[] = []
-    for (const other of pageRowsByField.get(nationalKey)!) {
+    // A graduate page lists graduate programs with pages, and any other page the
+    // programs with pages at its own level.
+    const nearbyCandidates = (isGraduateLevel(row.credentialLevel) ? graduateRowsByField : pageRowsByField).get(nationalKey)!
+    for (const other of nearbyCandidates) {
       const otherInstitution = institutions.get(other.unitId!)!
       if (other !== row && !(locationTrusted && hasTrustedLocation(otherInstitution.unitId, otherInstitution.state))) continue
       const milesAway = milesBetween(
@@ -1009,6 +1154,8 @@ async function main() {
     }
 
     const fieldName = FIELD_NAMES[row.cipCode]?.name ?? row.cipTitle
+    const bachelorsRow = isGraduateLevel(row.credentialLevel) ? pageRowByProgram.get(poolKey(row.unitId!, row.cipCode, 3)) : undefined
+    const mastersRow = row.credentialLevel === 3 ? graduatePageRowByProgram.get(poolKey(row.unitId!, row.cipCode, 5)) : undefined
     const page: ProgramPage = {
       schoolSlug: schoolSlugByUnitId.get(row.unitId!)!,
       programSlug: programSlug(row),
@@ -1022,6 +1169,7 @@ async function main() {
         credential: CREDENTIALS[row.credentialLevel].label,
         degreeAbbreviation: DEGREE_ABBREVIATIONS[row.cipCode]?.[row.credentialLevel],
         graduatesPerYear: row.awardsLaterYear ? row.awardsLaterYear : undefined,
+        online: row.online,
       },
       earnings: {
         year1: earningsYear1,
@@ -1033,6 +1181,7 @@ async function main() {
       },
       debt: {
         median: debtMedian,
+        borrowers: row.debtBorrowers,
         monthlyPayment: row.monthlyPayment,
         pellMedian: row.pellDebtMedian,
         otherMedian: row.otherDebtMedian,
@@ -1064,21 +1213,38 @@ async function main() {
         state: cachedBenchmark(statePools, stateKey),
         national: cachedBenchmark(nationalPools, nationalKey),
       },
-      topSchoolPrograms: schoolRanked.slice(0, 3).map((topRow) => ({
-        name: FIELD_NAMES[topRow.cipCode]?.name ?? missingName(topRow),
-        earningsYear1: topRow.earningsYear1!,
-        ...(hrefByRow.has(topRow) ? { href: hrefByRow.get(topRow) } : {}),
-      })),
+      // A graduate page shows no list of the school's top programs.
+      topSchoolPrograms: isGraduateLevel(row.credentialLevel)
+        ? []
+        : schoolRanked.slice(0, 3).map((topRow) => ({
+            name: FIELD_NAMES[topRow.cipCode]?.name ?? missingName(topRow),
+            earningsYear1: topRow.earningsYear1!,
+            ...(hrefByRow.has(topRow) ? { href: hrefByRow.get(topRow) } : {}),
+          })),
       priceLevels,
       occupations: occupationsFor(row.cipCode, stateInfo.fips),
-      matchingOccupation: matchingOccupationFor(row.cipCode, stateInfo.fips, locationTrusted ? metroCode : undefined),
-      stateRankingHref: stateRankingHrefByKey.get(stateKey)!,
-      schoolProgramTotal: schoolProgramTotal(row.unitId!),
+      // The matching job of a field is the job its bachelor's degree trains for
+      // (registered nurses for nursing). A master's degree leads elsewhere. A
+      // graduate page makes no such comparison.
+      matchingOccupation: isGraduateLevel(row.credentialLevel)
+        ? undefined
+        : matchingOccupationFor(row.cipCode, stateInfo.fips, locationTrusted ? metroCode : undefined),
+      stateRankingHref: stateRankingHrefByKey.get(stateKey),
+      ...(bachelorsRow
+        ? { bachelorsProgram: { href: hrefByRow.get(bachelorsRow)!, degree: DEGREE_ABBREVIATIONS[row.cipCode]?.[3] ?? CREDENTIALS[3].label } }
+        : {}),
+      ...(mastersRow
+        ? { mastersProgram: { href: hrefByRow.get(mastersRow)!, degree: DEGREE_ABBREVIATIONS[row.cipCode]?.[5] ?? CREDENTIALS[5].label } }
+        : {}),
+      // A school has its own page only when it has an undergraduate program
+      // page. A school with graduate pages alone has none, whatever it reports.
+      schoolProgramTotal: undergraduatePageUnitIds.has(row.unitId!) ? schoolProgramTotal(row.unitId!) : 0,
       ...(studiedHere.stateCount > 1 ? { inStateGraduateShare: studiedHere.inState / studiedHere.total } : {}),
       stateComparison,
       nearby,
     }
-    pages.push(page)
+    const builtPages = isGraduateLevel(row.credentialLevel) ? graduatePages : pages
+    builtPages.push(page)
   }
 
   function missingName(row: ProgramRow) {
@@ -1125,9 +1291,9 @@ async function main() {
       programs.sort(
         (first, second) => second.earningsYear1 - first.earningsYear1 || first.schoolName.localeCompare(second.schoolName),
       )
-      const matching = MATCHING_OCCUPATIONS[cipCode]
+      const matching = isGraduateLevel(credentialLevel) ? undefined : MATCHING_OCCUPATIONS[cipCode]
       const matchingOutlook = matching ? outlookFor(matching.socCode, stateInfo.fips) : undefined
-      const otherCredentials = ([3, 2, 1] as CredentialLevel[])
+      const otherCredentials = ([5, 3, 2, 1] as CredentialLevel[])
         .filter((level) => level !== credentialLevel)
         .flatMap((level) => {
           const otherHref = stateRankingHrefByKey.get(poolKey(cipCode, level, stateCode))
@@ -1177,7 +1343,7 @@ async function main() {
       if (!hasSchoolPage(schoolProgramTotal(unitId))) continue
       const institution = institutions.get(unitId)!
       const levels: SchoolLevel[] = []
-      for (const credentialLevel of [3, 2, 1] as CredentialLevel[]) {
+      for (const credentialLevel of [5, 3, 2, 1] as CredentialLevel[]) {
         const pool = schoolPools.get(poolKey(unitId, credentialLevel))
         if (!pool) continue
         const graduates = (row: ProgramRow) => (row.awardsLaterYear ? row.awardsLaterYear : undefined)
@@ -1231,9 +1397,10 @@ async function main() {
   // One page per state with program pages: medians by credential, the state's
   // field rankings, and its schools with program pages.
   function buildStatePages() {
+    // State pages cover the undergraduate levels. Graduate pools are passed over.
     const nationalRowsByLevel = new Map<CredentialLevel, ProgramRow[]>([[1, []], [2, []], [3, []]])
     for (const [key, pool] of nationalPools) {
-      nationalRowsByLevel.get(Number(key.split('|')[1]) as CredentialLevel)!.push(...pool)
+      nationalRowsByLevel.get(Number(key.split('|')[1]) as CredentialLevel)?.push(...pool)
     }
     const pageRowsByUnitId = new Map<string, ProgramRow[]>()
     for (const row of pageRows) addTo(pageRowsByUnitId, row.unitId!, row)
@@ -1244,7 +1411,7 @@ async function main() {
       const rowsByLevel = new Map<CredentialLevel, ProgramRow[]>([[1, []], [2, []], [3, []]])
       for (const [key, pool] of statePools) {
         const [, levelText, poolState] = key.split('|')
-        if (poolState === stateCode) rowsByLevel.get(Number(levelText) as CredentialLevel)!.push(...pool)
+        if (poolState === stateCode) rowsByLevel.get(Number(levelText) as CredentialLevel)?.push(...pool)
       }
       const levels = ([3, 2, 1] as CredentialLevel[]).filter((level) =>
         rowsByLevel.get(level)!.some((row) => row.earningsYear1 !== undefined),
@@ -1258,7 +1425,7 @@ async function main() {
       }))
 
       const fieldLevels: StateFieldLevel[] = []
-      for (const level of [3, 2, 1] as CredentialLevel[]) {
+      for (const level of [5, 3, 2, 1] as CredentialLevel[]) {
         const rankings = stateProgramPages.filter(
           (page) => page.state.code === stateCode && page.program.credentialLevel === level,
         )
@@ -1320,7 +1487,7 @@ async function main() {
   function buildNationalProgramPages() {
     const nationalHref = (cipCode: string, level: CredentialLevel) => `/programs/${slugify(FIELD_NAMES[cipCode].name)}-${CREDENTIALS[level].slug}`
     const result: NationalProgramPage[] = []
-    for (const [key, fieldPageRows] of pageRowsByField) {
+    for (const [key, fieldPageRows] of [...pageRowsByField, ...graduateRowsByField]) {
       const [cipCode, levelText] = key.split('|')
       const credentialLevel = Number(levelText) as CredentialLevel
       const nationalPool = nationalPools.get(key)!
@@ -1444,10 +1611,10 @@ async function main() {
           .slice(0, NATIONAL_PICK_COUNT),
       }
 
-      const matching = MATCHING_OCCUPATIONS[cipCode]
+      const matching = isGraduateLevel(credentialLevel) ? undefined : MATCHING_OCCUPATIONS[cipCode]
       const matchingOutlook = matching ? nationalOutlookFor(matching.socCode) : undefined
-      const otherCredentials = ([3, 2, 1] as CredentialLevel[])
-        .filter((level) => level !== credentialLevel && pageRowsByField.has(poolKey(cipCode, level)))
+      const otherCredentials = ([5, 3, 2, 1] as CredentialLevel[])
+        .filter((level) => level !== credentialLevel && (pageRowsByField.has(poolKey(cipCode, level)) || graduateRowsByField.has(poolKey(cipCode, level))))
         .map((level) => {
           const degree = DEGREE_ABBREVIATIONS[cipCode]?.[level] ?? CREDENTIALS[level].label
           return {
@@ -1601,7 +1768,8 @@ async function main() {
       employment: page.national.allJobs ?? page.national.employment,
       growthShare: page.growthShare,
     })
-    const byProgramCount = [...nationalProgramPages].sort(
+    const listedNationalPages = nationalProgramPages
+    const byProgramCount = [...listedNationalPages].sort(
       (first, second) => second.national.earningsYear1Count - first.national.earningsYear1Count || first.programSlug.localeCompare(second.programSlug),
     )
     const byPay = (first: NationalProgramPage, second: NationalProgramPage) =>
@@ -1615,11 +1783,11 @@ async function main() {
 
     const home: HomePage = {
       counts: {
-        programPages: pages.length,
+        programPages: pages.length + graduatePages.length,
         schools: pageUnitIds.length,
         schoolPages: schoolPages.length,
-        stateRankings: stateProgramPages.length,
-        nationalPrograms: nationalProgramPages.length,
+        stateRankings: countWhere(stateProgramPages, (page) => !isGraduateLevel(page.program.credentialLevel)),
+        nationalPrograms: listedNationalPages.length,
         careers: occupationPages.length,
       },
       states: statesByName.map((page) => ({ name: page.state.name, href: `/states/${page.stateSlug}` })),
@@ -1633,7 +1801,7 @@ async function main() {
     }
 
     const programsList: ProgramsListPage = {
-      levels: ([3, 2, 1] as CredentialLevel[]).map((level) => {
+      levels: ([5, 3, 2, 1] as CredentialLevel[]).map((level) => {
         const listed = nationalProgramPages.filter((page) => page.program.credentialLevel === level).sort(byPay).map(listedProgram)
         return {
           credentialLevel: level,
@@ -1683,7 +1851,7 @@ async function main() {
     return { home, programs: programsList, schools: schoolsList, careers: careersList }
   }
 
-  const index: ProgramIndexEntry[] = pages.map((page) => ({
+  const indexEntry = (page: ProgramPage): ProgramIndexEntry => ({
     schoolSlug: page.schoolSlug,
     programSlug: page.programSlug,
     unitId: page.school.unitId,
@@ -1692,19 +1860,20 @@ async function main() {
     state: page.school.state,
     graduatesPerYear: page.program.graduatesPerYear ?? 0,
     isComplete: isComplete(page),
-  }))
+  })
   // Build order: pages with every section filled first, bachelor's first, then
   // by graduate count, largest first.
-  index.sort(
-    (first, second) =>
-      Number(second.isComplete) - Number(first.isComplete) ||
-      second.credentialLevel - first.credentialLevel ||
-      second.graduatesPerYear - first.graduatesPerYear ||
-      `${first.schoolSlug}/${first.programSlug}`.localeCompare(`${second.schoolSlug}/${second.programSlug}`),
-  )
+  const inBuildOrder = (first: ProgramIndexEntry, second: ProgramIndexEntry) =>
+    Number(second.isComplete) - Number(first.isComplete) ||
+    second.credentialLevel - first.credentialLevel ||
+    second.graduatesPerYear - first.graduatesPerYear ||
+    `${first.schoolSlug}/${first.programSlug}`.localeCompare(`${second.schoolSlug}/${second.programSlug}`)
+  // Graduate pages come after all the others, in the same order among
+  // themselves. This way every page listed before them keeps its place.
+  const index = [...pages.map(indexEntry).sort(inBuildOrder), ...graduatePages.map(indexEntry).sort(inBuildOrder)]
 
   await rm(path.join(OUTPUT_DIRECTORY, 'programs'), { recursive: true, force: true })
-  for (const page of pages) {
+  for (const page of [...pages, ...graduatePages]) {
     const directory = path.join(OUTPUT_DIRECTORY, 'programs', page.schoolSlug)
     await mkdir(directory, { recursive: true })
     await writeFile(path.join(directory, `${page.programSlug}.json`), JSON.stringify(page))
@@ -1717,21 +1886,26 @@ async function main() {
     await mkdir(directory, { recursive: true })
     await writeFile(path.join(directory, `${page.programSlug}.json`), JSON.stringify(page))
   }
-  // Build order for ranking pages: most programs first, then by URL.
-  const stateProgramIndex: StateProgramIndexEntry[] = stateProgramPages
-    .map((page) => ({
-      stateSlug: page.stateSlug,
-      programSlug: page.programSlug,
-      cipCode: page.program.cipCode,
-      credentialLevel: page.program.credentialLevel,
-      state: page.state.code,
-      programCount: page.programs.length,
-    }))
-    .sort(
-      (first, second) =>
-        second.programCount - first.programCount ||
-        `${first.stateSlug}/${first.programSlug}`.localeCompare(`${second.stateSlug}/${second.programSlug}`),
-    )
+  // Build order for ranking pages: most programs first, then by URL. Graduate
+  // pages come after all the others, in the same order among themselves, so
+  // that every page listed before them keeps its place.
+  const stateProgramEntries = (graduate: boolean): StateProgramIndexEntry[] =>
+    stateProgramPages
+      .filter((page) => isGraduateLevel(page.program.credentialLevel) === graduate)
+      .map((page) => ({
+        stateSlug: page.stateSlug,
+        programSlug: page.programSlug,
+        cipCode: page.program.cipCode,
+        credentialLevel: page.program.credentialLevel,
+        state: page.state.code,
+        programCount: page.programs.length,
+      }))
+      .sort(
+        (first, second) =>
+          second.programCount - first.programCount ||
+          `${first.stateSlug}/${first.programSlug}`.localeCompare(`${second.stateSlug}/${second.programSlug}`),
+      )
+  const stateProgramIndex = [...stateProgramEntries(false), ...stateProgramEntries(true)]
   await writeFile(path.join(OUTPUT_DIRECTORY, 'state-program-index.json'), JSON.stringify(stateProgramIndex, null, 1))
 
   await rm(path.join(OUTPUT_DIRECTORY, 'school-pages'), { recursive: true, force: true })
@@ -1766,15 +1940,19 @@ async function main() {
   for (const page of nationalProgramPages) {
     await writeFile(path.join(OUTPUT_DIRECTORY, 'national-programs', `${page.programSlug}.json`), JSON.stringify(page))
   }
-  // Build order for national pages: most programs first, then by URL.
-  const nationalIndex: NationalProgramIndexEntry[] = nationalProgramPages
-    .map((page) => ({
-      programSlug: page.programSlug,
-      cipCode: page.program.cipCode,
-      credentialLevel: page.program.credentialLevel,
-      programCount: page.national.earningsYear1Count,
-    }))
-    .sort((first, second) => second.programCount - first.programCount || first.programSlug.localeCompare(second.programSlug))
+  // Build order for national pages: most programs first, then by URL, with
+  // graduate pages after all the others, as in the list of ranking pages.
+  const nationalEntries = (graduate: boolean): NationalProgramIndexEntry[] =>
+    nationalProgramPages
+      .filter((page) => isGraduateLevel(page.program.credentialLevel) === graduate)
+      .map((page) => ({
+        programSlug: page.programSlug,
+        cipCode: page.program.cipCode,
+        credentialLevel: page.program.credentialLevel,
+        programCount: page.national.earningsYear1Count,
+      }))
+      .sort((first, second) => second.programCount - first.programCount || first.programSlug.localeCompare(second.programSlug))
+  const nationalIndex = [...nationalEntries(false), ...nationalEntries(true)]
   await writeFile(path.join(OUTPUT_DIRECTORY, 'national-program-index.json'), JSON.stringify(nationalIndex, null, 1))
 
   await rm(path.join(OUTPUT_DIRECTORY, 'occupations'), { recursive: true, force: true })
@@ -1805,8 +1983,9 @@ async function main() {
   console.log(
     [
       `Program pages: ${pages.length} (bachelor's ${countByLevel(3)}, associate's ${countByLevel(2)}, certificates ${countByLevel(1)})`,
+      `Master's program pages: ${graduatePages.length}, at ${new Set(graduatePages.map((page) => page.school.unitId)).size} schools, with every section filled: ${countWhere(graduatePages, isComplete)}`,
       `Schools: ${pageUnitIds.length}, fields of study: ${new Set(pages.map((page) => page.program.cipCode)).size}, states: ${new Set(pages.map((page) => page.school.state)).size}`,
-      `With 5-year earnings: ${countWhere(pages, (page) => page.earnings.year5 !== undefined)}, every section filled: ${countWhere(index, (entry) => entry.isComplete)}`,
+      `With 5-year earnings: ${countWhere(pages, (page) => page.earnings.year5 !== undefined)}, every section filled: ${countWhere(pages, isComplete)}`,
       `Ranking pages (field and credential in a state): ${stateProgramPages.length}`,
       `School pages: ${schoolPages.length}, listing ${schoolIndex.reduce((total, entry) => total + entry.programCount, 0)} programs`,
       `State pages: ${statePages.length}`,
@@ -1819,21 +1998,26 @@ async function main() {
 
 function isComplete(page: ProgramPage) {
   const { school, earnings, debt } = page
-  return (
+  const sectionsOfEveryPage =
     earnings.year5 !== undefined &&
-    earnings.pellYear1 !== undefined &&
-    earnings.otherYear1 !== undefined &&
     earnings.workingCount !== undefined &&
     earnings.workingInStateCount !== undefined &&
     debt.monthlyPayment !== undefined &&
+    page.repayment?.rows.length === 4 &&
+    page.priceLevels?.area !== undefined &&
+    page.nearby.length > 1 &&
+    page.program.graduatesPerYear !== undefined
+  // A graduate page shows no split by Pell Grant, no Parent PLUS figures and no
+  // section about the school.
+  if (isGraduateLevel(page.program.credentialLevel)) return sectionsOfEveryPage
+  return (
+    sectionsOfEveryPage &&
+    earnings.pellYear1 !== undefined &&
+    earnings.otherYear1 !== undefined &&
     debt.pellMedian !== undefined &&
     debt.otherMedian !== undefined &&
     debt.parentPlusBorrowers !== undefined &&
     debt.parentPlusMedian !== undefined &&
-    page.repayment?.rows.length === 4 &&
-    page.priceLevels?.area !== undefined &&
-    page.nearby.length > 1 &&
-    page.program.graduatesPerYear !== undefined &&
     (school.inStateTuition !== undefined || school.programTuition !== undefined) &&
     school.averageNetPrice !== undefined &&
     school.admissionRate !== undefined &&

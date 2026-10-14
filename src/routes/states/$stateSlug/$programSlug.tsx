@@ -14,6 +14,7 @@ import type { RankedProgram } from '@/data/state-program-page'
 import { combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { debtTileLabel, GRADUATE_DATA_NOTES, GRADUATE_DEBT_COLUMN_NOTE, GRADUATE_LOWEST_DEBT_CAUTION, graduateClassYears, isGraduateRanking } from '@/lib/graduate-ranking-copy'
 import { officialFieldSentence } from '@/lib/key-figure-copy'
 import { placeInSentence } from '@/lib/place-names'
 import { canonicalLink } from '@/lib/site'
@@ -82,10 +83,11 @@ function StateProgramPageView() {
   const hasYear5 = state.earningsYear5 !== undefined && national.earningsYear5 !== undefined
   const jobs = page.occupations.filter((occupation) => occupation.stateMedianPay !== undefined || occupation.nationalMedianPay !== undefined)
   const lowestDebt = lowestDebtPrograms(page)
+  const graduate = isGraduateRanking(page)
   const figures: KeyFigureTile[] = [
     { label: 'Median first-year pay', value: formatMoney(state.earningsYear1), context: `National ${formatMoney(national.earningsYear1)}` },
     ...(hasYear5 ? [{ label: 'Median pay after 5 years', value: formatMoney(state.earningsYear5!), context: `National ${formatMoney(national.earningsYear5!)}` }] : []),
-    { label: 'Median federal debt', value: formatMoney(state.medianDebt), context: `National ${formatMoney(national.medianDebt)}` },
+    { label: debtTileLabel(graduate), value: formatMoney(state.medianDebt), context: `National ${formatMoney(national.medianDebt)}` },
     { label: 'Debt-to-earnings', value: formatShare(state.debtToEarnings), context: `National ${formatShare(national.debtToEarnings)}` },
   ]
 
@@ -112,11 +114,14 @@ function StateProgramPageView() {
             <QuestionList name="figures" section="key-figure-questions" questions={figureQuestions} className="mt-3" />
 
             <PageSection name="ranking" title={rankingTitle(page)}>
+              {/* Every program in the table reports pay. The last sentence names the
+                  figure a program can lack. The user worded this paragraph on 2026-10-14. */}
               <p>
-                Each figure is the median for the program's graduates. Programs that don't report a figure are
-                listed last when you sort by it.
+                Each figure is the median for the program's graduates. Every program listed here reports pay. A program
+                that does not report debt is listed last when you sort by debt.
               </p>
               <RankingTable programs={page.programs} />
+              {graduate ? <Note>{GRADUATE_DEBT_COLUMN_NOTE}</Note> : null}
               {fieldNote ? <Note>{fieldNote}</Note> : null}
               {notes.length > 0 ? (
                 <Note>
@@ -131,11 +136,19 @@ function StateProgramPageView() {
               ) : null}
             </PageSection>
 
-            <PageSection name="scatter" title={`Debt and first-year pay at every ${page.state.name} ${page.program.sentenceName} program`}>
-              <p>
-                Programs in the upper left give graduates higher pay for less debt. Dashed lines mark the{' '}
-                {page.state.name} medians.
-              </p>
+            <PageSection name="scatter" title={`Debt and first-year pay at every ${page.state.name} ${graduate ? kind : page.program.sentenceName} program`}>
+              {graduate ? (
+                <p>
+                  Each dot is one program. A dot higher up means its graduates earn more in their first year, and a dot
+                  further right means they borrowed more in federal loans for graduate study. Dashed lines mark the{' '}
+                  {page.state.name} medians.
+                </p>
+              ) : (
+                <p>
+                  Programs in the upper left give graduates higher pay for less debt. Dashed lines mark the{' '}
+                  {page.state.name} medians.
+                </p>
+              )}
               <Card size="sm">
                 <CardContent>
                   {/* On a narrow screen the chart scrolls sideways instead of shrinking. */}
@@ -152,6 +165,7 @@ function StateProgramPageView() {
                         medianDebt={state.medianDebt}
                         medianEarnings={state.earningsYear1}
                         stateName={page.state.name}
+                        debtTitle={graduate ? debtTileLabel(true) : undefined}
                       />
                     </div>
                     <ScrollBar orientation="horizontal" />
@@ -165,7 +179,7 @@ function StateProgramPageView() {
             </PageSection>
 
             <PageSection name="lowest-debt" title={lowestDebtTitle(page)}>
-              <p>{lowestDebtIntro(lowestDebt.byDebt.length)}</p>
+              <p>{lowestDebtIntro(lowestDebt.byDebt.length, graduate)}</p>
               <div className="grid gap-3 md:grid-cols-2">
                 <RankedList title="Lowest debt" entries={lowestDebt.byDebt.map((program) => debtEntry(program, formatMoney(program.medianDebt!)))} />
                 <RankedList
@@ -173,6 +187,7 @@ function StateProgramPageView() {
                   entries={lowestDebt.byDebtToEarnings.map((program) => debtEntry(program, formatShare(program.medianDebt! / program.earningsYear1)))}
                 />
               </div>
+              {graduate ? <Note>{GRADUATE_LOWEST_DEBT_CAUTION}</Note> : null}
             </PageSection>
 
             {page.matchingJob ? (
@@ -218,13 +233,23 @@ function StateProgramPageView() {
             <PageSection name="about-data" title="About this data">
               <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
                 <li>{officialFieldSentence(page.program)}</li>
-                <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
-                <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+                {graduate ? (
+                  GRADUATE_DATA_NOTES.map((note) => <li key={note}>{note}</li>)
+                ) : (
+                  <>
+                    <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
+                    <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+                  </>
+                )}
                 <li>{payPrivacyNote()}</li>
                 {combinedCampusesNotes(page.state.name).map((note) => (
                   <li key={note}>{note}</li>
                 ))}
-                <li>Medians are across the {kind} programs that report each figure, which is why the counts differ by figure. College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025.</li>
+                {graduate ? (
+                  <li>Medians are across the {kind} programs that report each figure, which is why the counts differ by figure. {graduateClassYears(hasYear5)} Bureau of Labor Statistics wages are from May 2025.</li>
+                ) : (
+                  <li>Medians are across the {kind} programs that report each figure, which is why the counts differ by figure. College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025.</li>
+                )}
               </ul>
               <h3 className="text-base font-bold">Sources</h3>
               <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">

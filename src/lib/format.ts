@@ -16,6 +16,11 @@ export function formatCount(count: number) {
   return countFormatter.format(count)
 }
 
+// "About 489 graduates a year", and "About 1 graduate a year" for one.
+export function formatGraduatesPerYear(graduates: number) {
+  return `About ${formatCount(graduates)} ${graduates === 1 ? 'graduate' : 'graduates'} a year`
+}
+
 // Whole percent, rounded half up. toFixed removes floating-point noise first, so
 // 0.145 becomes 15% rather than 14% (0.145 * 100 is 14.499999... in JavaScript).
 export function roundedPercent(share: number) {

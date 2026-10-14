@@ -156,9 +156,11 @@ export function RelatedLinkText({ title, detail }: { title: string; detail: stri
 // Paragraphs that introduce a section keep a reading width. Notes run the full
 // width of the page column.
 // `hidden` keeps a section in the page without showing it, for a list that a search narrows.
-export function PageSection({ name, title, hidden, children }: { name: string; title: string; hidden?: boolean; children: ReactNode }) {
+// `id` lets a link on the page jump to the section. The section then stops
+// below the site header, which stays at the top of the window.
+export function PageSection({ name, title, id, hidden, children }: { name: string; title: string; id?: string; hidden?: boolean; children: ReactNode }) {
   return (
-    <section data-section={name} hidden={hidden} className="mt-13 flex flex-col gap-3.5 [&>p:not([data-slot=note])]:max-w-[66ch]">
+    <section id={id} data-section={name} hidden={hidden} className={cn('mt-13 flex flex-col gap-3.5 [&>p:not([data-slot=note])]:max-w-[66ch]', id && 'scroll-mt-20')}>
       <h2 className={SECTION_TITLE}>{title}</h2>
       {children}
     </section>

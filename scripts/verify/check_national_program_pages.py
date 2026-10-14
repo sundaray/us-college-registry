@@ -25,12 +25,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
+import raw_data  # noqa: E402
 import check_program_pages  # noqa: E402
 from job_rows import job_text, job_tokens, lowercase_words, matching_job_names, start_sentence  # noqa: E402
-from check_program_pages import FORBIDDEN_PATTERNS, Expectation, check_career_links, number_tokens, parse_html, visible_text  # noqa: E402
+from check_program_pages import (  # noqa: E402
+    FORBIDDEN_PATTERNS, GRADUATE_DEBT_COLUMN_NOTE, GRADUATE_LOWEST_DEBT_CAUTION, Expectation, Identity, check_career_links, number_tokens,
+    parse_html, ranking_about_claims, ranking_debt_name, ranking_question_claims, visible_text, wrong_kind_errors,
+)
 from page_model import count, money, percent  # noqa: E402
 
-CREDENTIALS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
+CREDENTIALS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's", 5: "Master's"}
 PICK_COUNT = 10
 # Ranking rows on one page of the table; the rest are in the HTML, hidden.
 VISIBLE_ROWS = 10
@@ -60,7 +64,10 @@ def national_occupation(model, code):
 
 
 def national_model(model, state_names, cip, level):
-    page_rows = model.page_rows_by_field.get((cip, level))
+    # A master's national page ranks master's programs, which have their own set of pages.
+    masters = level == raw_data.MASTERS_LEVEL
+    with_page = model.masters_ids if masters else model.page_ids
+    page_rows = (model.masters_rows_by_field if masters else model.page_rows_by_field).get((cip, level))
     if not page_rows:
         raise LookupError(f'No national page for {cip} {level}')
     pool = model.national[(cip, level)]
@@ -68,7 +75,7 @@ def national_model(model, state_names, cip, level):
     for (pool_cip, pool_level, state), rows in model.state.items():
         if pool_cip != cip or pool_level != level:
             continue
-        if any(id(row) in model.page_ids for row in rows):
+        if any(id(row) in with_page for row in rows):
             benchmark = model.benchmark(rows)
             states.append({'code': state, 'name': state_names[state], 'count': benchmark['year1_count'], 'pay': benchmark['year1'], 'debt': benchmark['debt']})
         elif any(row['EARN_MDN_1YR'] is not None for row in rows):
@@ -81,7 +88,7 @@ def national_model(model, state_names, cip, level):
     def ratio(row):
         return Fraction(row['DEBT_ALL_STGP_ANY_MDN'], row['EARN_MDN_1YR'])
 
-    ranking = national_ranking(model, cip, level)
+    ranking = national_ranking(model, cip, level, with_page)
     with_pay = [row for row in pool if row['EARN_MDN_1YR'] is not None]
     without_school = sum(1 for row in with_pay if not row['UNITID'] or row['UNITID'] not in model.institutions)
 
@@ -93,16 +100,21 @@ def national_model(model, state_names, cip, level):
         'ratio': sorted(with_debt, key=lambda program: (program['ratio_rank'], program['pay_rank']))[:PICK_COUNT],
     }
     matching = None
-    if model.matching.get(cip):
+    # The matching job of a field is the job its bachelor's degree trains for.
+    # A master's page lists the field's jobs instead.
+    if not masters and model.matching.get(cip):
         candidate = national_occupation(model, model.matching[cip])
         if candidate and candidate['state_median'] is not None:
             matching = candidate
     occupations = [national_occupation(model, occupation['code']) for occupation in model.occupations(cip, '00')]
+    # The national rankings of the field's other credentials, master's first:
+    # each one's credential and the number of programs that report pay.
     others = []
-    for other_level in (3, 2, 1):
-        if other_level != level and model.page_rows_by_field.get((cip, other_level)):
-            others.append(model.benchmark(model.national[(cip, other_level)])['year1_count'])
+    for other_level in (raw_data.MASTERS_LEVEL, 3, 2, 1):
+        if other_level != level and (model.masters_rows_by_field if other_level == raw_data.MASTERS_LEVEL else model.page_rows_by_field).get((cip, other_level)):
+            others.append((other_level, model.benchmark(model.national[(cip, other_level)])['year1_count']))
     return {
+        'masters': masters,
         'national': model.benchmark(pool),
         'official': ' '.join(next(row for row in pool if row['EARN_MDN_1YR'] is not None)['CIPDESC'].split()).rstrip('.'),
         'states': states,
@@ -123,9 +135,10 @@ def national_model(model, state_names, cip, level):
     }
 
 
-def national_ranking(model, cip, level):
+def national_ranking(model, cip, level, with_page):
     """Every program of the field and credential in a state pool that reports
-    first-year pay, with its ranks. Pay after cost of living divides pay by the
+    first-year pay, with its ranks. `with_page` holds the programs that have a
+    page of their own. Pay after cost of living divides pay by the
     BEA price level of the school's state, only where at least half of the
     graduates who work are working in that state."""
     listed = []
@@ -151,7 +164,7 @@ def national_ranking(model, cip, level):
             'debt': row['DEBT_ALL_STGP_ANY_MDN'],
             'after_exact': exact,
             'after': math.floor(exact + Fraction(1, 2)) if exact is not None else None,
-            'has_page': id(row) in model.page_ids,
+            'has_page': id(row) in with_page,
         })
     with_debt = [program for program in programs if program['debt'] is not None]
     for program in programs:
@@ -172,6 +185,9 @@ def tied(states):
 
 def expected_sections(page):
     national, states = page['national'], page['states']
+    # A master's page names its debt figure for what it counts.
+    masters = page['masters']
+    debt_name = ranking_debt_name(masters)
     sections = {}
 
     summary = sections['summary'] = Expectation(True)
@@ -203,7 +219,10 @@ def expected_sections(page):
             summary.claim(rf"{re.escape(state['name'])} (?:has|have) the highest state median pay|and {re.escape(page_model.place_in_sentence(state['name']))} the lowest \(|{re.escape(state['name'])} is the only state", False)
     summary.claim(r'^Summary The median .* program in the US pays its graduates')
     # The national debt sentence closes the first paragraph, before any state.
-    summary.claim(r'The median program leaves its graduates with \$[\d,]+ in federal debt\. \w')
+    if masters:
+        summary.claim(rf"The median program's graduates borrowed {re.escape(money(national['debt']))} in federal loans for graduate study at their school\. \w")
+    else:
+        summary.claim(rf"The median program leaves its graduates with {re.escape(money(national['debt']))} in federal debt\. \w")
     summary.claim(r'the short answer', False)
 
     questions = sections['key-figure-questions'] = Expectation(True)
@@ -214,6 +233,7 @@ def expected_sections(page):
         questions.add(count(national['year5_count']))
     questions.claim(r'What does "median" mean\? An average adds up every value and divides by how many there are\.')
     questions.claim(r'A lower figure means graduates owe less compared with what they earn\.')
+    ranking_question_claims(questions, masters)
     questions.claim(r'for the pay|Debt to pay', False)
     questions.claim(r'The median is the middle value when the values are put in order: half are higher, and half are lower\.')
     questions.claim(rf"{re.escape(money(national['year1']))} is the median of those figures across the {count(national['year1_count'])} .* programs that report one\.")
@@ -224,6 +244,7 @@ def expected_sections(page):
     questions.claim(r"College Scorecard: the U\.S\. Department of Education's public database of colleges and their programs, with debt figures drawn from federal student loan records\.")
 
     figures = sections['key-figures'] = Expectation(True)
+    figures.claim(r'Median federal debt for graduate study', masters)
     figures.add(money(national['year1']), count(national['year1_count']), money(national['debt']), count(national['debt_count']))
     figures.add(percent(national['dte']), count(national['dte_count']))
     if national['year5'] is not None:
@@ -237,8 +258,15 @@ def expected_sections(page):
         state_section.add(count(state['count']), money(state['pay']), money(state['debt']))
     if page['unranked'] > 1:
         state_section.add(count(page['unranked']))
-    state_section.claim(r'report pay, but there are too few to rank\. A state ranking needs at least five programs', page['unranked'] == 1)
-    state_section.claim(r'report pay, but there are too few in each to rank\. A state ranking needs at least five programs', page['unranked'] > 1)
+    # Above the table, the page explains the two columns and what a median
+    # across programs is. A master's debt figure counts only the loans for
+    # graduate study at the school. Under the table, the page says why a place
+    # is missing as a plain fact.
+    borrowed = 'borrowed in federal loans for graduate study at the school' if masters else 'borrowed in federal loans'
+    state_section.claim(rf"programs by state In the table below, we show pay and debt for each state's .* {CREDENTIALS[page['level']].lower()} programs\. Year 1 pay is what a program's typical graduate earned in the first year after finishing\. Debt is what a program's typical graduate {borrowed}\. Each state's figure is the median across its programs: half of them are higher, and half are lower\.")
+    state_section.claim(r'The table leaves out one more state or territory, because it has fewer than five programs that report both pay and debt\.', page['unranked'] == 1)
+    state_section.claim(rf"The table leaves out {count(page['unranked'])} more states and territories, because each has fewer than five programs that report both pay and debt\.", page['unranked'] > 1)
+    state_section.claim(r'The table leaves out', page['unranked'] > 0)
     not_states = page_model.not_states_note([state['name'] for state in states])
     state_section.claim(r'listed for comparison', not_states is not None)
     if not_states is not None:
@@ -250,6 +278,10 @@ def expected_sections(page):
     table = sections['ranking'] = Expectation(True)
     table.add(count(len(ranking)))  # "N {field} {credential} programs, ranked by graduate pay"
     table.claim(rf"^{count(len(ranking))} .* programs, ranked by graduate pay ")
+    # The paragraph above the table. Every listed program reports pay. Its
+    # last sentence names the figure a program can lack.
+    table.claim(r"ranked by graduate pay Each program is ranked by the median pay of its graduates one year after they finished\. The figures come from College Scorecard, the U\.S\. Department of Education's public database of colleges and their programs\. It takes pay from federal tax records\. The ranking shows what graduates earn, not how good the teaching is\. Pay also depends on where graduates live and work\. Every program listed here reports pay\. A program that does not report debt is listed last when you sort by debt\.")
+    table.claim(GRADUATE_DEBT_COLUMN_NOTE, masters)
     table.claim(r'Show all', False)
     # One name for debt divided by pay: the sort button and the column both say debt-to-earnings.
     table.claim(r'Lowest debt-to-earnings .* Debt Debt-to-earnings ')
@@ -274,7 +306,8 @@ def expected_sections(page):
     for figure in (unadjusted, pay_only, closed, page['without_school'], combined):
         if figure > 1:
             table.add(count(figure))
-    table.claim(r'listed last when you sort by it')
+    # The note about programs with no pay after cost of living. The paragraph above the table used to end with the same words.
+    table.claim(r'listed last when you sort by it', unadjusted > 0)
     table.claim(r'at least half of the graduates who work are working in the school.s state')
     table.claim(r'whose graduates mostly work in other states or whose state has no price level', unadjusted > 0)
     table.claim(r'One program is ranked only by pay, because it reports pay but not debt\.', pay_only == 1)
@@ -294,8 +327,9 @@ def expected_sections(page):
     for program in page['picks']['ratio']:
         picks.add(percent(Fraction(program['debt'], program['year1'])))
     picks.claim(r' programs with the lowest debt ')
-    picks.claim(r'Debt-to-earnings is median federal debt divided by first-year pay\.')
-    picks.claim(r'These two lists show the ten programs with the lowest median federal debt and the ten with the lowest debt-to-earnings\.', len(page['picks']['debt']) == PICK_COUNT)
+    picks.claim(rf'Debt-to-earnings is {debt_name} divided by first-year pay\.')
+    picks.claim(rf'These two lists show the ten programs with the lowest {debt_name} and the ten with the lowest debt-to-earnings\.', len(page['picks']['debt']) == PICK_COUNT)
+    picks.claim(GRADUATE_LOWEST_DEBT_CAUTION, masters)
     picks.claim(r'for the pay|Debt to pay', False)
     picks.claim(r'their own page', False)
 
@@ -345,14 +379,20 @@ def expected_sections(page):
     faq.add(money(top_programs[0]['year1']), count(len(ranking)))
     if len(top_programs) == 1 and top_programs[0]['debt'] is not None:
         faq.add(money(top_programs[0]['debt']))
+        faq.claim(rf"Its {debt_name} is {re.escape(money(top_programs[0]['debt']))}\.")
+    # The last answer: what the median program's graduates owe.
+    if masters:
+        faq.claim(rf"The median program's graduates borrowed {re.escape(money(national['debt']))} in federal loans for graduate study at their school\. Across programs, the median debt for graduate study is {percent(national['dte'])} of first-year pay\. Undergraduate loans and loans taken at other schools are not counted\.$")
+    else:
+        faq.claim(rf"The median program leaves its graduates with {re.escape(money(national['debt']))} in federal debt\. Across programs, the median debt is {percent(national['dte'])} of first-year pay\.$")
 
     related = sections['related'] = Expectation(bool(page['others']))
-    for other in page['others']:
+    for _, other in page['others']:
         related.add(count(other))
 
     about = sections['about-data'] = Expectation(True)
     about.claim(check_program_pages.PAY_PRIVACY_NOTE.format(figures='each pay figure'))
-    about.claim(r'College Scorecard figures describe graduating classes from several years ago\. Bureau of Labor Statistics wages are from May 2025\.')
+    ranking_about_claims(about, masters, national['year5'] is not None, r'Bureau of Labor Statistics wages are from May 2025\. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024\.')
     about.claim(r'RN-to-BSN|\bBLS\b|(?<!College )Scorecard figures', False)
     about.claim(r'every program in the 50 states, DC and US territories, including schools that have since closed')
     about.claim(r'Medians are across programs, not students\. Each program counts once, however many graduates it has\.')
@@ -401,7 +441,7 @@ def linked_program(html_dir, href, cache):
     return cache[href]
 
 
-def check_ranking_rows(node, page, cip, level, html_dir, link_cache, errors):
+def check_ranking_rows(node, page, cip, level, html_dir, link_cache, identity, errors):
     rows = node.find_all(lambda child: child.tag == 'tr' and 'data-unit' in child.attributes)
     expected = {program['unit_id']: program for program in page['ranking']}
     shown_units = [row.attributes['data-unit'] for row in rows]
@@ -430,6 +470,11 @@ def check_ranking_rows(node, page, cip, level, html_dir, link_cache, errors):
         detail = visible_text(cells[1])
         if f", {program['state']} · {program['control']}" not in detail or detail.endswith(' · closed') == program['open']:
             errors.append(f"{label}: detail {detail!r} should name {program['state']}, {program['control']}{'' if program['open'] else ', closed'}")
+        # The school's name and city, as the federal file and the reviewed name lists give them.
+        named = [visible_text(part) for part in cells[1].find_all(lambda child: 'data-name' in child.attributes)]
+        wanted_names = [identity.names.get(program['unit_id']), f"{program['city']}, {program['state']} · {program['control']}{'' if program['open'] else ' · closed'}"]
+        if named != wanted_names:
+            errors.append(f'{label}: names {named}, expected {wanted_names}')
         if ('hidden' in row.attributes) != (position >= VISIBLE_ROWS):
             errors.append(f"{label}: row {position + 1} should be {'hidden' if position >= VISIBLE_ROWS else 'shown'} before Show all")
         if program['pay_rank'] < previous_rank:
@@ -471,7 +516,7 @@ def check_debt_list(label, items, expected, value_of, cip, level, html_dir, link
             errors.append(f"section lowest-debt: {label}, unit {unit} links to {link.attributes.get('href')!r}, which is another program")
 
 
-def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
+def check_page(html_text, model, state_names, page_path, html_dir, link_cache, identity):
     errors, warnings = [], []
     root = parse_html(html_text)
     errors.extend(check_program_pages.frame_errors(root))
@@ -506,6 +551,7 @@ def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
         return {'page': page_path, 'errors': errors + [str(error)], 'warnings': warnings, 'links': []}
 
     main_text = visible_text(main)
+    errors.extend(wrong_kind_errors(page['masters'], main_text))
     errors.extend(page_model.bare_place_errors(title, description, main_text))
     for pattern in FORBIDDEN_PATTERNS:
         for place, text in (('title', title), ('description', description), ('page', main_text)):
@@ -555,8 +601,18 @@ def check_page(html_text, model, state_names, page_path, html_dir, link_cache):
                 errors.append(f'section {name}: wording {pattern!r} should {"" if should_match else "not "}appear')
         if name == 'states':
             check_state_rows(node, expectation, errors)
+        if name == 'related':
+            # Each link's address and its words in full, master's first.
+            field = check_program_pages.FIELD_NAMES[cip]
+            wanted = [
+                (f'/programs/{identity.program_slug(cip, other_level)}', f"{field} ({check_program_pages.DEGREE_ABBREVIATIONS.get((cip, other_level), CREDENTIALS[other_level])}) programs in the US, ranked {count(programs)} programs by pay and debt")
+                for other_level, programs in page['others']
+            ]
+            shown = [(link.attributes.get('href'), visible_text(link)) for link in node.find_all(lambda child: child.tag == 'a')]
+            if shown != wanted:
+                errors.append(f'section related: the links are {shown}, expected {wanted}')
         if name == 'ranking':
-            check_ranking_rows(node, page, cip, level, html_dir, link_cache, errors)
+            check_ranking_rows(node, page, cip, level, html_dir, link_cache, identity, errors)
         if name == 'summary':
             paragraphs = node.find_all(lambda child: child.tag == 'p')
             heading = node.find(lambda child: child.tag == 'h2')
@@ -637,7 +693,9 @@ def main():
     parser.add_argument('--pages', required=True)
     parser.add_argument('--report', required=True)
     arguments = parser.parse_args()
-    model = page_model.Model()
+    # Master's rows are loaded too: a field has a national page for its master's programs.
+    model = page_model.Model(include_masters=True)
+    identity = Identity(model)
     state_names = page_model.load_state_names()
     results = []
     link_cache = {}
@@ -646,7 +704,7 @@ def main():
         if not file_path.exists():
             results.append({'page': page_path, 'errors': [f'no built file {file_path}'], 'warnings': [], 'links': []})
             continue
-        results.append(check_page(file_path.read_text(), model, state_names, page_path, arguments.html_dir, link_cache))
+        results.append(check_page(file_path.read_text(), model, state_names, page_path, arguments.html_dir, link_cache, identity))
     Path(arguments.report).write_text(json.dumps(results, indent=1))
     failed = [result for result in results if result['errors']]
     print(f'Checked {len(results)} pages: {len(results) - len(failed)} passed, {len(failed)} failed, '

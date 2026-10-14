@@ -26,7 +26,7 @@ export function buildHomeSubtitle() {
 
 export function buildHomeDescription(page: HomePage) {
   const { counts } = page
-  return `Graduate pay and federal debt for ${formatCount(counts.programPages)} programs at ${formatCount(counts.schools)} US colleges, ranked by state, school, and field, with pay for ${formatCount(counts.careers)} careers.`
+  return `Graduate pay and federal debt for ${formatCount(counts.programPages)} programs at US colleges, ranked by state, school, and field, with pay for ${formatCount(counts.careers)} careers.`
 }
 
 export function programsListCount(page: ProgramsListPage) {
@@ -38,7 +38,7 @@ export function buildProgramsListTitle() {
 }
 
 export function buildProgramsListDescription(page: ProgramsListPage) {
-  return `Graduate pay and federal debt for ${formatCount(programsListCount(page))} kinds of US college programs, from bachelor's degrees to certificates, each with a national and state ranking.`
+  return `Graduate pay and federal debt for ${formatCount(programsListCount(page))} kinds of US college programs, from master's degrees to certificates, each with a national and state ranking.`
 }
 
 export function schoolsListCount(page: SchoolsListPage) {

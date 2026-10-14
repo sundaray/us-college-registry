@@ -1,13 +1,26 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ListIcon } from 'lucide-react'
-import { PageSection } from '@/components/page-blocks'
+import { Note, PageSection } from '@/components/page-blocks'
 import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { ListedProgramTable } from '@/components/site/listed-program-table'
 import { ListPageHeader } from '@/components/site/list-page-header'
+import { buttonVariants } from '@/components/ui/button'
+import type { CredentialLevel } from '@/data/program-page'
+import { isGraduateLevel } from '@/data/program-page'
 import { getProgramsListPage } from '@/data/get-site-pages'
 import { formatCount } from '@/lib/format'
 import { canonicalLink } from '@/lib/site'
+import { cn } from '@/lib/utils'
 import { buildProgramsListDescription, buildProgramsListTitle, programsListCount } from '@/lib/site-copy'
+
+// Each table's place on the page, for the links at the top that jump to it, and
+// the word each link shows.
+const TABLES: Record<CredentialLevel, { anchor: string; link: string }> = {
+  5: { anchor: 'masters', link: "Master's" },
+  3: { anchor: 'bachelors', link: "Bachelor's" },
+  2: { anchor: 'associates', link: "Associate's" },
+  1: { anchor: 'certificates', link: 'Certificates' },
+}
 
 // The index route matches /programs exactly; national program pages are its
 // children at /programs/{program}.
@@ -35,13 +48,38 @@ function ProgramsListView() {
           facts={[{ icon: <ListIcon aria-hidden />, text: `${formatCount(programsListCount(page))} types of programs` }]}
         />
         <div className="mx-auto max-w-3xl px-5">
+          {/* The page holds four long tables. Links at the top jump to each. */}
+          <nav data-section="jump" aria-label="Jump to a table" className="mt-9 flex flex-wrap items-center gap-2">
+            <span className="text-base font-semibold">Jump to</span>
+            {page.levels.map((level) => (
+              <a
+                key={level.credentialLevel}
+                href={`#${TABLES[level.credentialLevel].anchor}`}
+                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'rounded-full px-3.5 text-base')}
+              >
+                {TABLES[level.credentialLevel].link}
+              </a>
+            ))}
+          </nav>
           {page.levels.map((level) => (
-            <PageSection key={level.credentialLevel} name={`programs-${level.credentialLevel}`} title={`${level.credential} programs`}>
+            <PageSection
+              key={level.credentialLevel}
+              name={`programs-${level.credentialLevel}`}
+              id={TABLES[level.credentialLevel].anchor}
+              title={`${level.credential} programs`}
+            >
               <ListedProgramTable programs={level.programs} searchLabel={`Search ${level.credential.toLowerCase()} programs`} />
+              {/* A graduate debt figure counts less than the others on the page, and the table says so. */}
+              {isGraduateLevel(level.credentialLevel) ? (
+                <Note>
+                  Debt for a master's program counts only the federal loans its graduates took for graduate study at that
+                  school. Undergraduate loans and loans taken at other schools are not counted.
+                </Note>
+              ) : null}
             </PageSection>
           ))}
 
-          {/* What the three tables show and who the figures count. Each statement was checked
+          {/* What the four tables show and who the figures count. Each statement was checked
               against the Department of Education's field of study documentation. */}
           <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
@@ -65,7 +103,8 @@ function ProgramsListView() {
               </li>
               <li>
                 "Debt" starts from each program's own figure too: the median amount borrowed by its graduates who took
-                federal student loans. Loans taken by parents and private loans are not counted.
+                federal student loans. Loans taken by parents and private loans are not counted. For a master's
+                program, it only counts loans for graduate study at that school.
               </li>
             </ul>
           </PageSection>

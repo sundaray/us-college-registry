@@ -57,7 +57,6 @@ function Home() {
           </p>
 
           <PageSection name="states" title="Browse by state">
-            <p>Each state page ranks its fields by graduate pay and lists every school with a program page.</p>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-3 md:grid-cols-4">
               {page.states.map((state) => (
                 <li key={state.href}>
@@ -70,7 +69,6 @@ function Home() {
           </PageSection>
 
           <PageSection name="fields" title="Browse by field of study">
-            <p>Each field's page ranks every state by graduate pay and debt and lists the top programs nationwide.</p>
             <div className="grid gap-3.5 md:grid-cols-2">
               <ListCard title="Most common programs" subtitle="Median first-year pay across US programs" more={<AllProgramsLink count={counts.nationalPrograms} />}>
                 {page.commonPrograms.map((program) => (
@@ -86,7 +84,6 @@ function Home() {
           </PageSection>
 
           <PageSection name="careers" title="Browse by career">
-            <p>Each career's page shows pay in every state, adjusted for prices, and the programs that lead there.</p>
             <ListCard
               title="Careers with the most jobs"
               subtitle="Median pay across all experience levels, May 2025"

@@ -21,6 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
+import raw_data  # noqa: E402
 import check_program_pages  # noqa: E402
 from check_program_pages import (  # noqa: E402
     FORBIDDEN_PATTERNS, MEDIAN_EXAMPLE_TOKENS, ONE_PARAGRAPH_LIMIT, TOKEN_PATTERN, Expectation, number_tokens, parse_html, tile_lines, visible_text,
@@ -28,8 +29,8 @@ from check_program_pages import (  # noqa: E402
 from job_rows import EDUCATION_NEEDED, EXPERIENCE_NEEDED  # noqa: E402
 from page_model import count, money, percent_number  # noqa: E402
 
-CREDENTIAL_SLUGS = {1: 'certificate', 2: 'associate', 3: 'bachelors'}
-CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's"}
+CREDENTIAL_SLUGS = {1: 'certificate', 2: 'associate', 3: 'bachelors', 5: 'masters'}
+CREDENTIAL_LABELS = {1: 'Certificate', 2: "Associate's", 3: "Bachelor's", 5: "Master's"}
 # Fixed phrases on occupation pages that contain digits but no data.
 OCCUPATION_STATIC_PHRASES = [
     'Regional Price Parities for 2024', 'Regional Price Parities, 2024', 'US average is 100',
@@ -45,7 +46,15 @@ RETIRED_WORDING = [
     r'Typical education to start', r'US average = 100',
     # Claims the agency's own documents do not support, and the wording that named one agency for the links.
     r'(?i)\bevery industry\b', r'(?i)\ball industries\b', r'self-employed', r'count new jobs', r'Department of Education links',
+    # The site lists master's programs now. No page may say it has no graduate programs.
+    r'does not include graduate programs', r'lists only certificates',
 ]
+# Under the table of programs when it holds a master's row: the same note as
+# under the master's table on the Programs page.
+MASTERS_DEBT_NOTE = "Debt for a master's program counts only the federal loans its graduates took for graduate study at that school. Undergraduate loans and loans taken at other schools are not counted."
+DOCTORAL_SCOPE = 'This site does not include doctoral or professional programs.'
+NO_MASTERS_LISTED = "This site lists no master's programs for this career."
+
 
 
 def lowercase_words(name):
@@ -258,16 +267,25 @@ def expected_sections(page):
 
     program_section = sections['programs'] = Expectation(True)
     match = rf"^Related programs These programs are listed because their subjects are related to the work of {re.escape(name)}, according to the U\.S\. Department of Education and the Bureau of Labor Statistics\. This connection does not mean each program qualifies you for the job\."
-    graduate_scope = "This site lists only certificates, associate's degrees and bachelor's degrees; it does not include graduate programs."
+    # The site lists master's programs and no doctoral or professional ones. A
+    # job that typically needs a master's degree says so when its table holds
+    # no master's program.
+    lists_masters = any(program['level'] == raw_data.MASTERS_LEVEL for program in page['programs'])
     usual = ''
     if page['code'] == '29-1171':
-        usual = re.escape(" According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification. " + graduate_scope)
+        usual = re.escape(" According to the Bureau of Labor Statistics, nurse practitioners typically need at least a master's degree in advanced practice nursing, plus nursing licenses and certification.")
     elif page['education']:
         usual = rf" The Bureau of Labor Statistics lists {re.escape(EDUCATION_NEEDED[page['education']])} as the typical education for entering this career\."
-        if page['education'] in ("Master's degree", 'Doctoral or professional degree'):
-            usual += re.escape(' ' + graduate_scope)
+        if page['education'] == 'Doctoral or professional degree':
+            usual += re.escape(' ' + DOCTORAL_SCOPE)
+        if page['education'] == "Master's degree" and not lists_masters:
+            usual += re.escape(' ' + NO_MASTERS_LISTED)
     program_section.claim(match + usual + ' Program ')
-    program_section.claim(r"Each figure is the median across that kind of program in the US\. Program names link to the national ranking\. Program figures are first-year pay for new graduates\. The job's median pay covers every experience level\.$")
+    program_section.claim(re.escape(DOCTORAL_SCOPE), page['code'] != '29-1171' and page['education'] == 'Doctoral or professional degree')
+    program_section.claim(re.escape(NO_MASTERS_LISTED), page['code'] != '29-1171' and page['education'] == "Master's degree" and not lists_masters)
+    note = r"Each figure is the median across that kind of program in the US\. Program names link to the national ranking\. Program figures are first-year pay for new graduates\. The job's median pay covers every experience level\."
+    program_section.claim(note + (' ' + re.escape(MASTERS_DEBT_NOTE) if lists_masters else '') + '$')
+    program_section.claim(re.escape(MASTERS_DEBT_NOTE), lists_masters)
     program_section.claim(r'lead to this job|link these programs|not enough|People usually need|below that level|The match is by field', False)
     for program in page['programs']:
         program_section.add(count(program['count']), money(program['pay']), money(program['debt']))
@@ -551,7 +569,7 @@ def main():
     parser.add_argument('--pages', required=True)
     parser.add_argument('--report', required=True)
     arguments = parser.parse_args()
-    reference = Reference(page_model.Model())
+    reference = Reference(page_model.Model(include_masters=True))
     results = []
     for page_path in [line.strip() for line in Path(arguments.pages).read_text().splitlines() if line.strip()]:
         file_path = Path(arguments.html_dir) / (page_path.strip('/') + '.html')

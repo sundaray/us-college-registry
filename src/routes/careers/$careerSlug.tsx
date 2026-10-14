@@ -5,6 +5,7 @@ import { OccupationStateTable } from '@/components/occupation/occupation-state-t
 import { answerText, KeyFigures, Note, PageSection, QuestionList, Summary } from '@/components/page-blocks'
 import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { getOccupationPage } from '@/data/get-occupation-page'
+import { isGraduateLevel } from '@/data/program-page'
 import { payPrivacyNote } from '@/lib/data-notes'
 import {
   buildKeyFigureQuestions,
@@ -93,6 +94,13 @@ function OccupationPageView() {
               Each figure is the median across that kind of program in the US. Program names link to the national ranking.
               Program figures are first-year pay for new graduates. The job's median pay covers every experience level.
             </Note>
+            {/* A master's debt figure counts less than the others in the table, and the page says so. */}
+            {page.programs.some((program) => isGraduateLevel(program.credentialLevel)) ? (
+              <Note>
+                Debt for a master's program counts only the federal loans its graduates took for graduate study at that
+                school. Undergraduate loans and loans taken at other schools are not counted.
+              </Note>
+            ) : null}
           </PageSection>
 
           <PageSection name="faq" title="Common questions">

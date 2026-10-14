@@ -5,6 +5,7 @@ import type { RankedProgram, StateProgramPage } from '@/data/state-program-page'
 import { studiedElsewhereNote } from '@/lib/data-notes'
 import { formatCount, formatMoney } from '@/lib/format'
 import { stateCareersIntro, stateCareersTitle } from '@/lib/job-copy'
+import { debtName, GRADUATE_DEBT_LIMIT, isGraduateRanking } from '@/lib/graduate-ranking-copy'
 import { keyFigureQuestions } from '@/lib/key-figure-copy'
 import { placeInSentence } from '@/lib/place-names'
 import { summaryParagraphs } from '@/lib/summary'
@@ -55,6 +56,11 @@ export function buildStateProgramDescription(page: StateProgramPage) {
   return `${page.programs.length} ${page.state.name} ${programKind(page)} programs ranked by graduate pay and debt. Median first-year pay: ${formatMoney(page.benchmarks.state.earningsYear1)}. Highest: ${schoolLabel(top)}, ${formatMoney(top.earningsYear1)}.`
 }
 
+// "Median debt" in the summary's sentence about schools, or its graduate name.
+function lowestDebtName(page: StateProgramPage) {
+  return isGraduateRanking(page) ? 'median debt for graduate study' : 'median debt'
+}
+
 // The summary's paragraphs. See summaryParagraphs for when it breaks in two.
 export function buildStateProgramSummary(page: StateProgramPage) {
   const { state, national } = page.benchmarks
@@ -72,8 +78,8 @@ export function buildStateProgramSummary(page: StateProgramPage) {
   const stateFigure = `The median ${page.state.name} ${programKind(page)} program pays its graduates ${formatMoney(state.earningsYear1)} in their first year, ${comparison}.`
   const schools =
     top === lowest
-      ? `${schoolLabel(top)} reports both the highest first-year pay (${formatMoney(top.earningsYear1)}) and the lowest median debt (${formatMoney(lowest.medianDebt!)}).`
-      : `${schoolLabel(top)} reports the highest first-year pay (${formatMoney(top.earningsYear1)}) and ${schoolLabel(lowest)} the lowest median debt (${formatMoney(lowest.medianDebt!)}).`
+      ? `${schoolLabel(top)} reports both the highest first-year pay (${formatMoney(top.earningsYear1)}) and the lowest ${lowestDebtName(page)} (${formatMoney(lowest.medianDebt!)}).`
+      : `${schoolLabel(top)} reports the highest first-year pay (${formatMoney(top.earningsYear1)}) and ${schoolLabel(lowest)} the lowest ${lowestDebtName(page)} (${formatMoney(lowest.medianDebt!)}).`
   return summaryParagraphs([[stateFigure], [schools]])
 }
 
@@ -84,6 +90,7 @@ export function buildKeyFigureQuestions(page: StateProgramPage) {
     benchmark: state,
     programs: `${page.state.name} ${programKind(page)}`,
     showYear5: state.earningsYear5 !== undefined && national.earningsYear5 !== undefined,
+    graduateDebt: isGraduateRanking(page),
   })
 }
 
@@ -110,12 +117,13 @@ export function lowestDebtTitle(page: StateProgramPage) {
 }
 
 // `listed` is the number of programs in each list: five, or fewer when fewer report debt.
-export function lowestDebtIntro(listed: number) {
-  const explanation = 'Debt-to-earnings is median federal debt divided by first-year pay.'
+export function lowestDebtIntro(listed: number, graduate = false) {
+  const debt = debtName(graduate)
+  const explanation = `Debt-to-earnings is ${debt} divided by first-year pay.`
   if (listed < LOWEST_DEBT_COUNT) {
-    return `These two lists order the ${COUNT_WORDS[listed]} programs that report debt, first by median federal debt and then by debt-to-earnings. ${explanation}`
+    return `These two lists order the ${COUNT_WORDS[listed]} programs that report debt, first by ${debt} and then by debt-to-earnings. ${explanation}`
   }
-  return `These two lists show the five programs with the lowest median federal debt and the five with the lowest debt-to-earnings. ${explanation}`
+  return `These two lists show the five programs with the lowest ${debt} and the five with the lowest debt-to-earnings. ${explanation}`
 }
 
 export function careersTitle(page: StateProgramPage) {
@@ -177,14 +185,20 @@ export function buildStateProgramFaq(page: StateProgramPage) {
   const top = highestPay(page)
   const lowest = lowestDebt(page)
   const withDebt = programsWithDebt(page)
+  const graduate = isGraduateRanking(page)
+  const debt = debtName(graduate)
+  // A graduate page names the degree in every question: the state's bachelor's
+  // programs in the same field have a ranking page of their own.
+  const field = graduate ? kind : page.program.sentenceName
 
   const topAnswer = [`${top.schoolName} in ${top.city} reports the highest median first-year pay, ${formatMoney(top.earningsYear1)}.`]
-  if (top.medianDebt !== undefined) topAnswer.push(`Its median federal debt is ${formatMoney(top.medianDebt)}.`)
+  if (top.medianDebt !== undefined) topAnswer.push(`Its ${debt} is ${formatMoney(top.medianDebt)}.`)
   if (!top.isOpen) topAnswer.push('The school has since closed.')
 
   const lowestAnswer = [
-    `${lowest.schoolName} reports the lowest median federal debt, ${formatMoney(lowest.medianDebt!)}, with first-year pay of ${formatMoney(lowest.earningsYear1)}.`,
+    `${lowest.schoolName} reports the lowest ${debt}, ${formatMoney(lowest.medianDebt!)}, with first-year pay of ${formatMoney(lowest.earningsYear1)}.`,
   ]
+  if (graduate) lowestAnswer.push(GRADUATE_DEBT_LIMIT)
   if (!lowest.isOpen) lowestAnswer.push('The school has since closed.')
 
   const payAnswer = [
@@ -199,11 +213,11 @@ export function buildStateProgramFaq(page: StateProgramPage) {
 
   return [
     { question: `Which ${page.state.name} ${kind} program pays graduates the most?`, answer: topAnswer.join(' ') },
-    { question: `Which ${page.state.name} ${page.program.sentenceName} program has the lowest debt?`, answer: lowestAnswer.join(' ') },
-    { question: `How much do ${page.program.sentenceName} graduates earn in ${placeInSentence(page.state.name)}?`, answer: payAnswer.join(' ') },
+    { question: `Which ${page.state.name} ${field} program has the lowest debt?`, answer: lowestAnswer.join(' ') },
+    { question: `How much do ${field} graduates earn in ${placeInSentence(page.state.name)}?`, answer: payAnswer.join(' ') },
     {
       question: `How many ${kind} programs are in ${placeInSentence(page.state.name)}?`,
-      answer: `${formatCount(page.programs.length)} ${page.state.name} programs report first-year pay for their graduates, and ${formatCount(withDebt.length)} of them also report federal debt.`,
+      answer: `${formatCount(page.programs.length)} ${page.state.name} programs report first-year pay for their graduates, and ${formatCount(withDebt.length)} of them also report ${graduate ? 'federal debt for graduate study' : 'federal debt'}.`,
     },
   ]
 }

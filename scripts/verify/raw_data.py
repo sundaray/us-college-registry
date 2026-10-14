@@ -70,29 +70,93 @@ FOS_COLUMNS = [
     'DEBT_ALL_PP_ANY_N', 'DEBT_ALL_PP_ANY_MDN', 'EARN_COUNT_WNE_1YR', 'EARN_IN_STATE_1YR',
     'BBRR2_FED_COMP_N', 'BBRR2_FED_COMP_PAIDINFULL', 'BBRR2_FED_COMP_MAKEPROG',
     'BBRR2_FED_COMP_FBR', 'BBRR2_FED_COMP_DFLT',
+    # Whether the field's credentials can be completed fully online: 3 all, 2 at least one, 1 none, 0 not reported.
+    'DISTANCE',
 ]
 
 FOS_NUMBER_COLUMNS = FOS_COLUMNS[7:21]
 
+# A master's row reports debt only in these two columns: federal loans taken for
+# graduate study at the school itself. Its columns for loans from any school
+# are withheld.
+MASTERS_DEBT_COLUMNS = ['DEBT_ALL_STGP_EVAL_MDN', 'DEBT_ALL_STGP_EVAL_MDN10YRPAY']
+# How many borrowers that median is of. A master's page says so.
+MASTERS_BORROWERS_COLUMN = 'DEBT_ALL_STGP_EVAL_N'
+MASTERS_LEVEL = 5
 
-def load_field_of_study():
+
+def load_field_of_study(include_masters=False):
+    """Certificate, associate's and bachelor's rows, and master's rows too when
+    asked. Only the program page checker asks: the other page types list no
+    master's programs yet."""
     path = RAW / 'Most-Recent-Cohorts-Field-of-Study.csv'
+    levels = ('1', '2', '3', str(MASTERS_LEVEL)) if include_masters else ('1', '2', '3')
+    columns = FOS_COLUMNS + (MASTERS_DEBT_COLUMNS + [MASTERS_BORROWERS_COLUMN] if include_masters else [])
 
     def build():
         rows = []
-        for raw in read_csv_columns(path, FOS_COLUMNS):
-            if raw['CREDLEV'] not in ('1', '2', '3'):
+        for raw in read_csv_columns(path, columns):
+            if raw['CREDLEV'] not in levels:
                 continue
             row = dict(raw)
             row['CREDLEV'] = int(raw['CREDLEV'])
             row['UNITID'] = raw['UNITID'] if raw['UNITID'].isdigit() else None
             row['CIPDESC'] = raw['CIPDESC'].strip()
+            if row['CREDLEV'] == MASTERS_LEVEL:
+                # The page's debt figure for a master's program is the one for
+                # graduate study at the school. It takes the place of the
+                # any-school figure, which must be withheld: if a release ever
+                # publishes it, the pages' wording has to be looked at again.
+                if raw['DEBT_ALL_STGP_ANY_MDN'].strip() not in SCORECARD_MISSING:
+                    raise ValueError(f"A master's row reports debt from any school: {raw['UNITID']} {raw['CIPCODE']}")
+                row['DEBT_ALL_STGP_ANY_MDN'] = raw['DEBT_ALL_STGP_EVAL_MDN']
+                row[MASTERS_BORROWERS_COLUMN] = scorecard_number(raw[MASTERS_BORROWERS_COLUMN])
+                row['DEBT_ALL_STGP_ANY_MDN10YRPAY'] = raw['DEBT_ALL_STGP_EVAL_MDN10YRPAY']
+                # A master's page shows no Pell split: the file does not say when
+                # a graduate student received the grant.
+                for column in ('EARN_PELL_WNE_MDN_1YR', 'EARN_NOPELL_WNE_MDN_1YR', 'DEBT_PELL_STGP_ANY_MDN', 'DEBT_NOPELL_STGP_ANY_MDN'):
+                    row[column] = ''
             for column in FOS_NUMBER_COLUMNS:
-                row[column] = scorecard_number(raw[column])
+                row[column] = scorecard_number(row[column])
             rows.append(row)
         return rows
 
-    return cached('field-of-study', [path], build)
+    return cached('field-of-study-with-masters' if include_masters else 'field-of-study', [path], build)
+
+
+def load_class_years():
+    """Which graduating classes the field of study figures describe, from the
+    cohort map in College Scorecard's data dictionary (the column for the most
+    recent file). Award years read "2018-19"."""
+    path = RAW / 'CollegeScorecardDataDictionary.xlsx'
+
+    def build():
+        rows = xlsx_rows(path, 'FieldOfStudy_Cohort_Map')
+        header = next(rows)
+        column = header.index('FieldOfStudyMostRecent datafile')
+        cells = {row[0]: row[column] for row in rows if len(row) > column}
+
+        def award_years(text):
+            return [f'{start}-{end[-2:]}' for start, end in re.findall(r'AY(\d{4})-(\d{2,4})', text)]
+
+        def measured(text):
+            return re.findall(r'CY(\d{4})', text), re.search(r'adjusted to (\d{4}) dollars', text).group(1)
+
+        first_year, five_year, debt = cells['EARN_MDN_1YR'], cells['EARN_MDN_5YR'], cells[MASTERS_DEBT_COLUMNS[0]]
+        years = {
+            'first_year': award_years(first_year),
+            'five_year': award_years(five_year),
+            'debt': award_years(debt),
+            'measured': measured(first_year)[0],
+            'dollars': measured(first_year)[1],
+        }
+        # The pages give one set of years for first-year pay and debt, and one
+        # for when both pay figures were measured. Stop if the file disagrees.
+        if years['debt'] != years['first_year'] or measured(five_year) != measured(first_year) or not all(len(years[key]) == 2 for key in ('first_year', 'five_year', 'measured')):
+            raise ValueError(f'The cohort map no longer fits the sentence on the pages: {years}')
+        return years
+
+    return cached('class-years', [path], build)
 
 
 INSTITUTION_COLUMNS = [
@@ -335,6 +399,31 @@ def load_crosswalk():
         return dict(by_field)
 
     return cached('crosswalk', [path], build)
+
+
+def load_crosswalk_programs():
+    """NCES CIP 2020 to SOC 2018 at the level of its narrow 6-digit programs. For
+    each 4-digit field: each program's title and the jobs it is linked to. A
+    program linked to no job ("99-9999") is kept, with no jobs."""
+    path = RAW / 'CIP2020_SOC2018_Crosswalk.xlsx'
+
+    def build():
+        rows = xlsx_rows(path, 'CIP-SOC')
+        header = next(rows)
+        cip_index, title_index, soc_index = header.index('CIP2020Code'), header.index('CIP2020Title'), header.index('SOC2018Code')
+        by_field = {}
+        for row in rows:
+            if len(row) <= soc_index:
+                continue
+            match = re.fullmatch(r'(\d{2})\.(\d{2})\d{2}', row[cip_index])
+            if not match:
+                raise ValueError(f'Unexpected CIP {row[cip_index]!r}')
+            program = by_field.setdefault(match.group(1) + match.group(2), {}).setdefault(row[cip_index], {'title': row[title_index].strip(), 'jobs': set()})
+            if row[soc_index] != '99-9999':
+                program['jobs'].add(row[soc_index])
+        return by_field
+
+    return cached('crosswalk-programs', [path], build)
 
 
 def load_matching_occupations():

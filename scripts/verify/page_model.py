@@ -232,8 +232,11 @@ def miles_between(first, second):
 
 
 class Model:
-    def __init__(self):
-        self.programs = raw_data.load_field_of_study()
+    def __init__(self, include_masters=False):
+        # Master's rows are loaded only for the checkers whose pages show master's
+        # programs. Every pool is keyed by credential level. They change nothing
+        # for the other levels.
+        self.programs = raw_data.load_field_of_study(include_masters)
         self.institutions = raw_data.load_institutions()
         self.metro_codes = raw_data.load_metro_codes()
         self.district_schools = raw_data.load_district_tuition_schools()
@@ -241,6 +244,7 @@ class Model:
         self.wages = raw_data.load_occupation_wages()
         self.projections = raw_data.load_projections()
         self.crosswalk = raw_data.load_crosswalk()
+        self.crosswalk_programs = raw_data.load_crosswalk_programs()
         self.matching = raw_data.load_matching_occupations()
         self._build_pools()
 
@@ -292,6 +296,7 @@ class Model:
             if share is not None and share < Fraction(1, 2):
                 if row['EARN_MDN_1YR'] is not None:
                     self.studied_elsewhere_state[(row['CIPCODE'], row['CREDLEV'], institution['STABBR'])] += 1
+                    # School pages give this count. They list master's programs too.
                     self.studied_elsewhere_school[row['UNITID']] += 1
                 continue
             self.state[(row['CIPCODE'], row['CREDLEV'], institution['STABBR'])].append(row)
@@ -305,6 +310,10 @@ class Model:
             return row['EARN_MDN_1YR'] is not None and row['DEBT_ALL_STGP_ANY_MDN'] is not None
 
         self.page_rows = []
+        # Master's programs that meet the same rule. Each has a program page.
+        # They are kept apart, because school pages and state pages list and
+        # count no master's programs.
+        self.masters_rows = []
         for row in self.kept:
             if id(row) not in self.in_state_pool or not has_both(row):
                 continue
@@ -313,12 +322,16 @@ class Model:
                 continue
             pool = self.state[(row['CIPCODE'], row['CREDLEV'], institution['STABBR'])]
             if sum(1 for other in pool if has_both(other)) >= MINIMUM_STATE_PROGRAMS:
-                self.page_rows.append(row)
+                (self.masters_rows if row['CREDLEV'] == raw_data.MASTERS_LEVEL else self.page_rows).append(row)
         self.page_ids = {id(row) for row in self.page_rows}
+        self.masters_ids = {id(row) for row in self.masters_rows}
         self.page_unit_ids = {row['UNITID'] for row in self.page_rows}
         self.page_rows_by_field = defaultdict(list)
         for row in self.page_rows:
             self.page_rows_by_field[(row['CIPCODE'], row['CREDLEV'])].append(row)
+        self.masters_rows_by_field = defaultdict(list)
+        for row in self.masters_rows:
+            self.masters_rows_by_field[(row['CIPCODE'], row['CREDLEV'])].append(row)
 
     def share_studied_in(self, row, state):
         """The share of a program's graduates who studied at campuses in one
@@ -358,7 +371,14 @@ class Model:
         """Occupations with their own page: every occupation a careers section can
         list (the crosswalk occupations of each field with program pages, and the
         matching jobs) that has a national median pay. Maps each SOC code to the
-        (CIP, credential level) pairs whose pages list it."""
+        (CIP, credential level) pairs whose pages list it. A master's field adds
+        no occupation page: it is listed on the pages of the occupations its
+        own pages list, and a master's page names no matching job.
+
+        A career page also lists every field the crosswalk links to it strongly
+        (see strongly_linked), though the field's own pages name only its
+        largest jobs. A field's pages listing four jobs at most would otherwise
+        keep Mathematics off the Mathematicians page."""
         if hasattr(self, '_career_fields'):
             return self._career_fields
         fields = defaultdict(list)
@@ -369,33 +389,66 @@ class Model:
             for code in codes:
                 if self.wages.get(('US', code), {}).get('median') is not None:
                     fields[code].append((cip, level))
+        with_page = set(fields)
+        for cip, level in self.page_rows_by_field:
+            for code in self.linked_codes(cip):
+                if code in with_page and (cip, level) not in fields[code] and self.strongly_linked(cip, code):
+                    fields[code].append((cip, level))
+        for cip, level in self.masters_rows_by_field:
+            own = {occupation['code'] for occupation in self.occupations(cip, '00')}
+            for code in self.linked_codes(cip):
+                if code in with_page and (code in own or self.strongly_linked(cip, code)):
+                    fields[code].append((cip, level))
         self._career_fields = dict(fields)
         return self._career_fields
 
-    def occupations(self, cip, state_fips):
+    def shown_code(self, crosswalk_code):
+        """The job a crosswalk code is shown as: the code itself, or the combined
+        code the pay survey publishes in its place. None for postsecondary
+        teaching jobs, "All Other" groups and jobs with no count of workers."""
+        if crosswalk_code.startswith('25-1'):
+            return None
+        combined = crosswalk_code[:6] + '0'
+        if ('US', crosswalk_code) in self.wages:
+            code = crosswalk_code
+        elif ('US', combined) in self.wages:
+            code = combined
+        else:
+            return None
+        national = self.wages[('US', code)]
+        if 'all other' in national['title'].lower() or national['employment'] is None:
+            return None
+        return code
+
+    def linked_codes(self, cip):
+        """Every job the crosswalk links to a field, most workers first. Its
+        pages list the first OCCUPATION_LIMIT."""
         candidates = []
         seen = set()
         for crosswalk_code in self.crosswalk.get(cip, set()):
-            if crosswalk_code.startswith('25-1'):
-                continue
-            combined = crosswalk_code[:6] + '0'
-            if ('US', crosswalk_code) in self.wages:
-                code = crosswalk_code
-            elif ('US', combined) in self.wages:
-                code = combined
-            else:
-                continue
-            if code in seen:
-                continue
-            national = self.wages[('US', code)]
-            if 'all other' in national['title'].lower() or national['employment'] is None:
+            code = self.shown_code(crosswalk_code)
+            if code is None or code in seen:
                 continue
             seen.add(code)
+            national = self.wages[('US', code)]
             # Ordered by everyone in the job (the projections' count). The pay
             # survey's count stands in for a job the projections don't list.
             candidates.append((-(self.projections.get(code, {}).get('employment') or national['employment']), code))
+        return [code for _, code in sorted(candidates)]
+
+    def strongly_linked(self, cip, code):
+        """Whether the crosswalk links a job to a field strongly: the field's
+        general program ("..., General.") is linked to it, or at least a quarter
+        of the narrow programs the field groups are."""
+        programs = list(self.crosswalk_programs.get(cip, {}).values())
+        linked = [program for program in programs if any(self.shown_code(job) == code for job in program['jobs'])]
+        if any(re.search(r',\s*General\.?$', program['title']) for program in linked):
+            return True
+        return bool(programs) and 4 * len(linked) >= len(programs)
+
+    def occupations(self, cip, state_fips):
         result = []
-        for _, code in sorted(candidates)[:OCCUPATION_LIMIT]:
+        for code in self.linked_codes(cip)[:OCCUPATION_LIMIT]:
             state = self.wages.get(('S' + state_fips, code), {})
             national = self.wages[('US', code)]
             projection = self.projections.get(code, {})
@@ -417,7 +470,8 @@ class Model:
     def page(self, unit_id, cip, credential_level):
         """Every fact a page shows, or raises if the program shouldn't have a page."""
         row = self.kept_by_unit.get((unit_id, cip, credential_level))
-        if row is None or id(row) not in self.page_ids:
+        masters = credential_level == raw_data.MASTERS_LEVEL
+        if row is None or id(row) not in (self.masters_ids if masters else self.page_ids):
             raise LookupError(f'No eligible program for {unit_id} {cip} {credential_level}')
         institution = self.institutions[unit_id]
         state = institution['STABBR']
@@ -446,7 +500,9 @@ class Model:
         here = (float(institution['LATITUDE']), float(institution['LONGITUDE']))
         trusted = self.has_trusted_location(unit_id)
         nearby = []
-        for other in self.page_rows_by_field[(cip, credential_level)]:
+        # A master's page lists the master's programs that meet the page rule.
+        nearby_candidates = (self.masters_rows_by_field if masters else self.page_rows_by_field)[(cip, credential_level)]
+        for other in nearby_candidates:
             # A school without a trusted location has no nearby programs and is
             # not a nearby program of any other school.
             if other is not row and not (trusted and self.has_trusted_location(other['UNITID'])):
@@ -456,6 +512,7 @@ class Model:
             if other is not row and distance > NEARBY_MILES:
                 continue
             nearby.append({
+                'unit_id': other['UNITID'],
                 'current': other is row,
                 'miles': 0 if other is row else distance,
                 'year1': other['EARN_MDN_1YR'],
@@ -478,7 +535,9 @@ class Model:
             price = {'kind': 'nonmetro', 'index': portion_price[1], 'state_index': state_price[1]}
 
         matching = None
-        matching_code = self.matching.get(cip)
+        # The matching job of a field is the job its bachelor's degree trains
+        # for. A master's page makes no such comparison.
+        matching_code = None if masters else self.matching.get(cip)
         if matching_code:
             state_wage = self.wages.get(('S' + state_fips, matching_code), {})
             national_wage = self.wages.get(('US', matching_code), {})
@@ -498,7 +557,21 @@ class Model:
             return value if value is not None and value > 0 else None
 
         graduation = institution['C150_4'] if level == '1' else institution['C150_L4']
+        bachelors_row = self.kept_by_unit.get((unit_id, cip, 3)) if masters else None
+        masters_row = self.kept_by_unit.get((unit_id, cip, raw_data.MASTERS_LEVEL)) if credential_level == 3 else None
         return {
+            # A master's page words its debt figure differently, has no section
+            # about the school and links to the school's bachelor's program in
+            # the same field when that program has a page.
+            'masters': masters,
+            # What the school reports about studying online: every program of
+            # this credential in the field, at least one, or nothing to say.
+            'online': {'3': 'all', '2': 'some'}.get(row['DISTANCE'].strip()),
+            # The number of borrowers the master's debt figure is of, when the file gives it.
+            'borrowers': row.get(raw_data.MASTERS_BORROWERS_COLUMN) if masters else None,
+            'bachelors_page': bachelors_row is not None and id(bachelors_row) in self.page_ids,
+            # And a bachelor's page links to the school's master's program in the field.
+            'masters_page': masters_row is not None and id(masters_row) in self.masters_ids,
             'row': row,
             'institution': institution,
             'year1': year1,
@@ -529,7 +602,10 @@ class Model:
             'state_both': state_both,
             'school_rank': 1 + sum(1 for other in school_rows if other['EARN_MDN_1YR'] > year1),
             'school_count': len(school_rows),
-            'school_total': sum(len(self.school.get((unit_id, level), [])) for level in (1, 2, 3)),
+            # The programs the school's own page lists, master's programs
+            # included. A school has that page only when it has an undergraduate
+            # program page. A school with master's pages alone counts none.
+            'school_total': sum(len(self.school.get((unit_id, level), [])) for level in (1, 2, 3, raw_data.MASTERS_LEVEL)) if unit_id in self.page_unit_ids else 0,
             'top_programs': [(other['CIPCODE'], other['EARN_MDN_1YR']) for other in top],
             'nearby': nearby,
             'price': price,

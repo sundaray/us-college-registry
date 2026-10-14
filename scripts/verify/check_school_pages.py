@@ -23,14 +23,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import page_model  # noqa: E402
+import raw_data  # noqa: E402
 import check_program_pages  # noqa: E402
 from check_program_pages import (  # noqa: E402
     CAMPUS_RULE, FORBIDDEN_PATTERNS, MEDIAN_EXAMPLE_TOKENS, ONE_PARAGRAPH_LIMIT, SOURCE_LINE, STATE_NAMES, Expectation,
-    number_tokens, parse_html, tile_lines, visible_text,
+    graduates_per_year, number_tokens, parse_html, tile_lines, visible_text,
 )
 from page_model import count, money, ordinal, percent  # noqa: E402
 
-CREDENTIALS = {3: "bachelor's", 2: "associate's", 1: 'certificate'}
+CREDENTIALS = {raw_data.MASTERS_LEVEL: "master's", 3: "bachelor's", 2: "associate's", 1: 'certificate'}
 CONTROLS = {'1': 'Public', '2': 'Private nonprofit', '3': 'Private for-profit'}
 # Schools with fewer programs that report pay have no school page.
 MINIMUM_SCHOOL_PAGE_PROGRAMS = 2
@@ -41,12 +42,24 @@ NURSING_CIP = '5138'
 # Fixed phrases on school pages that contain digits but no data.
 SCHOOL_STATIC_PHRASES = ['within 6 years', 'within 1.5 times the normal program length', 'IPEDS tuition and fees, 2023-24']
 # Sections in the order the page shows them. A school has a ranking for each
-# credential level it has programs at, bachelor's first.
-SECTION_ORDER = ['header', 'summary', 'key-figures', 'key-figure-questions', 'ranking-3', 'ranking-2', 'ranking-1', 'short-lists', 'faq', 'about-data']
+# credential level it has programs at, master's first as on the Programs page.
+SECTION_ORDER = ['header', 'summary', 'key-figures', 'key-figure-questions', 'ranking-5', 'ranking-3', 'ranking-2', 'ranking-1', 'short-lists', 'faq', 'about-data']
+# Under the table of master's programs: what master's debt counts.
+MASTERS_DEBT_NOTE = "Debt for a master's program counts only the federal loans its graduates took for graduate study at that school. Undergraduate loans and loans taken at other schools are not counted."
+# Above every table of programs that can be sorted.
+SORT_SENTENCES = 'Every program listed here reports first-year pay. A program that does not report debt or its number of graduates is listed last when you sort by it.'
 # Wording the revised pages no longer use anywhere.
 RETIRED_WORDING = [
     r', so ', r'—', r'(?i)\bearnings\b', r'The short answer', r'Quick picks', r'\bBLS\b', r'(?<!College )\bScorecard\b',
     r', and (?:[A-Z][a-z]+ )?(?:one|\d+) (?:certificate|associate|bachelor)', r'isn\'t listed|aren\'t listed',
+    # The note under the tables spoke of links and of when a program gets a page,
+    # and the paragraph above them ended with this sentence (the user, 2026-10-14).
+    r'Program names link', r'A program gets its own page', r"Programs that don't report a figure",
+    # Tuition, net price and the graduation rate are for undergraduates, and the
+    # page says so: it lists master's programs too (the user, 2026-10-14).
+    r'are for the whole school, not one program', r'First-time, full-time students', r'for all students',
+    # The admission rate counts undergraduate applicants (docs/InstitutionDataDocumentation.pdf, page 11).
+    r'admission rate is for the whole school', r'\bOf applicants\b',
 ]
 
 
@@ -61,10 +74,12 @@ def school_model(model, unit_id):
     institution = model.institutions[unit_id]
     state = institution['STABBR']
     levels = []
-    for level in (3, 2, 1):
+    for level in (raw_data.MASTERS_LEVEL, 3, 2, 1):
         rows = model.school.get((unit_id, level), [])
         if not rows:
             continue
+        # A master's program has its own set of pages and rankings.
+        with_page = model.masters_ids if level == raw_data.MASTERS_LEVEL else model.page_ids
         programs = []
         for row in rows:
             pool = model.state[(row['CIPCODE'], level, state)]
@@ -78,15 +93,18 @@ def school_model(model, unit_id):
                 'pay_rank': 1 + sum(1 for other in rows if other['EARN_MDN_1YR'] > row['EARN_MDN_1YR']),
                 'state_rank': 1 + sum(1 for other in with_pay if other['EARN_MDN_1YR'] > row['EARN_MDN_1YR']),
                 'state_count': len(with_pay),
-                'has_page': id(row) in model.page_ids,
-                'has_ranking': any(id(other) in model.page_ids for other in pool),
+                'has_page': id(row) in with_page,
+                'has_ranking': any(id(other) in with_page for other in pool),
             })
         programs.sort(key=lambda program: -program['year1'])
         levels.append({'level': level, 'programs': programs, 'debt_only': model.school_debt_only.get((unit_id, level), 0)})
     if sum(len(level['programs']) for level in levels) < MINIMUM_SCHOOL_PAGE_PROGRAMS:
         raise LookupError(f'{unit_id} has too few programs for a school page')
-    primary = levels[0]
-    for level in levels:
+    # The summary, the short lists and most questions are about the undergraduate
+    # level with the most programs. Every school with a page has one.
+    undergraduate = [level for level in levels if level['level'] != raw_data.MASTERS_LEVEL]
+    primary = undergraduate[0]
+    for level in undergraduate:
         if len(level['programs']) > len(primary['programs']):
             primary = level
     control = institution['CONTROL']
@@ -97,6 +115,7 @@ def school_model(model, unit_id):
         # because most of their graduates studied at campuses in other states.
         'studied_elsewhere': model.studied_elsewhere_school.get(unit_id, 0),
         'levels': levels,
+        'undergraduate_levels': undergraduate,
         'primary': primary,
         'control': CONTROLS[control],
         'four_year': institution['ICLEVEL'] == '1',
@@ -191,20 +210,20 @@ def expected_sections(school, field_names):
     else:
         in_state, out_of_state = school['in_state_tuition'], school['out_of_state_tuition']
         if in_state is not None and in_state == out_of_state:
-            tiles.append(['Tuition and fees', money(in_state), 'Per year, for all students'])
+            tiles.append(['Tuition and fees', money(in_state), 'Per year, for all undergraduates'])
         elif in_state is not None:
             tiles.append([
                 'In-district tuition and fees' if school['district_tuition'] else 'In-state tuition and fees', money(in_state),
-                f'Per year. Out-of-state {money(out_of_state)}' if out_of_state is not None else 'Per year',
+                f'Per year, for undergraduates. Out-of-state {money(out_of_state)}' if out_of_state is not None else 'Per year, for undergraduates',
             ])
         elif out_of_state is not None:
-            tiles.append(['Out-of-state tuition and fees', money(out_of_state), 'Per year'])
+            tiles.append(['Out-of-state tuition and fees', money(out_of_state), 'Per year, for undergraduates'])
         if school['net_price'] is not None:
-            tiles.append(['Average net price after aid', money(school['net_price']), 'Per year'])
+            tiles.append(['Average net price after aid', money(school['net_price']), 'Per year, for undergraduates'])
     if school['graduation_rate'] is not None:
-        tiles.append(['Graduation rate', percent(school['graduation_rate']), f"First-time, full-time students, within {'6 years' if school['within_six_years'] else '1.5 times the normal program length'}"])
+        tiles.append(['Graduation rate', percent(school['graduation_rate']), f"First-time, full-time undergraduates, within {'6 years' if school['within_six_years'] else '1.5 times the normal program length'}"])
     if school['admission_rate'] is not None:
-        tiles.append(['Admission rate', percent(school['admission_rate']), 'Of applicants'])
+        tiles.append(['Admission rate', percent(school['admission_rate']), 'Of undergraduate applicants'])
     figures = sections['key-figures'] = Expectation(bool(tiles))
     figures.tiles = tiles
     for _, value, context in tiles:
@@ -244,9 +263,8 @@ def expected_sections(school, field_names):
             if program['graduates'] is not None:
                 section.add(count(program['graduates']))
             section.add(ordinal(program['state_rank']), count(program['state_count']))
-        any_page = any(program['has_page'] for program in level_programs)
-        section.claim(r'Program names link', any_page)
-        section.claim(r'A program gets its own page', any_page and not all(program['has_page'] for program in level_programs))
+        section.claim(rf"Each figure is the median for the program's graduates\. \"Rank in {re.escape(page_model.place_in_sentence(school['state_name']))}\" compares first-year pay with the same field's {re.escape(level_credential)} programs across {re.escape(page_model.place_in_sentence(school['state_name']))}\.{' ' + re.escape(SORT_SENTENCES) if sortable else ''}(?: Highest| #| Program)")
+        section.claim(re.escape(MASTERS_DEBT_NOTE), level['level'] == raw_data.MASTERS_LEVEL)
         if level['debt_only'] > 1:
             section.add(count(level['debt_only']))
         section.claim(rf"{count(level['debt_only'])} more {level_credential} programs are not listed, because they report debt but not pay\.", level['debt_only'] > 1)
@@ -261,7 +279,7 @@ def expected_sections(school, field_names):
     with_debt = sorted((program for program in programs if program['debt'] is not None), key=lambda program: (program['debt'], -program['year1']))
     with_graduates = sorted((program for program in programs if program['graduates'] is not None), key=lambda program: (-program['graduates'], -program['year1']))
     lowest_debt = [money(program['debt']) for program in with_debt[:SHORT_LIST_COUNT]]
-    most_graduates = [f"About {count(program['graduates'])} graduates a year" for program in with_graduates[:SHORT_LIST_COUNT]]
+    most_graduates = [graduates_per_year(program['graduates']) for program in with_graduates[:SHORT_LIST_COUNT]]
     picks = sections['short-lists'] = Expectation(len(programs) >= SHORT_LIST_MINIMUM and bool(lowest_debt or most_graduates))
     if picks.present:
         picks.add(*lowest_debt, *[count(program['graduates']) for program in with_graduates[:SHORT_LIST_COUNT]])
@@ -275,7 +293,7 @@ def expected_sections(school, field_names):
         picks.claim(r'Highest first-year pay|Largest programs', False)
 
     faq = sections['faq'] = Expectation(True)
-    program_word = 'major' if len(levels) == 1 and primary['level'] == 3 else f'{credential} program'
+    program_word = 'major' if len(school['undergraduate_levels']) == 1 and primary['level'] == 3 else f'{credential} program'
     faq.question_patterns = []
     if len(programs) >= 2:
         top = tied_first(programs, lambda program: program['year1'])
@@ -307,7 +325,15 @@ def expected_sections(school, field_names):
         if school['net_price'] is not None:
             cost_tokens.append(money(school['net_price']))
         if in_state is not None and out_of_state != in_state:
-            faq.claim(r'In-district tuition and fees are' if school['district_tuition'] else r'In-state tuition and fees are')
+            faq.claim(r'For undergraduates, in-district tuition and fees are' if school['district_tuition'] else r'For undergraduates, in-state tuition and fees are')
+        if in_state is not None and out_of_state == in_state:
+            faq.claim(rf"For undergraduates, tuition and fees are {re.escape(money(in_state))} a year, the same for in-state and out-of-state students\.")
+        if in_state is None and out_of_state is not None:
+            faq.claim(rf"For undergraduates, out-of-state tuition and fees are {re.escape(money(out_of_state))} a year\.")
+        # The net price follows the tuition sentence, or stands alone and names whom it is for.
+        if school['net_price'] is not None:
+            has_tuition = in_state is not None or out_of_state is not None
+            faq.claim(rf"After grants and scholarships, {'their average net price' if has_tuition else 'the average net price for undergraduates'} is {re.escape(money(school['net_price']))} a year\.")
         faq.claim(r' a year, and \$', False)
     faq.add(*cost_tokens)
     if cost_tokens:
@@ -325,7 +351,14 @@ def expected_sections(school, field_names):
     about = sections['about-data'] = Expectation(True)
     about.claim(check_program_pages.PAY_PRIVACY_NOTE.format(figures='each pay figure'))
     about.claim(r'^About this data Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school\.')
-    about.claim(r'Tuition, net price, graduation rate and admission rate are for the whole school, not one program\.')
+    has_masters = any(level['level'] == raw_data.MASTERS_LEVEL for level in levels)
+    about.claim(r"Debt only includes federal loans\. Private loans and credit cards are not counted\." + (r" For a master's program, it only counts loans for graduate study at that school\." if has_masters else '') + r' To protect privacy')
+    # Whom the figures at the top are for: undergraduates, or the largest program
+    # at a school that reports by program.
+    if school['reports_by_program']:
+        about.claim(r"Tuition and net price are for undergraduates in the school's largest program\. The graduation rate and admission rate are for its undergraduates\.")
+    else:
+        about.claim(r"Tuition, net price, graduation rate and admission rate are for the school's undergraduates, not for one program\.")
     about.claim(r'College Scorecard figures describe graduating classes from several years ago\.')
     about.claim(CAMPUS_RULE.format(state=re.escape(school['state_name']), place=re.escape(page_model.place_in_sentence(school['state_name']))))
 
@@ -370,7 +403,7 @@ def check_rows(node, expectation, field_names, school_slug, errors, name):
         name_node = program_cell.find(lambda child: 'data-name' in child.attributes)
         shown_name = visible_text(name_node) if name_node else ''
         shown_graduates = visible_text(program_cell, skip_names=True)
-        graduates_text = f"About {count(program['graduates'])} graduates a year" if program['graduates'] is not None else 'Graduates a year not reported'
+        graduates_text = graduates_per_year(program['graduates']) if program['graduates'] is not None else 'Graduates a year not reported'
         if shown_name != field_names[program['cip']] or shown_graduates != graduates_text:
             errors.append(f"section {name}: {program['cip']} shows {shown_name!r} and {shown_graduates!r}")
         checks = [
@@ -433,7 +466,11 @@ def check_page(html_text, model, field_names, page_path):
         errors.append(f'title does not use the school name: {title!r}')
 
     main_text = visible_text(main)
-    errors.extend(page_model.bare_place_errors(title, description, main_text))
+    # A school's own name can hold a place ("Strayer University-District of
+    # Columbia"). It is a name, not a sentence about the place.
+    official = ' '.join(school['institution']['INSTNM'].split())
+    without_names = lambda text: text.replace(short_name, ' ').replace(official, ' ')
+    errors.extend(page_model.bare_place_errors(without_names(title), without_names(description), without_names(main_text)))
     for pattern in FORBIDDEN_PATTERNS:
         for place, text in (('title', title), ('description', description), ('page', main_text)):
             if re.search(pattern, text):
@@ -580,7 +617,7 @@ def main():
     parser.add_argument('--pages', required=True)
     parser.add_argument('--report', required=True)
     arguments = parser.parse_args()
-    model = page_model.Model()
+    model = page_model.Model(include_masters=True)
     field_names = page_model.load_field_names()
     results = []
     for page_path in [line.strip() for line in Path(arguments.pages).read_text().splitlines() if line.strip()]:

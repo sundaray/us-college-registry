@@ -5,10 +5,11 @@ import { SchoolHeader } from '@/components/school/school-header'
 import { SchoolProgramTable } from '@/components/school/school-program-table'
 import { MAIN_CLASS_NAME, PAGE_CLASS_NAME, SiteFooter, SiteHeader } from '@/components/site-chrome'
 import { getSchoolPage } from '@/data/get-school-page'
+import { isGraduateLevel } from '@/data/program-page'
 import type { SchoolLevel, SchoolProgram } from '@/data/school-page'
 import { combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
-import { formatCount, formatMoney } from '@/lib/format'
+import { formatCount, formatGraduatesPerYear, formatMoney } from '@/lib/format'
 import { schoolKeyFigureQuestions } from '@/lib/key-figure-copy'
 import { placeInSentence } from '@/lib/place-names'
 import {
@@ -98,9 +99,20 @@ function SchoolPageView() {
           <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
               <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
-              <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+              <li>
+                Debt only includes federal loans. Private loans and credit cards are not counted.
+                {page.levels.some((level) => isGraduateLevel(level.credentialLevel))
+                  ? " For a master's program, it only counts loans for graduate study at that school."
+                  : ''}
+              </li>
               <li>{payPrivacyNote()}</li>
-              <li>Tuition, net price, graduation rate and admission rate are for the whole school, not one program.</li>
+              {/* Whom the figures at the top are for. A school that reports by program gives
+                  its largest program's tuition and net price. */}
+              <li>
+                {school.reportsByProgram
+                  ? "Tuition and net price are for undergraduates in the school's largest program. The graduation rate and admission rate are for its undergraduates."
+                  : "Tuition, net price, graduation rate and admission rate are for the school's undergraduates, not for one program."}
+              </li>
               {combinedCampusesNotes(school.stateName).map((note) => (
                 <li key={note}>{note}</li>
               ))}
@@ -121,8 +133,6 @@ function SchoolPageView() {
 
 function LevelSection({ level, shortName, stateName }: { level: SchoolLevel; shortName: string; stateName: string }) {
   const credential = credentialLower(level)
-  const hasProgramLinks = level.programs.some((program) => program.href)
-  const hasUnlinkedPrograms = level.programs.some((program) => !program.href)
   const fieldNotes = [...new Set(level.programs.flatMap((program) => comparisonNote(program.cipCode, level.credentialLevel) ?? []))]
   const debtOnly = debtOnlyNote(level)
   return (
@@ -130,21 +140,22 @@ function LevelSection({ level, shortName, stateName }: { level: SchoolLevel; sho
       <p>
         Each figure is the median for the program's graduates. "Rank in {placeInSentence(stateName)}" compares first-year pay with the
         same field's {credential} programs across {placeInSentence(stateName)}.
-        {level.programs.length >= 3 ? " Programs that don't report a figure are listed last when you sort by it." : ''}
+        {level.programs.length >= 3
+          ? ' Every program listed here reports first-year pay. A program that does not report debt or its number of graduates is listed last when you sort by it.'
+          : ''}
       </p>
       <SchoolProgramTable programs={level.programs} stateName={stateName} />
-      {hasProgramLinks ? (
-        <Note>
-          Program names link to the program's own page, and {stateName} ranks link to the full ranking for the field.
-          {hasUnlinkedPrograms
-            ? ` A program gets its own page when it reports both pay and debt and at least five ${stateName} programs in the field do too.`
-            : ''}
-        </Note>
-      ) : null}
       {fieldNotes.map((note) => (
         <Note key={note}>{note}</Note>
       ))}
       {debtOnly ? <Note>{debtOnly}</Note> : null}
+      {/* A master's debt figure counts less than the others on the page, and the table says so. */}
+      {isGraduateLevel(level.credentialLevel) ? (
+        <Note>
+          Debt for a master's program counts only the federal loans its graduates took for graduate study at that
+          school. Undergraduate loans and loans taken at other schools are not counted.
+        </Note>
+      ) : null}
     </PageSection>
   )
 }
@@ -156,7 +167,7 @@ function ShortLists({ level, shortName }: { level: SchoolLevel; shortName: strin
   const lists = shortLists(level)
   const shown = [
     { title: 'Lowest debt', programs: lists.byDebt, value: (program: SchoolProgram) => formatMoney(program.medianDebt!) },
-    { title: 'Most graduates', programs: lists.bySize, value: (program: SchoolProgram) => `About ${formatCount(program.graduatesPerYear!)} graduates a year` },
+    { title: 'Most graduates', programs: lists.bySize, value: (program: SchoolProgram) => formatGraduatesPerYear(program.graduatesPerYear!) },
   ].filter((list) => list.programs.length > 0)
   if (shown.length === 0) return null
   return (

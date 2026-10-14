@@ -8,6 +8,7 @@ import { StateSchoolTable } from '@/components/state/state-school-table'
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getStatePage } from '@/data/get-state-page'
+import { isGraduateLevel } from '@/data/program-page'
 import type { StatePage } from '@/data/state-page'
 import { combinedCampusesNotes, payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
@@ -20,8 +21,8 @@ import {
   buildStateFaq,
   buildStateSummary,
   buildStateTitle,
-  credentialLower,
   fieldSectionTitle,
+  fieldTableIntro,
   priceComparison,
   schoolSectionTitle,
 } from '@/lib/state-copy'
@@ -65,7 +66,6 @@ export const Route = createFileRoute('/states/$stateSlug/')({
 function StatePageView() {
   const { page, figureQuestions, faq } = Route.useLoaderData()
   const stateName = page.state.name
-  const singleProgramSchools = page.schools.filter((school) => school.programName).length
 
   return (
     <div className={PAGE_CLASS_NAME}>
@@ -118,10 +118,7 @@ function StatePageView() {
             const notes = [...new Set(level.fields.flatMap((field) => comparisonNote(field.cipCode, level.credentialLevel) ?? []))]
             return (
               <PageSection key={level.credentialLevel} name={`fields-${level.credentialLevel}`} title={fieldSectionTitle(level)}>
-                <p>
-                  Each row is one field's median across its {stateName} {credentialLower(level.credential)} programs. Field
-                  names link to the full ranking of those programs.
-                </p>
+                <p>{fieldTableIntro(level, stateName)}</p>
                 <StateFieldTable fields={level.fields} />
                 {notes.map((note) => (
                   <Note key={note}>{note}</Note>
@@ -131,13 +128,8 @@ function StatePageView() {
           })}
 
           <PageSection name="schools" title={schoolSectionTitle(page)}>
-            <p>
-              This table lists every {stateName} school with at least one program page.
-              {page.schools.length > singleProgramSchools ? " School names link to the school's page, which ranks all its programs." : ''}
-              {singleProgramSchools > 0 ? ' Schools with one program link straight to that program.' : ''}
-            </p>
             <StateSchoolTable schools={page.schools} />
-            <Note>"Programs" counts the school's programs that report first-year pay.</Note>
+            <Note>"Programs" counts the school's master's, bachelor's, associate's and certificate programs that report first-year pay.</Note>
           </PageSection>
 
           <PageSection name="faq" title="Common questions">
@@ -147,7 +139,12 @@ function StatePageView() {
           <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
               <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
-              <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+              <li>
+                Debt only includes federal loans. Private loans and credit cards are not counted.
+                {page.fieldLevels.some((level) => isGraduateLevel(level.credentialLevel))
+                  ? " For a master's program, it only counts loans for graduate study at that school."
+                  : ''}
+              </li>
               <li>{payPrivacyNote()}</li>
               <li>Medians are across programs, not students. Each program counts once, however many graduates it has.</li>
               {combinedCampusesNotes(stateName).map((note) => (

@@ -7,6 +7,7 @@
 // its graduates" so they don't read as the pay of a typical graduate.
 
 import type { PageQuestion } from '@/components/page-blocks'
+import { isGraduateLevel } from '@/data/program-page'
 import type { StateCredentialSummary, StateField, StateFieldLevel, StatePage } from '@/data/state-page'
 import { formatCount, formatMoney, listWords } from '@/lib/format'
 import { stateKeyFigureQuestions } from '@/lib/key-figure-copy'
@@ -119,14 +120,24 @@ export function buildKeyFigureQuestions(page: StatePage) {
 // same headings as the programs list, whatever the number of rows. The page
 // title already says what the rows are ranked by, and the state is not named
 // because the reader is already on its page.
+// The paragraph above a table of fields. It is the paragraph above the table of
+// states on a national ranking page, which the user approved on 2026-10-14: what
+// the table shows and what its two figures mean.
+export function fieldTableIntro(level: StateFieldLevel, stateName: string) {
+  const borrowed = isGraduateLevel(level.credentialLevel) ? 'borrowed in federal loans for graduate study at the school' : 'borrowed in federal loans'
+  return `In the table below, we show pay and debt for each field's ${credentialLower(level.credential)} programs in ${placeInSentence(stateName)}. Year 1 pay is what a program's typical graduate earned in the first year after finishing. Debt is what a program's typical graduate ${borrowed}. Each field's figure is the median across its programs: half of them are higher, and half are lower.`
+}
+
 export function fieldSectionTitle(level: StateFieldLevel) {
   return `${level.credential} programs`
 }
 
-// "211 Texas schools with program pages", "One Wyoming school with program pages".
+// "211 Texas schools with bachelor's, associate's or certificate program pages".
+// The table lists those schools. A school whose only pages are master's pages
+// has no page of its own to link to, and is not in it.
 export function schoolSectionTitle(page: StatePage) {
   const schools = page.schools.length === 1 ? `One ${page.state.name} school` : `${formatCount(page.schools.length)} ${page.state.name} schools`
-  return `${schools} with program pages`
+  return `${schools} with bachelor's, associate's or certificate program pages`
 }
 
 // The common questions. Each answer is one paragraph.
@@ -180,7 +191,7 @@ export function buildStateFaq(page: StatePage): PageQuestion[] {
 
   faq.push({
     question: `How many ${stateName} colleges report graduate pay?`,
-    answer: `${formatCount(page.schoolsWithPayCount)} ${stateName} schools report first-year pay for at least one program, ${formatCount(page.programCount)} programs in all. ${capitalizeFirst(page.schools.length === 1 ? 'one' : formatCount(page.schools.length))} of them ${page.schools.length === 1 ? 'has' : 'have'} at least one program with its own page here.`,
+    answer: `${formatCount(page.schoolsWithPayCount)} ${stateName} schools report first-year pay for at least one bachelor's, associate's or certificate program, ${formatCount(page.programCount)} programs in all. ${capitalizeFirst(page.schools.length === 1 ? 'one' : formatCount(page.schools.length))} of them ${page.schools.length === 1 ? 'has' : 'have'} at least one of those programs with its own page here.`,
   })
   return faq.map((item) => ({ question: item.question, answer: [item.answer] }))
 }

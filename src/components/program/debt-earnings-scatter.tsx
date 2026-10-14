@@ -8,6 +8,8 @@ type DebtEarningsScatterProps = {
   medianDebt: number
   medianEarnings: number
   stateName: string
+  // The title under the debt axis. A graduate page names what its figure counts.
+  debtTitle?: string
 }
 
 const width = 680
@@ -20,10 +22,49 @@ const TITLE_GAP = 13
 // The width of one character of an axis label at text-xs with tabular digits.
 const LABEL_CHARACTER_WIDTH = 7.5
 
+// The steps an axis can take between labels. An axis starts from the step that
+// suits its range and takes the next one while it would carry more labels than
+// stay apart: two text heights on the pay axis, and a label's width and a gap on
+// the debt axis. Without this, a state whose programs range from $55,000 to
+// $230,000 gets 36 pay labels, each printed over the next.
+const AXIS_STEPS = [2000, 5000, 10000, 20000, 50000]
+const MAX_PAY_LABELS = 14
+const MAX_DEBT_LABELS = 12
+
 function range(start: number, end: number, step: number) {
   const values: number[] = []
   for (let value = start; value <= end; value += step) values.push(value)
   return values
+}
+
+// The debt axis: its step and the values at its two ends. Certificate programs
+// often have debt under $10,000, and the step shrinks with the range. The axis
+// always spans at least one step, and it has a label at each end.
+function debtAxis(debts: number[]) {
+  const lowest = Math.min(...debts)
+  const highest = Math.max(...debts)
+  const firstStep = highest - lowest > 30000 ? 10000 : 2000
+  let axis = { step: firstStep, axisMin: 0, axisMax: 0 }
+  for (const step of AXIS_STEPS.filter((candidate) => candidate >= firstStep)) {
+    const axisMin = Math.floor(lowest / step) * step
+    axis = { step, axisMin, axisMax: Math.max(Math.ceil(highest / step) * step, axisMin + step) }
+    if ((axis.axisMax - axis.axisMin) / step + 1 <= MAX_DEBT_LABELS) break
+  }
+  return axis
+}
+
+// The pay axis. It leaves half a step clear above the highest dot and below the
+// lowest, and it has no label at its lower end.
+function payAxis(earnings: number[]) {
+  const lowest = Math.min(...earnings)
+  const highest = Math.max(...earnings)
+  const firstStep = highest - lowest > 20000 ? 5000 : 2000
+  let axis = { step: firstStep, axisMin: 0, axisMax: 0 }
+  for (const step of AXIS_STEPS.filter((candidate) => candidate >= firstStep)) {
+    axis = { step, axisMin: Math.floor((lowest - step / 2) / step) * step, axisMax: Math.ceil((highest + step / 2) / step) * step }
+    if ((axis.axisMax - axis.axisMin) / step <= MAX_PAY_LABELS) break
+  }
+  return axis
 }
 
 export function DebtEarningsScatter({
@@ -31,19 +72,12 @@ export function DebtEarningsScatter({
   medianDebt,
   medianEarnings,
   stateName,
+  debtTitle = 'Median federal debt at graduation',
 }: DebtEarningsScatterProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
 
-  const debts = programs.map((program) => program.medianDebt)
-  const earnings = programs.map((program) => program.earningsYear1)
-  // Certificate programs often have debt under $10,000, so the axis steps shrink
-  // with the range. Both axes always span at least one step.
-  const debtStep = Math.max(...debts) - Math.min(...debts) > 30000 ? 10000 : 2000
-  const debtMin = Math.floor(Math.min(...debts) / debtStep) * debtStep
-  const debtMax = Math.max(Math.ceil(Math.max(...debts) / debtStep) * debtStep, debtMin + debtStep)
-  const payStep = Math.max(...earnings) - Math.min(...earnings) > 20000 ? 5000 : 2000
-  const payMin = Math.floor((Math.min(...earnings) - payStep / 2) / payStep) * payStep
-  const payMax = Math.ceil((Math.max(...earnings) + payStep / 2) / payStep) * payStep
+  const { step: debtStep, axisMin: debtMin, axisMax: debtMax } = debtAxis(programs.map((program) => program.medianDebt))
+  const { step: payStep, axisMin: payMin, axisMax: payMax } = payAxis(programs.map((program) => program.earningsYear1))
 
   const plotWidth = width - margin.left - margin.right
   const plotHeight = height - margin.top - margin.bottom
@@ -129,7 +163,7 @@ export function DebtEarningsScatter({
           textAnchor="middle"
           className={axisTitle}
         >
-          Median federal debt at graduation
+          {debtTitle}
         </text>
         <text
           x={payTitleX}

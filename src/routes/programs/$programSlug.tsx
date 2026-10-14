@@ -12,6 +12,7 @@ import type { NationalRankedProgram } from '@/data/national-program-page'
 import { payPrivacyNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
 import { formatCount, formatMoney, formatShare } from '@/lib/format'
+import { debtTileLabel, GRADUATE_DATA_NOTES, GRADUATE_DEBT_COLUMN_NOTE, GRADUATE_LOWEST_DEBT_CAUTION, graduateClassYears, isGraduateRanking } from '@/lib/graduate-ranking-copy'
 import { officialFieldSentence } from '@/lib/key-figure-copy'
 import {
   buildKeyFigureQuestions,
@@ -29,6 +30,7 @@ import {
   programKind,
   programLabel,
   rankingTitle,
+  statesIntro,
   unrankedNote,
 } from '@/lib/national-program-copy'
 import { notStatesNote } from '@/lib/place-names'
@@ -83,13 +85,14 @@ function NationalProgramPageView() {
   const fieldNote = comparisonNote(page.program.cipCode, page.program.credentialLevel)
   const jobs = page.occupations.filter((occupation) => occupation.stateMedianPay !== undefined)
   const lowestDebt = lowestDebtPrograms(page)
+  const graduate = isGraduateRanking(page)
   const across = (programCount: number) => `Across ${formatCount(programCount)} programs`
   const figures: KeyFigureTile[] = [
     { label: 'Median first-year pay', value: formatMoney(national.earningsYear1), context: across(national.earningsYear1Count) },
     ...(national.earningsYear5 !== undefined
       ? [{ label: 'Median pay after 5 years', value: formatMoney(national.earningsYear5), context: across(national.earningsYear5Count) }]
       : []),
-    { label: 'Median federal debt', value: formatMoney(national.medianDebt), context: across(national.medianDebtCount) },
+    { label: debtTileLabel(graduate), value: formatMoney(national.medianDebt), context: across(national.medianDebtCount) },
     { label: 'Debt-to-earnings', value: formatShare(national.debtToEarnings), context: across(national.debtToEarningsCount) },
   ]
 
@@ -109,23 +112,25 @@ function NationalProgramPageView() {
           <QuestionList name="figures" section="key-figure-questions" questions={figureQuestions} className="mt-3" />
 
           <PageSection name="ranking" title={rankingTitle(page)}>
+            {/* Every program in the table reports pay. The last sentence names the
+                figure a program can lack. The user worded this paragraph on 2026-10-14. */}
             <p>
-              Each program is ranked by the median pay of its graduates one year after they finished, from College
-              Scorecard. This measures what graduates earn, not how good the teaching is. Pay also depends on where
-              graduates live and work. Programs that don't report a figure are listed last when you sort by it.
+              Each program is ranked by the median pay of its graduates one year after they finished. The figures come
+              from College Scorecard, the U.S. Department of Education's public database of colleges and their
+              programs. It takes pay from federal tax records. The ranking shows what graduates earn, not how good the
+              teaching is. Pay also depends on where graduates live and work. Every program listed here reports pay. A
+              program that does not report debt is listed last when you sort by debt.
             </p>
             {fieldNote ? <Note>{fieldNote}</Note> : null}
             <NationalRankingTable programs={page.ranking} />
+            {graduate ? <Note>{GRADUATE_DEBT_COLUMN_NOTE}</Note> : null}
             {buildNationalRankingNotes(page).map((note) => (
               <Note key={note}>{note}</Note>
             ))}
           </PageSection>
 
           <PageSection name="states" title={`${programLabel(page)} programs by state`}>
-            <p>
-              Each row is the median across the state's {kind} programs. State names link to the full ranking of that
-              state's programs.
-            </p>
+            <p>{statesIntro(page)}</p>
             <NationalStateTable states={page.states} />
             {notStates ? <Note>{notStates}</Note> : null}
             {unranked ? <Note>{unranked}</Note> : null}
@@ -133,7 +138,7 @@ function NationalProgramPageView() {
 
           {lowestDebt.byDebt.length > 0 ? (
             <PageSection name="lowest-debt" title={lowestDebtTitle(page)}>
-              <p>{lowestDebtIntro(lowestDebt.byDebt.length)}</p>
+              <p>{lowestDebtIntro(lowestDebt.byDebt.length, graduate)}</p>
               <div className="grid gap-3 md:grid-cols-2">
                 <RankedList title="Lowest debt" entries={lowestDebt.byDebt.map((program) => debtEntry(program, formatMoney(program.medianDebt!)))} />
                 <RankedList
@@ -141,6 +146,7 @@ function NationalProgramPageView() {
                   entries={lowestDebt.byDebtToEarnings.map((program) => debtEntry(program, formatShare(program.medianDebt! / program.earningsYear1)))}
                 />
               </div>
+              {graduate ? <Note>{GRADUATE_LOWEST_DEBT_CAUTION}</Note> : null}
             </PageSection>
           ) : null}
 
@@ -188,13 +194,23 @@ function NationalProgramPageView() {
           <PageSection name="about-data" title="About this data">
             <ul className="flex max-w-[66ch] list-disc flex-col gap-2 pl-5">
               <li>{officialFieldSentence(page.program)}</li>
-              <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
-              <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+              {graduate ? (
+                GRADUATE_DATA_NOTES.map((note) => <li key={note}>{note}</li>)
+              ) : (
+                <>
+                  <li>Pay and debt only include students who received federal financial aid, and pay only counts graduates who were working and not enrolled in more school.</li>
+                  <li>Debt only includes federal loans. Private loans and credit cards are not counted.</li>
+                </>
+              )}
               <li>{payPrivacyNote()}</li>
               <li>Medians are across programs, not students. Each program counts once, however many graduates it has.</li>
               <li>National medians include every program in the 50 states, DC and US territories, including schools that have since closed. Schools with several campuses that report one combined figure are counted once.</li>
               <li>Programs are ranked by College Scorecard median pay one year after graduation. Pay after cost of living uses the price level of the school's state.</li>
-              <li>College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
+              {graduate ? (
+                <li>{graduateClassYears(national.earningsYear5 !== undefined)} Bureau of Labor Statistics wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
+              ) : (
+                <li>College Scorecard figures describe graduating classes from several years ago. Bureau of Labor Statistics wages are from May 2025. Price levels are the Bureau of Economic Analysis Regional Price Parities for 2024.</li>
+              )}
             </ul>
             <h3 className="text-base font-bold">Sources</h3>
             <ol className="flex list-decimal flex-col gap-1 pl-5 text-sm text-muted-foreground">
