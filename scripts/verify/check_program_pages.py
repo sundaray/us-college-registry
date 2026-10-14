@@ -132,7 +132,8 @@ FOOTER_TEXT = 'US College Programs is an independent site built from public U.S.
 def frame_errors(root):
     """Every page is a column that fills the window: the site header, a main part
     that grows and the footer last. That keeps the footer at the bottom of the
-    window on a short page. The footer holds one sentence."""
+    window on a short page. The footer holds one sentence. The site header holds
+    the Search button, which opens the site search."""
     main = root.find(lambda node: node.tag == 'main')
     if main is None:
         return ['the page has no <main>']
@@ -152,6 +153,10 @@ def frame_errors(root):
     footers = root.find_all(lambda node: node.tag == 'footer')
     if len(footers) != 1 or visible_text(footers[0]) != FOOTER_TEXT:
         errors.append(f'the footer should hold its one sentence, found {[visible_text(footer) for footer in footers]}')
+    headers = [child for child in page.children if isinstance(child, Node) and child.tag == 'header']
+    search_buttons = headers[0].find_all(lambda node: node.tag == 'button' and node.attributes.get('aria-haspopup') == 'dialog') if headers else []
+    if [visible_text(button) for button in search_buttons] != ['Search']:
+        errors.append(f'the site header should hold one Search button, found {[visible_text(button) for button in search_buttons]}')
     return errors
 
 

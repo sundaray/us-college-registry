@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-10-14T19:16:03.238Z",
+ "checkedAt": "2026-10-14T21:06:06.659Z",
  "passed": true,
  "pages": 28388,
  "checks": [
@@ -32,6 +32,11 @@
   },
   {
    "name": "sitemap lists every page",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "the search index lists every page but the home and list pages (28384)",
    "passed": true,
    "details": []
   },

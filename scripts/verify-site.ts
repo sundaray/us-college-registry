@@ -5,7 +5,8 @@
 //
 // Runs the independent number checker on every page, checks that every internal
 // link points at a built file, that the sitemap and static page data are
-// complete, that every page's canonical link is its own address on the site,
+// complete, that the search index lists every page a reader can find, that
+// every page's canonical link is its own address on the site,
 // that unknown pages return 404, that every page fits at phone width (skipped
 // with --no-layout), and that link clicks navigate in place on a sample of
 // pages. Writes the result to data/buckets/site-check.json. A build made with
@@ -23,6 +24,7 @@ import type { SchoolIndexEntry } from '../src/data/school-page'
 import type { StateIndexEntry } from '../src/data/state-page'
 import type { StateProgramIndexEntry } from '../src/data/state-program-page'
 import { SITE_ORIGIN } from '../src/lib/site'
+import type { SearchIndexFile } from '../src/lib/site-search'
 
 const PREVIEW_PORT = 4175
 const PREVIEW_ORIGIN = `http://localhost:${PREVIEW_PORT}`
@@ -110,6 +112,34 @@ async function main() {
   const missingFromSitemap = pagePaths.filter((pagePath) => !sitemap.includes(`<loc>${SITEMAP_HOST}${pagePath}</loc>`))
   record('sitemap lists every page', missingFromSitemap.length === 0, missingFromSitemap)
 
+  // The site search's index (written by vite.config.ts) names every page a
+  // reader can find, once: every built page but the home page and the three
+  // list pages. The addresses are worked out here from the index's own lists.
+  const searchablePaths = new Set(pagePaths.filter((pagePath) => !sitePaths.includes(pagePath)))
+  const searchProblems: string[] = []
+  const searchIndexText = await readFile('dist/client/search-index.json', 'utf8').catch(() => '')
+  if (!searchIndexText) {
+    searchProblems.push('dist/client/search-index.json is missing')
+  } else {
+    const index = JSON.parse(searchIndexText) as SearchIndexFile
+    const stateSlugs = index.states.map(([slug]) => slug)
+    const fieldSlugs = index.fields.map(([slug]) => slug)
+    const schoolSlugs = index.schools.map(([slug]) => slug)
+    const indexedPaths = [
+      ...index.states.map(([slug]) => `/states/${slug}`),
+      ...index.fields.filter(([, , nationalCount]) => nationalCount !== null).map(([slug]) => `/programs/${slug}`),
+      ...index.careers.map(([slug]) => `/careers/${slug}`),
+      ...index.rankings.map(([state, field]) => `/states/${stateSlugs[state]}/${fieldSlugs[field]}`),
+      ...index.schools.filter(([, , , , , hasPage]) => hasPage).map(([slug]) => `/schools/${slug}`),
+      ...index.programs.map(([school, field]) => `/schools/${schoolSlugs[school]}/${fieldSlugs[field]}`),
+    ]
+    const indexed = new Set(indexedPaths)
+    if (indexed.size !== indexedPaths.length) searchProblems.push(`${indexedPaths.length - indexed.size} pages listed twice`)
+    for (const pagePath of searchablePaths) if (!indexed.has(pagePath)) searchProblems.push(`not in the index: ${pagePath}`)
+    for (const pagePath of indexed) if (!searchablePaths.has(pagePath)) searchProblems.push(`in the index but not built: ${pagePath}`)
+  }
+  record(`the search index lists every page but the home and list pages (${searchablePaths.size})`, searchProblems.length === 0, searchProblems)
+
   // The "not found" page. Cloudflare serves dist/client/404.html, with a 404
   // status, at every address the site doesn't have. It must be a page a visitor
   // can read and leave by its links. It must carry none of the app's scripts:
@@ -124,6 +154,8 @@ async function main() {
       if (!notFoundHtml.includes(wanted)) notFoundProblemsInFile.push(`404.html has no ${wanted}`)
     }
     if (/type="module"|modulepreload|\$_TSR/.test(notFoundHtml)) notFoundProblemsInFile.push("404.html still has the app's scripts")
+    // Without the app's scripts a Search button could not open search.
+    if (notFoundHtml.includes('aria-haspopup="dialog"')) notFoundProblemsInFile.push('404.html has a Search button')
   }
   if (sitemap.includes('/404</loc>')) notFoundProblemsInFile.push('the sitemap lists /404')
   record('the "not found" page is built for Cloudflare to serve', notFoundProblemsInFile.length === 0, notFoundProblemsInFile)

@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils'
 export function NotFoundPage() {
   return (
     <div className={PAGE_CLASS_NAME}>
-      <SiteHeader />
+      {/* No Search button: 404.html has none of the app's scripts to open search. */}
+      <SiteHeader search={false} />
       <main className={cn(MAIN_CLASS_NAME, 'grid place-items-center px-5 py-16')}>
         <div className="flex flex-col items-center gap-3 text-center">
           <h1 className="text-5xl font-extrabold tracking-tight">404</h1>

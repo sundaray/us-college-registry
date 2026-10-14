@@ -3,6 +3,8 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import type { Plugin } from 'vite'
+import { writeSearchIndex } from './scripts/search-index'
 import { SITE_ORIGIN } from './src/lib/site'
 
 const BUCKET_SIZE = 100
@@ -76,6 +78,30 @@ function prerenderPages() {
   return pages
 }
 
+const SEARCH_INDEX_FILE = 'public/search-index.json'
+
+// Writes the site search's index (scripts/search-index.ts) from the page records
+// when a build or the dev server starts. The build copies it to dist/client
+// with the rest of public/, so every deploy carries an index that matches its
+// pages. Vite builds the app in more than one part, and the index is written
+// once. A build without it stops; the dev server only warns, and search there
+// says it is unavailable.
+function searchIndexPlugin(command: 'build' | 'serve'): Plugin {
+  let written: Promise<void> | undefined
+  return {
+    name: 'search-index',
+    async buildStart() {
+      written ??= writeSearchIndex('data/generated', SEARCH_INDEX_FILE).then(() => {})
+      try {
+        await written
+      } catch (error) {
+        if (command === 'build') throw error
+        this.warn(`${SEARCH_INDEX_FILE} was not written: ${error instanceof Error ? error.message : error}`)
+      }
+    },
+  }
+}
+
 export default defineConfig(({ command }) => ({
   server: {
     port: 3000,
@@ -106,5 +132,6 @@ export default defineConfig(({ command }) => ({
     }),
     viteReact(),
     tailwindcss(),
+    searchIndexPlugin(command),
   ],
 }))

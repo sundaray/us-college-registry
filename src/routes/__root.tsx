@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-router'
 import { BackToTop } from '@/components/back-to-top'
 import { NotFoundPage } from '@/components/not-found-page'
+import { SearchProvider } from '@/components/search/search-provider'
 import { GA_MEASUREMENT_ID, SITE_ORIGIN } from '@/lib/site'
 import { SITE_NAME } from '@/lib/site-copy'
 import appCss from '../styles/app.css?url'
@@ -55,7 +56,10 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <RootDocument>
-      <Outlet />
+      {/* Every page's Search button opens the one search dialog. */}
+      <SearchProvider>
+        <Outlet />
+      </SearchProvider>
       <BackToTop />
     </RootDocument>
   )

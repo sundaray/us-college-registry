@@ -1,21 +1,28 @@
 import { Link } from '@tanstack/react-router'
 import { PAGE_TOP_ID } from '@/components/back-to-top'
+import { SearchButton } from '@/components/search/search-button'
 import { SITE_NAME } from '@/lib/site-copy'
 
 // The bar at the top of every page. From xl up it has the width of the two-column
 // pages on every page, which keeps the logo in one place as a visitor moves around.
-export function SiteHeader() {
+// `search` is false only on the "not found" page: Cloudflare serves that page
+// without the app's scripts, and a Search button there could not open anything.
+export function SiteHeader({ search = true }: { search?: boolean }) {
   return (
     <header className="reveal-edge-on-scroll sticky top-0 z-20 border-b bg-card">
       <div className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-between gap-4 px-5 py-3.5 xl:max-w-6xl">
         <Link id={PAGE_TOP_ID} to="/" className="text-lg font-extrabold tracking-tight text-foreground">
           {SITE_NAME.start} <span className="text-primary">{SITE_NAME.end}</span>
         </Link>
-        <nav aria-label="Main" className="flex flex-wrap gap-5 text-sm text-muted-foreground">
-          <Link to="/programs" className="hover:text-foreground">Programs</Link>
-          <Link to="/schools" className="hover:text-foreground">Schools</Link>
-          <Link to="/careers" className="hover:text-foreground">Careers</Link>
-        </nav>
+        {/* Search sits after the links: it opens a dialog and leads to no page of its own. */}
+        <div className="flex flex-wrap items-center gap-5">
+          <nav aria-label="Main" className="flex flex-wrap gap-5 text-sm text-muted-foreground">
+            <Link to="/programs" className="hover:text-foreground">Programs</Link>
+            <Link to="/schools" className="hover:text-foreground">Schools</Link>
+            <Link to="/careers" className="hover:text-foreground">Careers</Link>
+          </nav>
+          {search ? <SearchButton /> : null}
+        </div>
       </div>
     </header>
   )
