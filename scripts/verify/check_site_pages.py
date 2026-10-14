@@ -339,6 +339,22 @@ def check_program_search(node, expectation, name, errors):
         errors.append(f'section {name}: the empty state shows with nothing typed')
 
 
+def check_career_search(node, name, errors):
+    """The careers table has a search box between the paragraph under the heading
+    and the sort buttons, as each table on the programs list does. Nothing is typed
+    in the built page, and no empty state shows."""
+    boxes = node.find_all(lambda child: child.attributes.get('data-slot') == 'search-box')
+    if len(boxes) != 1:
+        errors.append(f'section {name}: expected one search box, found {len(boxes)}')
+        return
+    check_search_box(boxes[0], 'Search careers', name, errors)
+    parts = [child for child in node.children if not isinstance(child, str)]
+    if len(parts) < 4 or [part.tag for part in parts[:2]] != ['h2', 'p'] or parts[2] is not boxes[0] or parts[3].attributes.get('aria-label') != 'Sort careers':
+        errors.append(f'section {name}: the search box should sit between the paragraph and the sort buttons')
+    if node.find(lambda child: child.attributes.get('data-slot') == 'empty'):
+        errors.append(f'section {name}: the empty state shows with nothing typed')
+
+
 def check_schools_list(main, site, errors):
     """The search on the schools list: a text box with the search role, so no
     browser draws its own clear button, a search icon before it, and nothing typed
@@ -382,6 +398,8 @@ def careers_sections(site):
     # "230 careers, ranked by pay".
     section.add(count(len(site.careers)))
     section.claim(rf"^{count(len(site.careers))} careers, ranked by pay Pay is the US median across all experience levels\.")
+    # After the paragraph: the search box of the table, then the sort buttons.
+    section.claim(r"\. Search careers Highest pay Most jobs Fastest growth # Career ")
     pager_tokens(section, len(site.careers))
     for career in site.careers:
         section.add(str(career['pay_rank']), money(career['pay']))
@@ -492,6 +510,7 @@ def check_page(html_text, site, page_path):
         if page_path == '/schools' and name != 'search':
             check_school_rows(node, expectation, name, errors)
         if page_path == '/careers':
+            check_career_search(node, name, errors)
             check_career_rows(node, expectation, errors)
             check_paging(node, name, expectation, 'data-soc', errors)
     if page_path == '/':
