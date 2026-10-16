@@ -126,6 +126,11 @@ def visible_text(node, skip_names=False):
     return ' '.join(''.join(parts).split())
 
 
+def node_label(node):
+    """A control's aria-label, the name of a button that shows only an icon."""
+    return node.attributes.get('aria-label') or ''
+
+
 FOOTER_TEXT = 'US College Programs is an independent site built from public U.S. government data. It is not affiliated with any school or government agency.'
 
 
@@ -133,7 +138,9 @@ def frame_errors(root):
     """Every page is a column that fills the window: the site header, a main part
     that grows and the footer last. That keeps the footer at the bottom of the
     window on a short page. The footer holds one sentence. The site header holds
-    the Search button, which opens the site search."""
+    the Search button, which opens the site search, and the menu button, which
+    opens the header's links in a sheet below md. Both open dialogs. The menu
+    button shows an icon, and its name is its aria-label."""
     main = root.find(lambda node: node.tag == 'main')
     if main is None:
         return ['the page has no <main>']
@@ -154,9 +161,10 @@ def frame_errors(root):
     if len(footers) != 1 or visible_text(footers[0]) != FOOTER_TEXT:
         errors.append(f'the footer should hold its one sentence, found {[visible_text(footer) for footer in footers]}')
     headers = [child for child in page.children if isinstance(child, Node) and child.tag == 'header']
-    search_buttons = headers[0].find_all(lambda node: node.tag == 'button' and node.attributes.get('aria-haspopup') == 'dialog') if headers else []
-    if [visible_text(button) for button in search_buttons] != ['Search']:
-        errors.append(f'the site header should hold one Search button, found {[visible_text(button) for button in search_buttons]}')
+    dialog_buttons = headers[0].find_all(lambda node: node.tag == 'button' and node.attributes.get('aria-haspopup') == 'dialog') if headers else []
+    found = [visible_text(button) or node_label(button) for button in dialog_buttons]
+    if found != ['Search', 'Open menu']:
+        errors.append(f'the site header should hold the Search button and the menu button, found {found}')
     return errors
 
 

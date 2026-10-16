@@ -9,8 +9,8 @@
 // every page's canonical link is its own address on the site,
 // that unknown pages return 404, that every page fits at phone width (skipped
 // with --no-layout), that link clicks navigate in place on a sample of
-// pages, and that the compare page's figures, which appear only in the
-// browser, match the federal files. Writes the result to data/buckets/site-check.json. A build made with
+// pages, that the compare page's figures, which appear only in the browser,
+// match the federal files, and that the phone menu opens and closes. Writes the result to data/buckets/site-check.json. A build made with
 // SITE_URL set needs the same SITE_URL here, for the sitemap check.
 
 import { spawn, spawnSync } from 'node:child_process'
@@ -27,6 +27,7 @@ import type { StateProgramIndexEntry } from '../src/data/state-program-page'
 import { SITE_ORIGIN } from '../src/lib/site'
 import type { SearchIndexFile } from '../src/lib/site-search'
 import { checkComparePage } from './verify/check-compare-page'
+import { checkPhoneMenu } from './verify/check-phone-menu'
 
 const PREVIEW_PORT = 4175
 const PREVIEW_ORIGIN = `http://localhost:${PREVIEW_PORT}`
@@ -224,6 +225,10 @@ async function main() {
     // there: picked through its boxes and compared with the raw files.
     const compareCheck = await checkComparePage(PREVIEW_ORIGIN)
     record(`the compare page's figures and controls (${compareCheck.checked} checks)`, compareCheck.problems.length === 0, compareCheck.problems)
+
+    // Below md the header's links are in a menu that only the app's scripts open.
+    const menuCheck = await checkPhoneMenu(PREVIEW_ORIGIN)
+    record(`the phone menu opens and closes (${menuCheck.checked} checks)`, menuCheck.problems.length === 0, menuCheck.problems)
   } finally {
     preview.kill()
   }

@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-10-16T14:02:40.653Z",
+ "checkedAt": "2026-10-16T15:02:22.394Z",
  "passed": true,
  "pages": 28388,
  "checks": [
@@ -67,6 +67,11 @@
   },
   {
    "name": "the compare page's figures and controls (690 checks)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "the phone menu opens and closes (21 checks)",
    "passed": true,
    "details": []
   }

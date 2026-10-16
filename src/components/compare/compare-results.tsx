@@ -156,13 +156,11 @@ function FigureCell({ column, cell }: { column: Exclude<CompareColumn, { status:
   if (column.status === 'loading') return <Skeleton className="inline-block h-7 w-24 align-middle" />
   if (column.status === 'failed') return <span className="text-base text-muted-foreground">Figures did not load</span>
   if (!cell) return <span className="text-base text-muted-foreground">Not reported</span>
-  // Two lines of figures print smaller than one.
-  const size = cell.lines.length > 1 ? 'text-lg font-semibold sm:text-xl' : 'text-xl font-semibold sm:text-2xl'
   return (
     <>
       {cell.lines.map((line) => (
         <span key={`${line.figure} ${line.words ?? ''}`} className="block text-base">
-          <span className={cn('tracking-tight tabular-nums', size)}>{line.figure}</span>
+          <span className="text-lg font-semibold tracking-tight tabular-nums sm:text-xl">{line.figure}</span>
           {line.words ? <> {line.words}</> : null}
         </span>
       ))}
