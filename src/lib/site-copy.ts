@@ -53,6 +53,14 @@ export function buildSchoolsListDescription(page: SchoolsListPage) {
   return `${formatCount(schoolsListCount(page))} US colleges, universities, and trade schools with graduate pay and debt for their programs, listed by state.`
 }
 
+export function buildCompareTitle() {
+  return 'Compare US College Programs Side by Side'
+}
+
+export function buildCompareDescription() {
+  return "Compare graduate pay, federal debt and loan repayment for up to four programs in the same field of study, from master's degrees to certificates."
+}
+
 export function buildCareersListTitle() {
   return 'Careers That US College Programs Lead To, by Pay and Job Growth'
 }

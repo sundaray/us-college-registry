@@ -64,6 +64,9 @@ function prerenderPages() {
     prerender: { enabled: boolean; onSuccess?: (result: { html: string }) => void }
     sitemap?: { exclude: boolean }
   }[] = paths.map((pagePath) => ({ path: pagePath, prerender: { enabled: true } }))
+  // The compare page has no record of its own: it loads its lists and figures in
+  // the browser. It is built with the home page and the navbar's list pages.
+  if (!bucket || pageType === 'site') pages.push({ path: '/programs/compare', prerender: { enabled: true } })
   // A full build also writes the "not found" page to 404.html, which Cloudflare
   // serves for every address the site doesn't have (alchemy.run.ts). onSuccess
   // runs after the file is written and writes it again without the app's

@@ -1,5 +1,5 @@
 {
- "checkedAt": "2026-10-14T21:06:06.659Z",
+ "checkedAt": "2026-10-16T14:02:40.653Z",
  "passed": true,
  "pages": 28388,
  "checks": [
@@ -19,7 +19,7 @@
    "details": []
   },
   {
-   "name": "every internal link has a built page (28388 distinct links)",
+   "name": "every internal link has a built page (28389 distinct links)",
    "passed": true,
    "details": []
   },
@@ -46,6 +46,11 @@
    "details": []
   },
   {
+   "name": "the compare page is built, with its canonical link, in the sitemap",
+   "passed": true,
+   "details": []
+  },
+  {
    "name": "every page has its own canonical link, and robots.txt names the sitemap (28388)",
    "passed": true,
    "details": []
@@ -57,6 +62,11 @@
   },
   {
    "name": "link clicks navigate in place (5 samples per page type)",
+   "passed": true,
+   "details": []
+  },
+  {
+   "name": "the compare page's figures and controls (690 checks)",
    "passed": true,
    "details": []
   }

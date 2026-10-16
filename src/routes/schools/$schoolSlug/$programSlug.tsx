@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getProgramPage } from '@/data/get-program-page'
-import type { ProgramPage, RepaymentStatus } from '@/data/program-page'
+import type { ProgramPage } from '@/data/program-page'
 import { hasSchoolPage } from '@/data/school-page'
 import { campusesNote, combinedCampusesNotes, payPrivacyNote, reportedFiguresNote } from '@/lib/data-notes'
 import { comparisonNote } from '@/lib/field-notes'
@@ -48,6 +48,7 @@ import {
   paymentShareLabel,
   programLabel,
   rankLowest,
+  REPAYMENT_LABELS,
   schoolProgramsToList,
   year5ChangeLabel,
 } from '@/lib/program-copy'
@@ -105,13 +106,6 @@ const STACKED = {
   head: 'max-sm:h-auto max-sm:px-0 max-sm:py-2 max-sm:text-left max-sm:wrap-anywhere',
   name: 'max-sm:col-span-3 max-sm:px-0 max-sm:pb-0',
   figure: 'max-sm:px-0 max-sm:pt-0.5 max-sm:text-left',
-}
-
-const REPAYMENT_LABELS: Record<RepaymentStatus, string> = {
-  paidInFull: 'Paid off in full',
-  makingProgress: 'Paying down the balance',
-  forbearance: 'Paused payments (forbearance)',
-  default: 'In default',
 }
 
 function ProgramPageView() {

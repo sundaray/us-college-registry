@@ -554,7 +554,7 @@ def check_page(html_text, site, page_path):
 
     navbar = root.find(lambda node: node.tag == 'nav' and node.attributes.get('aria-label') == 'Main')
     nav_links = [anchor.attributes.get('href') for anchor in navbar.find_all(lambda node: node.tag == 'a')] if navbar else []
-    if nav_links != ['/programs', '/schools', '/careers']:
+    if nav_links != ['/programs', '/schools', '/careers', '/programs/compare']:
         errors.append(f'navbar links {nav_links}')
 
     links = sorted({node.attributes['href'] for node in root.find_all(lambda node: node.tag == 'a' and node.attributes.get('href', '').startswith('/'))})

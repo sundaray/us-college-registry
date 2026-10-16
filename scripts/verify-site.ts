@@ -8,8 +8,9 @@
 // complete, that the search index lists every page a reader can find, that
 // every page's canonical link is its own address on the site,
 // that unknown pages return 404, that every page fits at phone width (skipped
-// with --no-layout), and that link clicks navigate in place on a sample of
-// pages. Writes the result to data/buckets/site-check.json. A build made with
+// with --no-layout), that link clicks navigate in place on a sample of
+// pages, and that the compare page's figures, which appear only in the
+// browser, match the federal files. Writes the result to data/buckets/site-check.json. A build made with
 // SITE_URL set needs the same SITE_URL here, for the sitemap check.
 
 import { spawn, spawnSync } from 'node:child_process'
@@ -25,6 +26,7 @@ import type { StateIndexEntry } from '../src/data/state-page'
 import type { StateProgramIndexEntry } from '../src/data/state-program-page'
 import { SITE_ORIGIN } from '../src/lib/site'
 import type { SearchIndexFile } from '../src/lib/site-search'
+import { checkComparePage } from './verify/check-compare-page'
 
 const PREVIEW_PORT = 4175
 const PREVIEW_ORIGIN = `http://localhost:${PREVIEW_PORT}`
@@ -160,6 +162,25 @@ async function main() {
   if (sitemap.includes('/404</loc>')) notFoundProblemsInFile.push('the sitemap lists /404')
   record('the "not found" page is built for Cloudflare to serve', notFoundProblemsInFile.length === 0, notFoundProblemsInFile)
 
+  // The compare page is one prerendered page whose lists and figures load in
+  // the browser. It has no record of its own, so it has no static page data,
+  // no checker and no line in the search index. It must be built, name itself
+  // as its canonical address and be in the sitemap. Every page's header links
+  // to it (the site pages' checker checks the navbar).
+  const COMPARE_PATH = '/programs/compare'
+  const compareProblems: string[] = []
+  const compareHtml = await readFile(builtFile(COMPARE_PATH), 'utf8').catch(() => '')
+  if (!compareHtml) {
+    compareProblems.push(`${builtFile(COMPARE_PATH)} is missing`)
+  } else {
+    const canonical = compareHtml.match(/<link[^>]*rel="canonical"[^>]*>/g) ?? []
+    if (canonical.length !== 1 || !canonical[0].includes(`href="${SITE_ORIGIN}${COMPARE_PATH}"`)) compareProblems.push(`${canonical.length} canonical links`)
+    if (!compareHtml.includes('<title>Compare US College Programs Side by Side</title>')) compareProblems.push('no title')
+    if (!compareHtml.includes('id="compare-field"')) compareProblems.push('no field of study box')
+  }
+  if (!sitemap.includes(`<loc>${SITEMAP_HOST}${COMPARE_PATH}</loc>`)) compareProblems.push('not in the sitemap')
+  record('the compare page is built, with its canonical link, in the sitemap', compareProblems.length === 0, compareProblems)
+
   // Each page names itself as the canonical address ("SEO" guide), and
   // robots.txt points crawlers at the sitemap.
   const canonicalProblems: string[] = []
@@ -198,6 +219,11 @@ async function main() {
       navigationProblems.push(...(await checkNavigation(report.filter((result) => typePaths.has(result.page)))))
     }
     record(`link clicks navigate in place (${NAVIGATION_SAMPLES} samples per page type)`, navigationProblems.length === 0, navigationProblems)
+
+    // The compare page fills in its figures in the browser, so they are checked
+    // there: picked through its boxes and compared with the raw files.
+    const compareCheck = await checkComparePage(PREVIEW_ORIGIN)
+    record(`the compare page's figures and controls (${compareCheck.checked} checks)`, compareCheck.problems.length === 0, compareCheck.problems)
   } finally {
     preview.kill()
   }

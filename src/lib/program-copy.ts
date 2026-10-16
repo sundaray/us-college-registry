@@ -3,7 +3,7 @@
 // differently, and every claim in a sentence is checked against the record first.
 
 import type { PageQuestion } from '@/components/page-blocks'
-import { isGraduateLevel, type ProgramPage } from '@/data/program-page'
+import { isGraduateLevel, type CredentialLevel, type ProgramPage, type RepaymentStatus } from '@/data/program-page'
 import { classYearsNote, combinedCampusesNotes, payPrivacyNote, reportedFiguresNote } from '@/lib/data-notes'
 import { formatCount, formatMoney, formatShare, roundedPercent } from '@/lib/format'
 import { stateCareersIntro, stateCareersTitle } from '@/lib/job-copy'
@@ -68,7 +68,20 @@ export function schoolInSentence(shortName: string) {
 // The name of the debt figure. A graduate program's figure counts only loans
 // taken for graduate study at the school, and its name says so wherever it shows.
 export function debtFigureLabel(page: ProgramPage) {
-  return isGraduateProgram(page) ? 'Median federal debt for graduate study' : 'Median federal debt'
+  return debtLabelForLevel(page.program.credentialLevel)
+}
+
+// The same name for a credential level, for a page that compares programs of one level.
+export function debtLabelForLevel(credentialLevel: CredentialLevel) {
+  return isGraduateLevel(credentialLevel) ? 'Median federal debt for graduate study' : 'Median federal debt'
+}
+
+// The four repayment statuses the pages show, as they name them.
+export const REPAYMENT_LABELS: Record<RepaymentStatus, string> = {
+  paidInFull: 'Paid off in full',
+  makingProgress: 'Paying down the balance',
+  forbearance: 'Paused payments (forbearance)',
+  default: 'In default',
 }
 
 // "nursing bachelor's programs", "cosmetology certificate programs".

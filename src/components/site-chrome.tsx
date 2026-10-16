@@ -10,16 +10,19 @@ import { SITE_NAME } from '@/lib/site-copy'
 export function SiteHeader({ search = true }: { search?: boolean }) {
   return (
     <header className="reveal-edge-on-scroll sticky top-0 z-20 border-b bg-card">
-      <div className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-between gap-4 px-5 py-3.5 xl:max-w-6xl">
+      <div className="mx-auto flex max-w-3xl flex-wrap items-baseline justify-between gap-x-4 gap-y-2 px-5 py-3.5 sm:gap-4 xl:max-w-6xl">
         <Link id={PAGE_TOP_ID} to="/" className="text-lg font-extrabold tracking-tight text-foreground">
           {SITE_NAME.start} <span className="text-primary">{SITE_NAME.end}</span>
         </Link>
-        {/* Search sits after the links: it opens a dialog and leads to no page of its own. */}
-        <div className="flex flex-wrap items-center gap-5">
-          <nav aria-label="Main" className="flex flex-wrap gap-5 text-sm text-muted-foreground">
+        {/* Search sits after the links: it opens a dialog and leads to no page of its own.
+            On a phone the four links do not fit beside it. Search then sits beside
+            the site's name, and the links take the line under them. */}
+        <div className="contents sm:flex sm:flex-wrap sm:items-center sm:gap-5">
+          <nav aria-label="Main" className="order-last flex w-full flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground sm:order-none sm:w-auto sm:gap-5">
             <Link to="/programs" className="hover:text-foreground">Programs</Link>
             <Link to="/schools" className="hover:text-foreground">Schools</Link>
             <Link to="/careers" className="hover:text-foreground">Careers</Link>
+            <Link to="/programs/compare" className="hover:text-foreground">Compare programs</Link>
           </nav>
           {search ? <SearchButton /> : null}
         </div>

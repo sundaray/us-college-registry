@@ -15,6 +15,7 @@ import { Route as CareersIndexRouteImport } from './routes/careers/index'
 import { Route as CareersCareerSlugRouteImport } from './routes/careers/$careerSlug'
 import { Route as ProgramsIndexRouteImport } from './routes/programs/index'
 import { Route as ProgramsProgramSlugRouteImport } from './routes/programs/$programSlug'
+import { Route as ProgramsCompareRouteImport } from './routes/programs/compare'
 import { Route as SchoolsIndexRouteImport } from './routes/schools/index'
 import { Route as SchoolsSchoolSlugIndexRouteImport } from './routes/schools/$schoolSlug/index'
 import { Route as SchoolsSchoolSlugProgramSlugRouteImport } from './routes/schools/$schoolSlug/$programSlug'
@@ -51,6 +52,11 @@ const ProgramsProgramSlugRoute = ProgramsProgramSlugRouteImport.update({
   path: '/programs/$programSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsCompareRoute = ProgramsCompareRouteImport.update({
+  id: '/programs/compare',
+  path: '/programs/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SchoolsIndexRoute = SchoolsIndexRouteImport.update({
   id: '/schools/',
   path: '/schools/',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/programs/compare': typeof ProgramsCompareRoute
   '/careers/': typeof CareersIndexRoute
   '/programs/': typeof ProgramsIndexRoute
   '/schools/': typeof SchoolsIndexRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/programs/compare': typeof ProgramsCompareRoute
   '/careers': typeof CareersIndexRoute
   '/programs': typeof ProgramsIndexRoute
   '/schools': typeof SchoolsIndexRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/404': typeof R404Route
   '/careers/$careerSlug': typeof CareersCareerSlugRoute
   '/programs/$programSlug': typeof ProgramsProgramSlugRoute
+  '/programs/compare': typeof ProgramsCompareRoute
   '/careers/': typeof CareersIndexRoute
   '/programs/': typeof ProgramsIndexRoute
   '/schools/': typeof SchoolsIndexRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
+    | '/programs/compare'
     | '/careers/'
     | '/programs/'
     | '/schools/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
+    | '/programs/compare'
     | '/careers'
     | '/programs'
     | '/schools'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/careers/$careerSlug'
     | '/programs/$programSlug'
+    | '/programs/compare'
     | '/careers/'
     | '/programs/'
     | '/schools/'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   R404Route: typeof R404Route
   CareersCareerSlugRoute: typeof CareersCareerSlugRoute
   ProgramsProgramSlugRoute: typeof ProgramsProgramSlugRoute
+  ProgramsCompareRoute: typeof ProgramsCompareRoute
   CareersIndexRoute: typeof CareersIndexRoute
   ProgramsIndexRoute: typeof ProgramsIndexRoute
   SchoolsIndexRoute: typeof SchoolsIndexRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgramsProgramSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs/compare': {
+      id: '/programs/compare'
+      path: '/programs/compare'
+      fullPath: '/programs/compare'
+      preLoaderRoute: typeof ProgramsCompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/schools/': {
       id: '/schools/'
       path: '/schools'
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   R404Route: R404Route,
   CareersCareerSlugRoute: CareersCareerSlugRoute,
   ProgramsProgramSlugRoute: ProgramsProgramSlugRoute,
+  ProgramsCompareRoute: ProgramsCompareRoute,
   CareersIndexRoute: CareersIndexRoute,
   ProgramsIndexRoute: ProgramsIndexRoute,
   SchoolsIndexRoute: SchoolsIndexRoute,
